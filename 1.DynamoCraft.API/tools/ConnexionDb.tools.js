@@ -2,17 +2,17 @@ require("dotenv").config();
 const { Sequelize, DataTypes } = require("sequelize");
 
 // Import des modèles Sequelize
-const utilisateurModel = require("../models/utilisateur.model");
-const roleModel = require("../models/role.model");
-const categorieModel = require("../models/categorie.model");
-const statistiqueModel = require("../models/statistique.model");
-const statutModel = require("../models/statut.model");
-const projetModel = require("../models/projet.model");
-const imageUtilisateurModel = require("../models/imageUtilisateur.model");
-const commentaireModel = require("../models/commentaire.model");
-const modele3dModel = require("../models/modele3d.model");
-const imageProjetModel = require("../models/imageProjet.model");
-const utilisateurProjetModel = require("../models/utilisateurProjet.model");
+const utilisateurModel = require("../models/Utilisateur.model");
+const roleModel = require("../models/Role.model");
+const categorieModel = require("../models/Categorie.model");
+const statistiqueModel = require("../models/Statistique.model");
+const statutModel = require("../models/Statut.model");
+const projetModel = require("../models/Projet.model");
+const imageUtilisateurModel = require("../models/ImageUtilisateur.model");
+const commentaireModel = require("../models/Commentaire.model");
+const modele3dModel = require("../models/Modele3d.model");
+const imageProjetModel = require("../models/ImageProjet.model");
+const utilisateurProjetModel = require("../models/UtilisateurProjet.model");
 
 let dbConnector;
 
@@ -20,13 +20,13 @@ module.exports = {
     connect: () => {
         if (!dbConnector) {
             const sequelize = new Sequelize(
-                process.env.DB_NAME,
-                process.env.DB_USER,
-                process.env.DB_PASSWORD,
+                process.env.DBNAME,
+                process.env.DBUSER,
+                process.env.DBPASSWORD,
                 {
-                    host: process.env.DB_HOST,
+                    host: process.env.DBHOST,
                     dialect: "mysql",
-                    port: 3306,
+                    port: process.env.PORT,
                     timezone: "+02:00"
                 }
             );
@@ -34,34 +34,58 @@ module.exports = {
             dbConnector = {
                 Sequelize: Sequelize,
                 sequelize: sequelize,
-                Utilisateur: utilisateurModel(sequelize, DataTypes),
                 Role: roleModel(sequelize, DataTypes),
+                Statut: statutModel(sequelize, DataTypes),
                 Categorie: categorieModel(sequelize, DataTypes),
                 Statistique: statistiqueModel(sequelize, DataTypes),
-                Statut: statutModel(sequelize, DataTypes),
-                Projet: projetModel(sequelize, DataTypes),
+                Utilisateur: utilisateurModel(sequelize, DataTypes),
                 ImageUtilisateur: imageUtilisateurModel(sequelize, DataTypes),
-                Commentaire: commentaireModel(sequelize, DataTypes),
-                Modele3D: modele3dModel(sequelize, DataTypes),
+                Projet: projetModel(sequelize, DataTypes),
                 ImageProjet: imageProjetModel(sequelize, DataTypes),
+                Modele3D: modele3dModel(sequelize, DataTypes),
+                Commentaire: commentaireModel(sequelize, DataTypes),
                 UtilisateurProjet: utilisateurProjetModel(sequelize, DataTypes)
             };
 
-            // Définition des relations entre les modèles
+            // Relation entre Utilisateur et Role
+            dbConnector.Utilisateur.belongsTo(dbConnector.Role);
+            dbConnector.Role.hasMany(dbConnector.Utilisateur);
+
+            // Relation entre Utilisateur et ImageUtilisateur
             dbConnector.Utilisateur.hasOne(dbConnector.ImageUtilisateur);
             dbConnector.ImageUtilisateur.belongsTo(dbConnector.Utilisateur);
 
-            dbConnector.Projet.hasMany(dbConnector.Commentaire);
+            // Relation entre Projet et Utilisateur
+            dbConnector.Projet.belongsTo(dbConnector.Utilisateur);
+            dbConnector.Utilisateur.hasMany(dbConnector.Projet);
+
+            // Relation entre Projet et Statut
+            dbConnector.Projet.belongsTo(dbConnector.Statut);
+            dbConnector.Statut.hasMany(dbConnector.Projet);
+
+            // Relation entre Projet et Statistique
+            dbConnector.Projet.belongsTo(dbConnector.Statistique);
+            dbConnector.Statistique.hasOne(dbConnector.Projet);
+
+            // Relation entre Projet et Categorie
+            dbConnector.Projet.belongsTo(dbConnector.Categorie);
+            dbConnector.Categorie.hasMany(dbConnector.Projet);
+
+            // Relation entre Projet et UtilisateurProjet
+            dbConnector.Projet.belongsToMany(dbConnector.Utilisateur, { through: dbConnector.UtilisateurProjet });
+            dbConnector.Utilisateur.belongsToMany(dbConnector.Projet, { through: dbConnector.UtilisateurProjet });
+
+            // Relation entre Projet et Commentaire
+            dbConnector.Projet.hasOne(dbConnector.Commentaire);
             dbConnector.Commentaire.belongsTo(dbConnector.Projet);
 
+            // Relation entre Projet et Modele3D
             dbConnector.Projet.hasMany(dbConnector.Modele3D);
             dbConnector.Modele3D.belongsTo(dbConnector.Projet);
 
-            dbConnector.Projet.hasMany(dbConnector.ImageProjet);
+            // Relation entre Projet et ImageProjet
+            dbConnector.Projet.hasOne(dbConnector.ImageProjet);
             dbConnector.ImageProjet.belongsTo(dbConnector.Projet);
-
-            dbConnector.Utilisateur.belongsToMany(dbConnector.Projet, { through: dbConnector.UtilisateurProjet });
-            dbConnector.Projet.belongsToMany(dbConnector.Utilisateur, { through: dbConnector.UtilisateurProjet });
 
             // Synchronisation avec la base de données (décommentez si nécessaire)
             // dbConnector.sequelize.sync({ force: true });

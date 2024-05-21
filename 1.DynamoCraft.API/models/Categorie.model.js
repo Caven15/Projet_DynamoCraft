@@ -1,9 +1,6 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('./sequelize_connection');
-
 const categorieModel = (sequelize, DataTypes) => {
-  const Categorie = sequelize.define('Categorie', {
-    id_categorie: {
+  const Categorie = sequelize.define('categorie', {
+    id: {
       type: DataTypes.INTEGER,
       primaryKey: true
     },

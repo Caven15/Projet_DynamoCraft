@@ -1,11 +1,5 @@
-const { DataTypes } = require("sequelize");
-
 const roleModel = (sequelize, DataTypes) =>{
-    const role = sequelize.define('Role', {
-        id_role: {
-            type: DataTypes.INTEGER,
-            primaryKey: true
-        },
+    const Role = sequelize.define('role', {
         nom: {
             type: DataTypes.STRING(50),
             allowNull: false
@@ -14,7 +8,7 @@ const roleModel = (sequelize, DataTypes) =>{
         tableName: 'role',
         timestamps: false
     })
-    return role;
+    return Role;
 };
 
 module.exports = roleModel

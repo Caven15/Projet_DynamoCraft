@@ -1,9 +1,6 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('./sequelize_connection');
-
 const utilisateurModel = (sequelize, DataTypes) => {
     const Utilisateur = sequelize.define('Utilisateur', {
-        id_utilisateur: {
+        id: {
             type: DataTypes.INTEGER,
             primaryKey: true
         },
@@ -16,7 +13,7 @@ const utilisateurModel = (sequelize, DataTypes) => {
             allowNull: false,
             unique: true
         },
-        date_naissance: {
+        dateNaissance: {
             type: DataTypes.DATE,
             allowNull: false
         },
@@ -28,12 +25,8 @@ const utilisateurModel = (sequelize, DataTypes) => {
             type: DataTypes.STRING(50),
             allowNull: false
         },
-        centre_interets: {
+        centreInterets: {
             type: DataTypes.STRING(200),
-            allowNull: false
-        },
-        id_role: {
-            type: DataTypes.INTEGER,
             allowNull: false
         }
     }, {

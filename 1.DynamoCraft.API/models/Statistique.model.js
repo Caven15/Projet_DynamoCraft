@@ -1,24 +1,22 @@
-const { DataTypes } = require('sequelize');
-
 const statistiqueModel = (sequelize, DataTypes) => {
-  const Statistique = sequelize.define('Statistique', {
-    id_statistique: {
+  const Statistique = sequelize.define('statistique', {
+    id: {
       type: DataTypes.INTEGER,
       primaryKey: true
     },
-    nombre_apreciation: {
+    nombreApreciation: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    nombre_telechargements: {
+    nombreTelechargements: {
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    date_publication: {
+    datePublication: {
       type: DataTypes.DATE,
       allowNull: false
     },
-    date_modification: {
+    dateModification: {
       type: DataTypes.DATE,
       allowNull: false
     }
