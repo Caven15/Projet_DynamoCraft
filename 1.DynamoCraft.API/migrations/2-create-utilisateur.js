@@ -1,8 +1,9 @@
 'use strict';
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
+  version: 5,
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('utilisateurs', {
+    await queryInterface.createTable('utilisateur', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -36,10 +37,20 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      }
+      },
+      roleId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: 'role',
+          },
+          key: 'id',
+        },
+        allowNull: false,
+      },
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('utilisateurs');
+    await queryInterface.dropTable('utilisateur');
   }
 };

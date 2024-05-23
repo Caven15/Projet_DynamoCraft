@@ -27,7 +27,7 @@ module.exports = {
                     host: process.env.DBHOST,
                     dialect: "mysql",
                     port: process.env.PORT,
-                    timezone: "Europe/Brussels"
+                    timezone: "+02:00"
                 }
             );
 
@@ -88,7 +88,7 @@ module.exports = {
             dbConnector.ImageProjet.belongsTo(dbConnector.Projet);
 
             // Synchronisation avec la base de données (décommentez si nécessaire)
-            dbConnector.sequelize.sync({ force: true });
+            // dbConnector.sequelize.sync({ force: true });
         }
     },
 

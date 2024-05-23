@@ -1,10 +1,6 @@
-// seeders/20240522000002-create-categories.js
-
-'use strict';
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkInsert('Categories', [
+    await queryInterface.bulkInsert('Categorie', [
       {
         nom: 'Objets décoratifs',
         createdAt: new Date(),
@@ -59,6 +55,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete('Categories', null, {});
+    await queryInterface.bulkDelete('Categorie', null, {});
   }
 };

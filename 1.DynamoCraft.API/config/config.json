@@ -5,7 +5,8 @@
     "database": "DynamoCraftDb",
     "host": "127.0.0.1",
     "dialect": "mysql",
-    "port":3306
+    "timezone": "+02:00",
+    "port":3308
   },
   "test": {
     "username": "AdminDC",
@@ -13,7 +14,8 @@
     "database": "DynamoCraftDb",
     "host": "127.0.0.1",
     "dialect": "mysql",
-    "port":3306
+    "timezone": "+02:00",
+    "port":3308
   },
   "production": {
     "username": "AdminDC",
@@ -21,6 +23,7 @@
     "database": "DynamoCraftDb",
     "host": "127.0.0.1",
     "dialect": "mysql",
-    "port":3306
+    "timezone": "+02:00",
+    "port":3308
   }
 }

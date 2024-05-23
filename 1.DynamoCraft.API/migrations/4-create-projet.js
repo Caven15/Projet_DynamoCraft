@@ -1,0 +1,77 @@
+'use strict';
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  version: 7,
+  async up(queryInterface, Sequelize) {
+    await queryInterface.createTable('projet', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER
+      },
+      nom: {
+        type: Sequelize.STRING
+      },
+      estvalide: {
+        type: Sequelize.BOOLEAN
+      },
+      commentaire_admin: {
+        type: Sequelize.STRING
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+      },
+      statutId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: 'statut',
+          },
+          key: 'id',
+        },
+        allowNull: false,
+      },
+      statistiqueId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: 'statistique',
+          },
+          key: 'id',
+        },
+        allowNull: false,
+      },
+      categorieId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: 'categorie',
+          },
+          key: 'id',
+        },
+        allowNull: false,
+      },
+      utilisateurId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: {
+            tableName: 'utilisateur',
+          },
+          key: 'id',
+        },
+        allowNull: false,
+      },
+    });
+  },
+  async down(queryInterface, Sequelize) {
+    await queryInterface.dropTable('projet');
+  }
+};

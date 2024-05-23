@@ -1,11 +1,10 @@
 'use strict';
 
-const { sequelize } = require('../models');
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
+  version: 4,
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('categories', {
+    await queryInterface.createTable('categorie', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -24,14 +23,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      },
-      categorieId : {
-        allowNull : false,
-        type: sequelize.INTEGER
-      },
+      }
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('categories');
+    await queryInterface.dropTable('categorie');
   }
 };

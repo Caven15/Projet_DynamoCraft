@@ -1,20 +1,21 @@
 'use strict';
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
+  version: 2,
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('utilisateurProjets', {
+    await queryInterface.createTable('role', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      dateTelechargement: {
-        type: Sequelize.DATE
+      nom: {
+        type: Sequelize.STRING
       }
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('utilisateurProjets');
+    await queryInterface.dropTable('role');
   }
 };
