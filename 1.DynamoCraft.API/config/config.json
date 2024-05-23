@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "AdminDC",
+    "password": "DynamoCraft",
+    "database": "DynamoCraftDb",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "port":3306
+  },
+  "test": {
+    "username": "AdminDC",
+    "password": "DynamoCraft",
+    "database": "DynamoCraftDb",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "port":3306
+  },
+  "production": {
+    "username": "AdminDC",
+    "password": "DynamoCraft",
+    "database": "DynamoCraftDb",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "port":3306
+  }
+}

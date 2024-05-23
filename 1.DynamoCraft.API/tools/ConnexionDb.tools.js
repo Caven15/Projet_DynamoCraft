@@ -2,17 +2,17 @@ require("dotenv").config();
 const { Sequelize, DataTypes } = require("sequelize");
 
 // Import des modèles Sequelize
-const utilisateurModel = require("../models/Utilisateur.model");
-const roleModel = require("../models/Role.model");
-const categorieModel = require("../models/Categorie.model");
-const statistiqueModel = require("../models/Statistique.model");
-const statutModel = require("../models/Statut.model");
-const projetModel = require("../models/Projet.model");
-const imageUtilisateurModel = require("../models/ImageUtilisateur.model");
-const commentaireModel = require("../models/Commentaire.model");
-const modele3dModel = require("../models/Modele3d.model");
-const imageProjetModel = require("../models/ImageProjet.model");
-const utilisateurProjetModel = require("../models/UtilisateurProjet.model");
+const utilisateurModel = require("../models/utilisateur");
+const roleModel = require("../models/role");
+const categorieModel = require("../models/categorie");
+const statistiqueModel = require("../models/statistique");
+const statutModel = require("../models/statut");
+const projetModel = require("../models/projet");
+const imageUtilisateurModel = require("../models/imageutilisateur");
+const commentaireModel = require("../models/commentaire");
+const modele3dModel = require("../models/modele3d");
+const imageProjetModel = require("../models/imageprojet");
+const utilisateurProjetModel = require("../models/utilisateurprojet");
 
 let dbConnector;
 
@@ -27,7 +27,7 @@ module.exports = {
                     host: process.env.DBHOST,
                     dialect: "mysql",
                     port: process.env.PORT,
-                    timezone: "+02:00"
+                    timezone: "Europe/Brussels"
                 }
             );
 
@@ -88,7 +88,7 @@ module.exports = {
             dbConnector.ImageProjet.belongsTo(dbConnector.Projet);
 
             // Synchronisation avec la base de données (décommentez si nécessaire)
-            // dbConnector.sequelize.sync({ force: true });
+            dbConnector.sequelize.sync({ force: true });
         }
     },
 
