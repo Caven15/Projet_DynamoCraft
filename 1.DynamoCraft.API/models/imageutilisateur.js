@@ -3,12 +3,7 @@ const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class ImageUtilisateur extends Model {
-    static associate(models) {
-      // Relation entre ImageUtilisateur et Utilisateur
-      ImageUtilisateur.belongsTo(models.Utilisateur, {
-        foreignKey: 'utilisateurId'
-      });
-    }
+    
   }
   ImageUtilisateur.init({
     id: {

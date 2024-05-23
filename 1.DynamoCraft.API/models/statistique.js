@@ -3,12 +3,7 @@ const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
   class Statistique extends Model {
-    static associate(models) {
-      // Relation entre Statistique et Projet
-      Statistique.belongsTo(models.Projet, {
-        foreignKey: 'projetId'
-      });
-    }
+
   }
   Statistique.init({
     id: {
