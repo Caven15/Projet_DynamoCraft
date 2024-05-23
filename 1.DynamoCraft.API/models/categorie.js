@@ -16,6 +16,7 @@ module.exports = (sequelize) => {
   }, {
     sequelize,
     modelName: 'Categorie',
+    tableName: 'Categorie',
   });
   return Categorie;
 };

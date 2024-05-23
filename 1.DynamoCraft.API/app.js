@@ -37,4 +37,4 @@ app.all("*", (req,res) => {
     res.end()
 })
 
-app.listen(port, console.log(`Serveur en ligne sur le port: ${port}`))
+app.listen(port, console.log(`--------------------------------------------\n| 🟢 Serveur en ligne sur le port: ${port} 🟢 |\n--------------------------------------------`))

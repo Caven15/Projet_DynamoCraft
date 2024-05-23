@@ -4,11 +4,12 @@ const bcrypt = require('bcrypt');
 const fs = require('fs');
 
 exports.register = async (req, res, next) => {
+    console.log("Je lance mon register");
     try {
-        const { nom, prenom, dateNaissance, numeroRue, rue, ville, codePostal, email, password, pseudo, biographie, centreInterets } = req.body;
+        const { pseudo, email, dateNaissance, biographie, password, centreInterets } = req.body;
         const { file } = req;
 
-        if (!nom || !prenom || !dateNaissance || !numeroRue || !rue || !ville || !codePostal || !email || !password || !pseudo || !biographie || !centreInterets) {
+        if (!pseudo || !email || !dateNaissance || !biographie || !password || !centreInterets) {
             return res.status(400).json({ message: 'Tous les champs sont obligatoires' });
         }
 
@@ -26,25 +27,18 @@ exports.register = async (req, res, next) => {
         const hashedPassword = bcrypt.hashSync(password.trim(), 10);
 
         const newUtilisateur = await dbConnector.Utilisateur.create({
-            nom,
-            prenom,
-            dateNaissance,
-            numeroRue,
-            rue,
-            ville,
-            codePostal,
-            email,
-            password: hashedPassword,
             pseudo,
+            email,
+            dateNaissance,
             biographie,
+            password: hashedPassword,
             centreInterets,
-            roleId: 1
+            roleId: 2
         });
 
         if (file) {
             const newImageUtilisateur = await dbConnector.ImageUtilisateur.create({
-                nom: file.originalname,
-                uid: file.filename,
+                nom: file.filename,
                 UtilisateurId: newUtilisateur.id
             });
 

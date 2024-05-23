@@ -18,6 +18,7 @@ module.exports = (sequelize) => {
   }, {
     sequelize,
     modelName: 'Projet',
+    tableName: 'Projet',
   });
   return Projet;
 };

@@ -10,7 +10,8 @@ module.exports = (sequelize, DataTypes) => {
     description: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'commentaire',
+    modelName: 'Commentaire',
+    tableName: 'Commentaire',
   });
   return commentaire;
 };

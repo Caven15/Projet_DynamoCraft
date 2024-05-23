@@ -16,10 +16,12 @@ module.exports = (sequelize, DataTypes) => {
     dateNaissance: DataTypes.DATE,
     biographie: DataTypes.STRING,
     password: DataTypes.STRING,
-    centreInterets: DataTypes.STRING
+    centreInterets: DataTypes.STRING,
+    roleId: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Utilisateur',
+    tableName: 'Utilisateur',
   });
   return Utilisateur;
 };

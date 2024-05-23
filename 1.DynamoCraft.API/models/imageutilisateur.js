@@ -15,6 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'ImageUtilisateur',
+    tableName: 'ImageUtilisateur',
   });
   return ImageUtilisateur;
 };

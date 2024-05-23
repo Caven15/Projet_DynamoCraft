@@ -4,6 +4,7 @@
   "description": "API DynamoCraft",
   "main": "app.js",
   "scripts": {
+    "reset-db": "sequelize db:migrate:undo:all && sequelize db:migrate && sequelize db:seed:all",
     "test": "api test"
   },
   "author": "",
