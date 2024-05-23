@@ -1,6 +1,7 @@
 // controllers/authController.js
 const dbConnector = require("../tools/ConnexionDb.tools").get();
 const bcrypt = require('bcrypt');
+const jwt = require("jsonwebtoken");
 const fs = require('fs');
 
 exports.register = async (req, res, next) => {
@@ -50,5 +51,43 @@ exports.register = async (req, res, next) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Erreur lors de l\'enregistrement de l\'utilisateur' });
+    }
+};
+
+exports.login = async (req, res, next) => {
+    console.log("Je lance mon login");
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email et mot de passe sont obligatoires' });
+        }
+
+        const utilisateur = await dbConnector.Utilisateur.findOne({ where: { email } });
+
+        if (!utilisateur) {
+            return res.status(403).json({ message: "Cette adresse email n'existe pas" });
+        }
+
+        const passwordMatch = bcrypt.compareSync(password.trim(), utilisateur.password);
+
+        if (!passwordMatch) {
+            return res.status(403).json({ message: "Mot de passe incorrect" });
+        }
+
+        const dataToken = {
+            id: utilisateur.id,
+            roleId: utilisateur.roleId
+        };
+
+        const token = jwt.sign(dataToken, process.env.TOKEN_SECRET, { expiresIn: parseInt(process.env.TOKEN_LIFE) });
+
+        res.status(202).json({
+            accessToken: token
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erreur lors de la connexion de l\'utilisateur' });
     }
 };
