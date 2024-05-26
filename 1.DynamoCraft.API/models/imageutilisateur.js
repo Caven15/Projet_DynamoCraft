@@ -11,11 +11,14 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    nom: DataTypes.STRING
+    nom: DataTypes.STRING,
+    dateAjout: DataTypes.DATE,
+    dateModif: DataTypes.DATE,
   }, {
     sequelize,
     modelName: 'ImageUtilisateur',
     tableName: 'ImageUtilisateur',
+    timestamps: false
   });
   return ImageUtilisateur;
 };

@@ -19,12 +19,12 @@ module.exports = {
       commentaire_admin: {
         type: Sequelize.STRING
       },
-      createdAt: {
+      dateCreation: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
-      updatedAt: {
+      dateModif: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')

@@ -1,5 +1,3 @@
-// models/categorie.js
-'use strict';
 const { Model, DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
@@ -17,6 +15,7 @@ module.exports = (sequelize) => {
     sequelize,
     modelName: 'Categorie',
     tableName: 'Categorie',
+    timestamps: false
   });
   return Categorie;
 };

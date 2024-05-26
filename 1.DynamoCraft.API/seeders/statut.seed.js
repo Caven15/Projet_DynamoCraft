@@ -1,21 +1,21 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     // Insérer des données dans la base de données
-    await queryInterface.bulkInsert('role', [
+    await queryInterface.bulkInsert('statut', [
       {
-        nom: 'Utilisateur'
+        nom: 'Valide'
       },
       {
-        nom: 'Modérateur'
+        nom: 'Invalide'
       },
       {
-        nom: 'Administrateur'
+        nom: 'En attente'
       },
     ], {});
   },
 
   down: async (queryInterface, Sequelize) => {
     // Supprimer les données insérées
-    await queryInterface.bulkDelete('role', null, {});
+    await queryInterface.bulkDelete('statut', null, {});
   }
 };

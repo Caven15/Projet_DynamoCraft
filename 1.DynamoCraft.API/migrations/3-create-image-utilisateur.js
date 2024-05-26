@@ -13,12 +13,12 @@ module.exports = {
       nom: {
         type: Sequelize.STRING
       },
-      createdAt: {
+      dateAjout: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
-      updatedAt: {
+      dateModif: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')

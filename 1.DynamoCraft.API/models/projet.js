@@ -14,11 +14,14 @@ module.exports = (sequelize) => {
     },
     nom: DataTypes.STRING,
     estvalide: DataTypes.BOOLEAN,
-    commentaire_admin: DataTypes.STRING
+    commentaire_admin: DataTypes.STRING,
+    dateCreation: DataTypes.DATE,
+    dateModif: DataTypes.DATE,
   }, {
     sequelize,
     modelName: 'Projet',
     tableName: 'Projet',
+    timestamps: false
   });
   return Projet;
 };

@@ -17,11 +17,15 @@ module.exports = (sequelize, DataTypes) => {
     biographie: DataTypes.STRING,
     password: DataTypes.STRING,
     centreInterets: DataTypes.STRING,
-    roleId: DataTypes.INTEGER
+    statutCompte: DataTypes.BOOLEAN,
+    roleId: DataTypes.INTEGER,
+    dateInscription: DataTypes.DATE,
+    dateModif: DataTypes.DATE,
   }, {
     sequelize,
     modelName: 'Utilisateur',
     tableName: 'Utilisateur',
+    timestamps: false
   });
   return Utilisateur;
 };

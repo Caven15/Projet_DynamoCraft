@@ -94,7 +94,7 @@ module.exports = {
 
     get: () => {
         if (!dbConnector)
-            this.connect;
+            this.connect();
         else
             return dbConnector;
     }

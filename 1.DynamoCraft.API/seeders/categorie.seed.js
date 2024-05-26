@@ -2,54 +2,34 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.bulkInsert('Categorie', [
       {
-        nom: 'Objets décoratifs',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        nom: 'Objets décoratifs'
       },
       {
-        nom: 'Pièces de rechange',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        nom: 'Pièces de rechange'
       },
       {
-        nom: 'Jouets',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        nom: 'Jouets'
       },
       {
-        nom: 'Bijoux',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        nom: 'Bijoux'
       },
       {
-        nom: 'Accessoires',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        nom: 'Accessoires'
       },
       {
-        nom: 'Prototypes',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        nom: 'Prototypes'
       },
       {
-        nom: 'Éducation',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        nom: 'Éducation'
       },
       {
-        nom: 'Art',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        nom: 'Art'
       },
       {
-        nom: 'Gadgets',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        nom: 'Gadgets'
       },
       {
-        nom: 'Outils',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        nom: 'Outils'
       }
     ], {});
   },

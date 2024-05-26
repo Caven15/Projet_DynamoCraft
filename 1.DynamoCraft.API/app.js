@@ -1,40 +1,53 @@
-const express = require("express")
-const app = express()
-const port = process.env.PORT || 3000
-const cors = require("cors")
-const db = require("./tools/ConnexionDb.tools")
+const express = require("express");
+const app = express();
+const port = process.env.PORT || 3000;
+const cors = require("cors");
+const db = require("./tools/ConnexionDb.tools");
 
-db.connect()
-app.use(express.json())
-app.use(express.urlencoded({extended : true}))
+// Connexion à la base de données
+db.connect();
 
-// Configuration du middleware cors pour autoriser uniquement le domaine spécifé (local pour le moment)
+// Middleware pour traiter les données JSON
+app.use(express.json());
+
+// Middleware pour traiter les données de formulaire
+app.use(express.urlencoded({ extended: true }));
+
+// Configuration du middleware CORS pour autoriser uniquement le domaine spécifié (local pour le moment)
 const corsOptions = {
     origin: 'http://localhost:4200',
-    optionsSuccessStatus: 200 // Certains navigateurs nécessitent cette option pour la gestion des cors
+    optionsSuccessStatus: 200 // Certains navigateurs nécessitent cette option pour la gestion des CORS
 };
 
-
-// Middleware permettant la définition des en-têtes cors 
-app.use(function(req,res,next){
+// Middleware permettant la définition des en-têtes CORS
+app.use(function(req, res, next) {
     res.header(
-        "Acces-Control-Allow-Headers",
+        "Access-Control-Allow-Headers",
         "x-access-token, Origin, Content-Type, Accept"
-    )
+    );
     next();
-})
+});
 
+// Activation du middleware CORS
 app.use(cors());
 
-// Imports des différents routeurs avec leurs endpoints...
-const authRouter = require("./routers/auth.router")
-app.use("/auth", authRouter)
+// Import des différents routeurs avec leurs endpoints...
+const authRouter = require("./routers/auth.router");
+const utilisateurRouter = require("./routers/utilisateur.router");
+app.use("/api", authRouter);
+app.use("/api", utilisateurRouter);
+app.use(express.urlencoded({ extended: true }));
 
-// si aucune route ne conrrespond a la recherche...
-app.all("*", (req,res) => {
-    console.log(`La requete ${req.url} ne correspond a aucune route connue...`);
-    res.write(JSON.stringify(`La requete ${req.url} ne correspond a aucune route connue...`));
-    res.end()
-})
+// Gestion de la requête pour les routes non définies
+app.all("*", (req, res) => {
+    const message = `La requête ${req.url} ne correspond à aucune route connue... ⚠️`;
+    console.log(message);
+    res.write(JSON.stringify(message));
+    res.end();
+});
 
-app.listen(port, console.log(`--------------------------------------------\n| 🟢 Serveur en ligne sur le port: ${port} 🟢 |\n--------------------------------------------`))
+// Démarrage du serveur et affichage du message
+app.listen(port, console.clear(), () => {
+    const message = `Serveur local en ligne sur le port : ${port} ✅`;
+    console.log(message);
+});

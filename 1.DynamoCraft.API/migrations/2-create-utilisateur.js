@@ -28,12 +28,12 @@ module.exports = {
       centreInterets: {
         type: Sequelize.STRING
       },
-      createdAt: {
+      dateInscription: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
-      updatedAt: {
+      dateModif: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
@@ -47,6 +47,9 @@ module.exports = {
           key: 'id',
         },
         allowNull: false,
+      },
+      statutCompte: {
+        type: Sequelize.BOOLEAN
       },
     });
   },

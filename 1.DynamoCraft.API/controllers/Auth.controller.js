@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken");
 const fs = require('fs');
 
 exports.register = async (req, res, next) => {
-    console.log("Je lance mon register");
     try {
         const { pseudo, email, dateNaissance, biographie, password, centreInterets } = req.body;
         const { file } = req;
@@ -27,6 +26,10 @@ exports.register = async (req, res, next) => {
 
         const hashedPassword = bcrypt.hashSync(password.trim(), 10);
 
+        // Vérifier le nombre d'utilisateurs existants
+        const userCount = await dbConnector.Utilisateur.count();
+        const roleId = userCount === 0 ? 3 : 1; // 3 pour le premier utilisateur, 1 pour les suivants
+
         const newUtilisateur = await dbConnector.Utilisateur.create({
             pseudo,
             email,
@@ -34,7 +37,8 @@ exports.register = async (req, res, next) => {
             biographie,
             password: hashedPassword,
             centreInterets,
-            roleId: 2
+            roleId: roleId, // Utiliser roleId calculé
+            statutCompte: true
         });
 
         if (file) {
@@ -54,8 +58,8 @@ exports.register = async (req, res, next) => {
     }
 };
 
+
 exports.login = async (req, res, next) => {
-    console.log("Je lance mon login");
     try {
         const { email, password } = req.body;
 
