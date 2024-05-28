@@ -12,6 +12,9 @@ module.exports = {
       nom: {
         type: Sequelize.STRING
       },
+      description: {
+        type: Sequelize.STRING
+      },
       estvalide: {
         type: Sequelize.BOOLEAN
       },

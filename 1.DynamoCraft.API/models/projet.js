@@ -13,8 +13,13 @@ module.exports = (sequelize) => {
       autoIncrement: true,
     },
     nom: DataTypes.STRING,
+    description: DataTypes.STRING,
     estvalide: DataTypes.BOOLEAN,
     commentaire_admin: DataTypes.STRING,
+    statutId: DataTypes.INTEGER,
+    statistiqueId: DataTypes.INTEGER,
+    categorieId: DataTypes.INTEGER,
+    utilisateurId: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'Projet',
