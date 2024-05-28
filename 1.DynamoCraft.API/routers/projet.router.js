@@ -2,8 +2,9 @@
 const express = require('express');
 const router = express.Router();
 const projetController = require('../controllers/projet.controller');
+const upload = require("../tools/multerConfig.tools")
 
-router.post('/projet', projetController.create);
+router.post('/projet', upload.array('images', 8), projetController.create);
 router.get('/projets', projetController.getAll);
 router.get('/projet/:id', projetController.getById);
 router.get('/projet/:id/utilisateur', projetController.getByUserId);

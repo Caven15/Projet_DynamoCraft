@@ -1,11 +1,9 @@
-// controllers/projetController.js
 const dbConnector = require("../tools/ConnexionDb.tools").get();
-const statistiqueController = require('../controllers/statistique.controller');
 
-// Créer un projet
 exports.create = async (req, res, next) => {
     try {
         const { nom, description, categorieId, utilisateurId } = req.body;
+        const { files } = req;
 
         if (!nom || !categorieId || !description || !utilisateurId) {
             return res.status(400).json({ message: 'Le nom, la description, la catégorie et l\'utilisateur sont obligatoires' });
@@ -15,6 +13,12 @@ exports.create = async (req, res, next) => {
         const utilisateur = await dbConnector.Utilisateur.findByPk(utilisateurId);
         if (!utilisateur) {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        // Vérifier le nombre total d'images de projet
+        const existingImagesCount = await dbConnector.ImageProjet.count();
+        if (existingImagesCount + (files ? files.length : 0) > 8) {
+            return res.status(400).json({ message: 'Limite de 8 images par projet atteinte' });
         }
 
         // Créer une nouvelle statistique
@@ -37,7 +41,22 @@ exports.create = async (req, res, next) => {
             utilisateurId,
         });
 
-        res.status(201).json({ message: 'Projet créé avec succès', projet: newProjet });
+        // Ajouter les images de projet, si des fichiers sont joints
+        if (files && files.length > 0) {
+            const images = [];
+            for (const file of files) {
+                const newImageProjet = await dbConnector.ImageProjet.create({
+                    nom: file.filename,
+                    dateCreation: new Date(),
+                    dateModif: new Date(),
+                    projetId: newProjet.id
+                });
+                images.push(newImageProjet);
+            }
+            res.status(201).json({ message: 'Projet créé avec succès', projet: newProjet, images });
+        } else {
+            res.status(201).json({ message: 'Projet créé avec succès', projet: newProjet });
+        }
 
     } catch (error) {
         console.error('Erreur lors de la création du projet :', error);

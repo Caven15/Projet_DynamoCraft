@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     nom: DataTypes.STRING,
     dateCreation: DataTypes.DATE,
     dateModif: DataTypes.DATE,
+    projetId: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'ImageProjet',

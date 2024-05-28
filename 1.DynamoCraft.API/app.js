@@ -39,6 +39,7 @@ const categorieRouter = require("./routers/categorie.router");
 const imageUtilisateurRouter = require("./routers/imageUtilisateur.router");
 const projetRouter = require("./routers/projet.router");
 const commentaireRouter = require("./routers/commentaire.router");
+const imageProjetRouter = require("./routers/imageProjet.router");
 app.use("/api", authRouter);
 app.use("/api", utilisateurRouter);
 app.use("/api", statistiqueRouter);
@@ -46,6 +47,7 @@ app.use("/api", categorieRouter);
 app.use("/api", imageUtilisateurRouter);
 app.use("/api", projetRouter);
 app.use("/api", commentaireRouter);
+app.use("/api", imageProjetRouter);
 app.use(express.urlencoded({ extended: true }));
 
 // Gestion de la requête pour les routes non définies
