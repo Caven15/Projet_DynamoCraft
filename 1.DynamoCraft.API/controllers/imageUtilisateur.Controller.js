@@ -6,13 +6,13 @@ const fs = require('fs');
 exports.addImage = async (req, res, next) => {
     try {
         const { file } = req;
-        const { utilisateurId } = req.params; // UtilisateurId from URL params
+        const { id } = req.params; // id from URL params
 
         if (!file) {
             return res.status(400).json({ message: 'Aucun fichier fourni' });
         }
 
-        const utilisateur = await dbConnector.Utilisateur.findByPk(utilisateurId);
+        const utilisateur = await dbConnector.Utilisateur.findByPk(id);
         if (!utilisateur) {
             fs.unlink(`./uploads/${file.filename}`, (err) => {
                 if (err) console.log(err);
@@ -24,7 +24,7 @@ exports.addImage = async (req, res, next) => {
             nom: file.filename,
             dateAjout: new Date(),
             dateModif: new Date(),
-            utilisateurId: utilisateurId
+            utilisateurId: id
         });
 
         await utilisateur.update({ imageId: newImageUtilisateur.id });
@@ -41,13 +41,13 @@ exports.addImage = async (req, res, next) => {
 exports.updateImage = async (req, res, next) => {
     try {
         const { file } = req;
-        const { utilisateurId } = req.params;
+        const { id } = req.params;
 
         if (!file) {
             return res.status(400).json({ message: 'Aucun fichier fourni' });
         }
 
-        const utilisateur = await dbConnector.Utilisateur.findByPk(utilisateurId);
+        const utilisateur = await dbConnector.Utilisateur.findByPk(id);
         if (!utilisateur) {
             fs.unlink(`./uploads/${file.filename}`, (err) => {
                 if (err) console.log(err);
@@ -55,7 +55,7 @@ exports.updateImage = async (req, res, next) => {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
 
-        const imageUtilisateur = await dbConnector.ImageUtilisateur.findOne({ where: { utilisateurId } });
+        const imageUtilisateur = await dbConnector.ImageUtilisateur.findOne({ where: { id } });
         if (!imageUtilisateur) {
             fs.unlink(`./uploads/${file.filename}`, (err) => {
                 if (err) console.log(err);
@@ -84,14 +84,14 @@ exports.updateImage = async (req, res, next) => {
 // Supprimer une image utilisateur par ID
 exports.deleteImage = async (req, res, next) => {
     try {
-        const { utilisateurId } = req.params;
+        const { id } = req.params;
 
-        const utilisateur = await dbConnector.Utilisateur.findByPk(utilisateurId);
+        const utilisateur = await dbConnector.Utilisateur.findByPk(id);
         if (!utilisateur) {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
 
-        const imageUtilisateur = await dbConnector.ImageUtilisateur.findOne({ where: { utilisateurId } });
+        const imageUtilisateur = await dbConnector.ImageUtilisateur.findOne({ where: { id } });
         if (!imageUtilisateur) {
             return res.status(404).json({ message: 'Image utilisateur non trouvée' });
         }

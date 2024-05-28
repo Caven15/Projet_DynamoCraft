@@ -6,7 +6,11 @@ module.exports = (sequelize, DataTypes) => {
     
   }
   commentaire.init({
-    description: DataTypes.STRING
+    description: DataTypes.STRING,
+    dateCreation: DataTypes.DATE,
+    dateModif: DataTypes.DATE,
+    projetId: DataTypes.INTEGER,
+    utilisateurId: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'Commentaire',

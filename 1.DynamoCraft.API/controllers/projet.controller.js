@@ -103,7 +103,7 @@ exports.getById = async (req, res, next) => {
 // Récupérer les projets par utilisateurId
 exports.getByUserId = async (req, res, next) => {
     try {
-        const userId = req.params.utilisateurId; // Récupérer l'ID de l'utilisateur à partir des paramètres de la requête
+        const userId = req.params.id; // Récupérer l'ID de l'utilisateur à partir des paramètres de la requête
 
         // Récupérer les projets associés à l'utilisateur
         const projects = await dbConnector.Projet.findAll({
