@@ -87,7 +87,7 @@ module.exports = {
             dbConnector.Projet.hasOne(dbConnector.ImageProjet);
             dbConnector.ImageProjet.belongsTo(dbConnector.Projet);
 
-            // Synchronisation avec la base de données (décommentez si nécessaire)
+            // Synchronisation avec la base de données
             // dbConnector.sequelize.sync({ force: true });
         }
     },

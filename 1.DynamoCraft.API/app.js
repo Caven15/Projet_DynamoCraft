@@ -35,9 +35,11 @@ app.use(cors());
 const authRouter = require("./routers/auth.router");
 const utilisateurRouter = require("./routers/utilisateur.router");
 const statistiqueRouter = require("./routers/statistique.router");
+const categorieRouter = require("./routers/categorie.router");
 app.use("/api", authRouter);
 app.use("/api", utilisateurRouter);
 app.use("/api", statistiqueRouter);
+app.use("/api", categorieRouter);
 app.use(express.urlencoded({ extended: true }));
 
 // Gestion de la requête pour les routes non définies

@@ -37,22 +37,6 @@ exports.update = async (req, res, next) => {
     }
 };
 
-// Supprimer une statistique par ID
-exports.delete = async (req, res, next) => {
-    try {
-        const stat = await dbConnector.Statistique.findByPk(req.params.id);
-        if (!stat) {
-            return res.status(404).json({ message: 'Statistique non trouvée' });
-        }
-
-        await stat.destroy();
-        res.status(200).json({ message: `Statistique ${req.params.id} supprimée avec succès !` });
-    } catch (error) {
-        console.error('Erreur lors de la suppression de la statistique:', error);
-        res.status(500).json({ message: 'Erreur lors de la suppression de la statistique' });
-    }
-};
-
 // Récupérer le nombre total d'appréciations et de téléchargements
 exports.getTotals = async (req, res, next) => {
     try {
