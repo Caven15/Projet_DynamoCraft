@@ -1,4 +1,3 @@
-'use strict';
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   version: 3,
@@ -13,7 +12,7 @@ module.exports = {
       nombreApreciation: {
         type: Sequelize.INTEGER
       },
-      nombreTelechargements: {
+      nombreTelechargement: {
         type: Sequelize.INTEGER
       },
       datePublication: {

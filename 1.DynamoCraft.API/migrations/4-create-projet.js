@@ -1,4 +1,3 @@
-'use strict';
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   version: 7,
@@ -18,16 +17,6 @@ module.exports = {
       },
       commentaire_admin: {
         type: Sequelize.STRING
-      },
-      dateCreation: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      },
-      dateModif: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       statutId: {
         type: Sequelize.INTEGER,

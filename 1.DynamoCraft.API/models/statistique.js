@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
     },
     nombreApreciation: DataTypes.INTEGER,
-    nombreTelechargements: DataTypes.INTEGER,
+    nombreTelechargement: DataTypes.INTEGER,
     datePublication: DataTypes.DATE,
     dateModification: DataTypes.DATE
   }, {

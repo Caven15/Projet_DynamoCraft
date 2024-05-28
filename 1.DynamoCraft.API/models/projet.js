@@ -15,8 +15,6 @@ module.exports = (sequelize) => {
     nom: DataTypes.STRING,
     estvalide: DataTypes.BOOLEAN,
     commentaire_admin: DataTypes.STRING,
-    dateCreation: DataTypes.DATE,
-    dateModif: DataTypes.DATE,
   }, {
     sequelize,
     modelName: 'Projet',
