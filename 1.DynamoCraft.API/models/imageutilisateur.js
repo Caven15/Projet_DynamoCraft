@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     nom: DataTypes.STRING,
     dateAjout: DataTypes.DATE,
     dateModif: DataTypes.DATE,
+    utilisateurId: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'ImageUtilisateur',

@@ -50,7 +50,7 @@ exports.register = async (req, res, next) => {
             await dbConnector.Utilisateur.update({ imageId: newImageUtilisateur.id }, { where: { id: newUtilisateur.id } });
         }
 
-        res.status(201).json({ message: 'Utilisateur enregistré avec succès' });
+        res.status(201).json({ message: 'Utilisateur enregistré avec succès', utilisateurId: newUtilisateur.id });
 
     } catch (error) {
         console.log(error);
