@@ -11,7 +11,10 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    nom: DataTypes.STRING
+    nom: DataTypes.STRING,
+    dateCreation: DataTypes.DATE,
+    dateModif: DataTypes.DATE,
+    projetId: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'Modele3D',
