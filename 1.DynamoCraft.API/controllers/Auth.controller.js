@@ -58,7 +58,6 @@ exports.register = async (req, res, next) => {
     }
 };
 
-
 exports.login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -93,5 +92,37 @@ exports.login = async (req, res, next) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Erreur lors de la connexion de l\'utilisateur' });
+    }
+};
+
+exports.resetPassword = async (req, res, next) => {
+    try {
+        const { oldPassword, newPassword, userId } = req.body; // Gestion de l'userId par token a l'ajout de la sécurité
+
+        if (!oldPassword || !newPassword) {
+            return res.status(400).json({ message: 'L\'ancien et le nouveau mot de passe sont obligatoires' });
+        }
+
+        const utilisateur = await dbConnector.Utilisateur.findOne({ where: { id: userId } });
+
+        if (!utilisateur) {
+            return res.status(404).json({ message: "Utilisateur non trouvé" });
+        }
+
+        const passwordMatch = bcrypt.compareSync(oldPassword.trim(), utilisateur.password);
+
+        if (!passwordMatch) {
+            return res.status(403).json({ message: "L'ancien mot de passe est incorrect" });
+        }
+
+        const hashedPassword = bcrypt.hashSync(newPassword.trim(), 10);
+
+        await dbConnector.Utilisateur.update({ password: hashedPassword }, { where: { id: userId } });
+
+        res.status(200).json({ message: 'Mot de passe réinitialisé avec succès' });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: 'Erreur lors de la réinitialisation du mot de passe' });
     }
 };

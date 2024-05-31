@@ -11,7 +11,9 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       autoIncrement: true,
     },
-    dateTelechargement: DataTypes.DATE
+    dateTelechargement: DataTypes.DATE,
+    utilisateurId: DataTypes.INTEGER,
+    projetId: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'UtilisateurProjet',
