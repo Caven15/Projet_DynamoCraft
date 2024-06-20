@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Fonction pour créer une archive ZIP
-const createZip = async (outputDir, projectName, files) => {
+const createZip = async (outputDir, projectName, files, ownerName) => {
     return new Promise((resolve, reject) => {
         // Création d'un flux d'écriture vers le fichier ZIP de sortie
         const output = fs.createWriteStream(path.join(outputDir, `${projectName}.zip`));
@@ -30,10 +30,12 @@ const createZip = async (outputDir, projectName, files) => {
             const fileName = path.basename(filePath);
             let folderName = '';
 
+            console.log(fileExtension);
+
             // Déterminer le dossier de destination en fonction de l'extension du fichier
-            if (fileExtension === '.jpg' || fileExtension === '.jpeg' || fileExtension === '.png') {
+            if (['.jpg', '.jpeg', '.png'].includes(fileExtension)) {
                 folderName = 'img';
-            } else if (fileExtension === '.obj' || fileExtension === '.fbx' || fileExtension === '.stl') {
+            } else if (['.obj', '.fbx', '.stl'].includes(fileExtension)) {
                 folderName = 'models';
             }
 
@@ -46,14 +48,36 @@ const createZip = async (outputDir, projectName, files) => {
             }
         });
 
-        // Ajouter le fichier texte "hello.txt" à la racine de l'archive
-        archive.append('Test pour voir si le fichier est bien lisible', { name: 'README.txt' });
+        // Contenu du fichier texte
+        const readmeContent = `
+        █▀▄ █▄█ █▄ █ ▄▀█ █▀▄▀█ █▀█ █▀▀ █▀█ ▄▀█ █▀▀ ▀█▀
+        █▄▀  █  █ ▀█ █▀█ █ ▀ █ █▄█ █▄▄ █▀▄ █▀█ █▀   █ 
+
+        Projet: ${projectName}
+        Propriétaire: ${ownerName}
+
+        Nous espérons que vous apprécierez ce projet et que vous trouverez ce contenu utile.
+
+        Bon amusement!
+
+        L'équipe DynamoCraft.`;
+
+        // Ajouter le fichier texte "README.txt" à la racine de l'archive
+        archive.append(readmeContent, { name: 'README.txt' });
 
         // Finaliser l'archive
         archive.finalize();
     });
 };
 
+// Fonction pour récupérer les noms de fichiers associés à un projet
+const getProjectFileNames = (project) => {
+    const imageFileNames = project.ImageProjet ? (Array.isArray(project.ImageProjet) ? project.ImageProjet.map(file => file.nom) : [project.ImageProjet.nom]) : [];
+    const modele3DFileNames = project.Modele3Ds ? (Array.isArray(project.Modele3Ds) ? project.Modele3Ds.map(file => file.nom) : [project.Modele3Ds.nom]) : [];
+    return [...imageFileNames, ...modele3DFileNames];
+};
+
 module.exports = {
-    createZip
+    createZip,
+    getProjectFileNames
 };
