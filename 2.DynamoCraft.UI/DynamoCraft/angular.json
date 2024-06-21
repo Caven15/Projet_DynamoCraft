@@ -31,11 +31,13 @@
                         "tsConfig": "tsconfig.app.json",
                         "inlineStyleLanguage": "scss",
                         "assets": [
+                            "src/favicon.png",
                             "src/assets"
                         ],
                         "styles": [
-                            "src/styles.scss",
-                            "node_modules/bootstrap/dist/css/bootstrap.min.css"
+                            "node_modules/bootstrap/dist/css/bootstrap.min.css",
+                            "node_modules/bootstrap-icons/font/bootstrap-icons.css",
+                            "src/styles.scss"
                         ],
                         "scripts": [
                             "node_modules/@popperjs/core/dist/umd/popper.min.js",

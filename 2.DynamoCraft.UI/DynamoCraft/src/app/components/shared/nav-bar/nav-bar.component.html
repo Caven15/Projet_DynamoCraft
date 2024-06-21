@@ -1,47 +1,39 @@
-<nav class="navbar navbar-expand-xxl bg-dc-2">
-    <div class="container-fluid">
-        <a class="navbar-brand" routerLink="/home">
-            <img src="logo.png" alt="logo" width="75" height="75" class="d-inline-block align-text-top ms-2">
-            <a class="navbar-brand font-dc text-white">DynamoCraft</a>
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon text-white"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle text-white font-dc fs-6 d-flex justify-content-center" href="#" role="button" data-bs-toggle="dropdown"
-                        aria-expanded="false">
-                        Catégories
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Catégorie 1</a></li>
-                        <li><a class="dropdown-item" href="#">Catégorie 2</a></li>
-                        <!-- <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li> -->
-                    </ul>
+<header class="p-3 bg-dc-2 text-white font-dc">
+    <div class="container col-12">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-center">
+            <a class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                <img src="assets/png/logo.png" alt="logo" width="60" height="60">
+                <span class="navbar-brand font-dc text-white fs-4 ms-2">DynamoCraft</span>
+            </a>
+            <ul class="nav col-12 col-xl-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li>
+                    <a class="nav-link col-xl-auto px-2 ms-5" routerLink="/home">Catégories</a>
                 </li>
-                <li class="nav-item ms-2">
-                    <a class="nav-link disabled text-white font-dc fs-6 d-flex justify-content-center" aria-disabled="true">Nouveautés</a>
+                <li>
+                    <a class="nav-link col-xl-auto px-2 ms-5" routerLink="/home">Nouveautés</a>
                 </li>
-                <li class="nav-item ms-2">
-                    <a class="nav-link disabled text-white font-dc fs-6 d-flex justify-content-center" aria-disabled="true">Top 10</a>
+                <li>
+                    <a class="nav-link col-xl-auto px-2 ms-5" routerLink="/home">Top 10</a>
                 </li>
-                <li class="nav-item ms-2">
-                    <a class="nav-link disabled text-white font-dc fs-6 d-flex justify-content-center" aria-disabled="true">Recherche</a>
+                <li>
+                    <a class="nav-link col-xl-auto px-2 ms-5" routerLink="/home">Recherche</a>
                 </li>
             </ul>
-            <ul class="navbar-nav mb-2 mb-lg-0">
-                <li class="nav-item d-flex justify-content-center">
-                    <button type="button" class="btn btn-warning m-1">Admin</button>
-                </li>
-                <li class="nav-item d-flex justify-content-center">
-                    <button type="button" class="btn btn-warning m-1">Authentification</button>
-                </li>
-            </ul>
+            <div class="dropdown text-end d-flex ">
+                <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="https://github.com/mdo.png" alt="mdo" width="40" height="40" class="rounded-circle">
+                </a>
+                <ul class="dropdown-menu text-small dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#">New project...</a></li>
+                    <li><a class="dropdown-item" href="#">Settings</a></li>
+                    <li><a class="dropdown-item" href="#">Profile</a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li><a class="dropdown-item" href="#">Sign out</a></li>
+                </ul>
+            </div>
         </div>
     </div>
-</nav>
+</header>

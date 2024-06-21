@@ -1,113 +1,165 @@
-* {
-    margin: 0;
-    padding: 0;
-    font-size: 20px;
-    color: white;
-}
-
 @font-face {
     font-family: 'ethnocentric';
-    src: url('./app/assets/fonts/ethnocentric.otf') format('opentype');
+    src: url('./assets/fonts/ethnocentric.otf') format('opentype');
     font-weight: normal;
     font-style: normal;
 }
 
-/* Bannière Image */
+$couleur-fond: rgb(35, 35, 35);
+$couleur-fond-2: rgb(25, 25, 25);
+$couleur-main: rgb(227, 178, 0);
+
+* {
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    color: white;
+}
+
+p {
+    text-align: justify;
+}
+
 .banner-image {
     width: 100%;
-    height: 1000px;
-    /* Ajuster la hauteur selon vos besoins */
-    background-image: url('../src/app/assets/png/mainPage.png');
+    height: 800px;
+    background-image: url('./assets/png/mainPage.png');
     background-size: cover;
     background-position: center;
 }
 
-.font-dc {
-    font-family: 'ethnocentric', Courier, monospace;
-}
-
-.white {
-    color: white;
-}
-
-body {
-    background-color: #000;
-    min-width: 00px;
-}
-
 .bg-dc {
-    background-color: rgb(35, 35, 35);
+    background-color: $couleur-fond;
 }
 
 .bg-dc-2 {
-    background-color: rgb(25, 25, 25);
+    background-color: $couleur-fond-2;
 }
 
-.main {
-    overflow-y: hidden;
-}
-
-.header-gradient {
+.header-gradient,
+.footer-gradient {
     position: relative;
 }
 
-.header-gradient::before {
+.header-gradient::before,
+.footer-gradient::before {
     content: "";
     position: absolute;
-    top: 0;
     left: 0;
     width: 100%;
     height: 10px;
     background: linear-gradient(to bottom, black, transparent);
 }
 
-.footer-gradient {
-    width: 100%;
-    bottom: 0;
-}
-
 .footer-gradient::before {
-    content: "";
-    position: absolute;
     top: -10px;
-    left: 0;
-    width: 100%;
-    height: 10px;
     background: linear-gradient(to top, black, transparent);
 }
 
 .blurred-border {
     position: relative;
     display: inline-block;
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: -1;
+        border-radius: 50px;
+        box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.5);
+        filter: blur(10px);
+    }
+
+    &::after {
+        filter: blur(20px);
+    }
 }
 
 .blurred-image {
     display: block;
 }
 
-.blurred-border::before,
-.blurred-border::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: -1;
-    border-radius: 50px;
-    /* Adjust as needed */
-    box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.5);
-    filter: blur(10px);
-    /* Adjust the blur amount */
-}
-
-.blurred-border::after {
-    filter: blur(20px);
-    /* Additional blur for stronger effect */
-}
-
-.card-body{
+.card-body {
     line-height: 2.2;
     margin: 30px;
     min-height: 400px;
+}
+
+ul.nav .nav-link {
+    position: relative;
+    text-decoration: none;
+    color: white;
+    transition: color 0.3s, transform 0.3s;
+
+    &::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 2px;
+        bottom: 0;
+        left: 50%;
+        background-color: $couleur-main;
+        transition: width 0.3s, left 0.3s;
+    }
+
+    &:hover {
+        color: $couleur-main;
+        transform: scale(1.2);
+
+        &::after {
+            width: 100%;
+            left: 0;
+        }
+    }
+}
+
+.dropdown-menu {
+    background-color: $couleur-main;
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item {
+    color: #333;
+    transition: background-color 0.3s, color 0.3s;
+
+    &:hover,
+    &:focus {
+        color: white;
+        background-color: $couleur-fond-2;
+    }
+}
+
+.font-dc {
+    font-family: 'ethnocentric', Courier, monospace;
+}
+
+.card {
+    height: 100%;
+    background-color: $couleur-main;
+
+    &:hover {
+        color: white;
+        background-color: $couleur-main;
+        transition: all 0.3s ease-in-out;
+        transform: scale(1.2);
+        z-index: 1;
+    }
+
+    .card-text {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 80%;
+        position: relative;
+        font-weight: bold;
+        color: black;
+        transition: all 0.3s ease-in-out;
+        border-radius: 5px;
+    }
 }
