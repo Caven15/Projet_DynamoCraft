@@ -1,0 +1,26 @@
+<div>
+    <h2>Test de Catégorie Service</h2>
+    <button (click)="chargerCategories()">Recharger les Catégories</button>
+    <button (click)="ajouterCategorie()">Ajouter Catégorie</button>
+    <button (click)="modifierCategorie()">Modifier Catégorie</button>
+
+    <div *ngIf="chargementCategories">Chargement des catégories...</div>
+    <div *ngIf="!chargementCategories && categories.length">
+        <ul>
+            <li *ngFor="let categorie of categories">
+                {{ categorie.nom }}
+            </li>
+        </ul>
+    </div>
+    <div *ngIf="!chargementCategories && !categories.length">
+        Aucune catégorie trouvée.
+    </div>
+    <div *ngIf="messageErreur">{{ messageErreur }}</div>
+
+    <div *ngIf="categorieAjoutee">
+        Catégorie ajoutée : {{ categorieAjoutee.nom }}
+    </div>
+    <div *ngIf="categorieModifiee">
+        Catégorie modifiée : {{ categorieModifiee.nom }}
+    </div>
+</div>
