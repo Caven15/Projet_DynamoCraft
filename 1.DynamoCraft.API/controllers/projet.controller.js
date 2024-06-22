@@ -401,6 +401,27 @@ exports.incrementLike = async (req, res, next) => {
     }
 };
 
+// Incrémenter le nombre de téléchargements pour un projet spécifique
+exports.incrementDownload = async (req, res, next) => {
+    try {
+        const projectId = req.params.id;
+
+        // Vérifier si le projet existe
+        const project = await dbConnector.Projet.findByPk(projectId);
+        if (!project) {
+            return res.status(404).json({ message: 'Projet non trouvé' });
+        }
+
+        // Incrémenter le nombre de téléchargements dans la statistique associée au projet
+        await dbConnector.Statistique.increment('nombreTelechargement', { where: { id: project.statistiqueId } });
+
+        res.status(200).json({ message: 'Nombre de téléchargements incrémenté avec succès pour le projet ' + projectId });
+    } catch (error) {
+        console.error('Erreur lors de l\'incrémentation du nombre de téléchargements pour le projet :', error);
+        res.status(500).json({ message: 'Erreur lors de l\'incrémentation du nombre de téléchargements pour le projet' });
+    }
+};
+
 // Récupérer les 10 projets les plus likés
 exports.getTop10Liked = async (req, res, next) => {
     try {

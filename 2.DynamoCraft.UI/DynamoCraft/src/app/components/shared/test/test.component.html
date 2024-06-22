@@ -1,26 +1,18 @@
 <div>
-    <h2>Test de Catégorie Service</h2>
-    <button (click)="chargerCategories()">Recharger les Catégories</button>
-    <button (click)="ajouterCategorie()">Ajouter Catégorie</button>
-    <button (click)="modifierCategorie()">Modifier Catégorie</button>
+    <h2>Test de Statistique Service</h2>
+    <button (click)="ajouterStatistique()">Ajouter Statistique</button>
+    <button (click)="modifierStatistique()">Modifier Statistique</button>
+    <button (click)="recupererTotaux()">Récupérer Totaux</button>
 
-    <div *ngIf="chargementCategories">Chargement des catégories...</div>
-    <div *ngIf="!chargementCategories && categories.length">
-        <ul>
-            <li *ngFor="let categorie of categories">
-                {{ categorie.nom }}
-            </li>
-        </ul>
-    </div>
-    <div *ngIf="!chargementCategories && !categories.length">
-        Aucune catégorie trouvée.
-    </div>
     <div *ngIf="messageErreur">{{ messageErreur }}</div>
 
-    <div *ngIf="categorieAjoutee">
-        Catégorie ajoutée : {{ categorieAjoutee.nom }}
+    <div *ngIf="statistiqueAjoutee">
+        Statistique ajoutée : {{ statistiqueAjoutee.datePublication }}
     </div>
-    <div *ngIf="categorieModifiee">
-        Catégorie modifiée : {{ categorieModifiee.nom }}
+    <div *ngIf="statistiqueModifiee">
+        Statistique modifiée : {{ statistiqueModifiee.dateModification }}
+    </div>
+    <div *ngIf="totaux">
+        Totaux - Appréciations: {{ totaux.totalAppreciations }}, Téléchargements: {{ totaux.totalTelechargements }}
     </div>
 </div>

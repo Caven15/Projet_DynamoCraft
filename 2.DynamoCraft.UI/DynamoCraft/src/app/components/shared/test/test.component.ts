@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { categorie } from '../../../models/categorie.model';
 import { CategorieService } from '../../../tools/api/categorie.service';
+import { Statistique } from '../../../models/statistique.model';
+import { StatistiqueService } from '../../../tools/api/statistique.service';
 
 @Component({
     selector: 'app-test',
@@ -8,68 +10,58 @@ import { CategorieService } from '../../../tools/api/categorie.service';
     styleUrls: ['./test.component.scss']
 })
 export class TestComponent {
-    categories: categorie[] = [];
-    chargementCategories = false;
+    statistiques: Statistique[] = [];
     messageErreur = '';
-    categorieAjoutee: categorie | null = null;
-    categorieModifiee: categorie | null = null;
-    categorieSupprimee = false;
+    statistiqueAjoutee: Statistique | null = null;
+    statistiqueModifiee: Statistique | null = null;
+    totaux: any = null;
 
-    constructor(private categorieService: CategorieService) { }
+    constructor(private statistiqueService: StatistiqueService) { }
 
-    ngOnInit(): void {
-        this.chargerCategories();
-    }
-
-    chargerCategories(): void {
-        this.chargementCategories = true;
-        this.categorieService.getAllCategorie().subscribe({
+    ajouterStatistique(): void {
+        const nouvelleStatistique = new Statistique(0, 0);
+        this.statistiqueService.postStatistique(nouvelleStatistique).subscribe({
             next: (data) => {
-                this.categories = data;
-                this.chargementCategories = false;
+                this.statistiqueAjoutee = data;
+                console.log(`Statistique créée avec l'id=${data.id}`);
             },
             error: (err) => {
-                this.messageErreur = 'Erreur lors de la récupération des catégories';
-                console.error(this.messageErreur, err);
-                this.chargementCategories = false;
-            }
-        });
-    }
-
-    ajouterCategorie(): void {
-        const nouvelleCategorie = new categorie('Nouvelle Catégorie');
-        this.categorieService.postCategorie(nouvelleCategorie).subscribe({
-            next: (data) => {
-                this.categorieAjoutee = data;
-                this.chargerCategories(); // Recharger les catégories pour inclure la nouvelle
-            },
-            error: (err) => {
-                this.messageErreur = 'Erreur lors de l\'ajout de la catégorie';
+                this.messageErreur = 'Erreur lors de l\'ajout de la statistique';
                 console.error(this.messageErreur, err);
             }
         });
     }
 
-    modifierCategorie(): void {
-        if (this.categories.length) {
-            const categorieAModifier = this.categories[0];
-            if (categorieAModifier.id === undefined) {
-                this.messageErreur = 'ID de la catégorie à modifier est indéfini';
-                console.error(this.messageErreur);
-                return;
+    modifierStatistique(): void {
+        const statistiqueModifiee = new Statistique(
+            25,
+            25,
+            new Date(),
+            new Date(),
+            1
+        );
+        this.statistiqueService.updateStatistique(1, statistiqueModifiee).subscribe({
+            next: () => {
+                this.statistiqueModifiee = statistiqueModifiee;
+                console.log('Statistique modifiée avec succès !');
+            },
+            error: (err) => {
+                this.messageErreur = 'Erreur lors de la modification de la statistique';
+                console.error(this.messageErreur, err);
             }
-            const categorieModifiee = new categorie('Catégorie Modifiée', categorieAModifier.id);
-            this.categorieService.updateCategorie(categorieAModifier.id, categorieModifiee).subscribe({
-                next: () => {
-                    this.categorieModifiee = categorieModifiee;
-                    this.chargerCategories(); // Recharger les catégories pour afficher la modification
-                },
-                error: (err) => {
-                    this.messageErreur = 'Erreur lors de la modification de la catégorie';
-                    console.error(this.messageErreur, err);
-                }
-            });
-        }
+        });
     }
 
+    recupererTotaux(): void {
+        this.statistiqueService.getTotalsStatistique().subscribe({
+            next: (data) => {
+                this.totaux = data[0]; // Assuming the response is an array with a single object
+                console.log('Récupération des totaux réussie');
+            },
+            error: (err) => {
+                this.messageErreur = 'Erreur lors de la récupération des totaux';
+                console.error(this.messageErreur, err);
+            }
+        });
+    }
 }
