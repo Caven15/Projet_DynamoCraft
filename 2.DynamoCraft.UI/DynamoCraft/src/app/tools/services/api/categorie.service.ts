@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError, tap } from 'rxjs';
-import { categorie } from '../../models/categorie.model';
-import { environment } from '../../../environments/environment.dev';
+import { Observable, tap } from 'rxjs';
 import { BaseApiService } from './base-api.service';
+import { categorie } from '../../../models/categorie.model';
 
 @Injectable({
     providedIn: 'root'

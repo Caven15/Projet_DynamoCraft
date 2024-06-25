@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { categorie } from '../../../models/categorie.model';
-import { CategorieService } from '../../../tools/api/categorie.service';
 import { Statistique } from '../../../models/statistique.model';
-import { StatistiqueService } from '../../../tools/api/statistique.service';
+import { StatistiqueService } from '../../../tools/services/api/statistique.service';
+import { Utilisateur } from '../../../models/utilisateur.model';
+import { UtilisateurService } from '../../../tools/services/api/utilisateur.service';
 
 @Component({
     selector: 'app-test',
@@ -10,58 +10,45 @@ import { StatistiqueService } from '../../../tools/api/statistique.service';
     styleUrls: ['./test.component.scss']
 })
 export class TestComponent {
-    statistiques: Statistique[] = [];
-    messageErreur = '';
-    statistiqueAjoutee: Statistique | null = null;
-    statistiqueModifiee: Statistique | null = null;
-    totaux: any = null;
+    utilisateurs: Utilisateur[] = [];
+    utilisateur: Utilisateur | null = null;
+    message: string = '';
 
-    constructor(private statistiqueService: StatistiqueService) { }
+    constructor(private utilisateurService: UtilisateurService) { }
 
-    ajouterStatistique(): void {
-        const nouvelleStatistique = new Statistique(0, 0);
-        this.statistiqueService.postStatistique(nouvelleStatistique).subscribe({
-            next: (data) => {
-                this.statistiqueAjoutee = data;
-                console.log(`Statistique créée avec l'id=${data.id}`);
-            },
-            error: (err) => {
-                this.messageErreur = 'Erreur lors de l\'ajout de la statistique';
-                console.error(this.messageErreur, err);
-            }
-        });
+    ngOnInit(): void {
+        this.getAllUtilisateurs();
     }
 
-    modifierStatistique(): void {
-        const statistiqueModifiee = new Statistique(
-            25,
-            25,
-            new Date(),
-            new Date(),
-            1
+    getAllUtilisateurs(): void {
+        this.utilisateurService.getAllUtilisateurs().subscribe(
+            (data) => this.utilisateurs = data,
+            (error) => this.message = 'Erreur lors de la récupération des utilisateurs'
         );
-        this.statistiqueService.updateStatistique(1, statistiqueModifiee).subscribe({
-            next: () => {
-                this.statistiqueModifiee = statistiqueModifiee;
-                console.log('Statistique modifiée avec succès !');
-            },
-            error: (err) => {
-                this.messageErreur = 'Erreur lors de la modification de la statistique';
-                console.error(this.messageErreur, err);
-            }
-        });
     }
 
-    recupererTotaux(): void {
-        this.statistiqueService.getTotalsStatistique().subscribe({
-            next: (data) => {
-                this.totaux = data[0]; // Assuming the response is an array with a single object
-                console.log('Récupération des totaux réussie');
+    getUtilisateurById(id: number): void {
+        this.utilisateurService.getUtilisateurById(id).subscribe(
+            (data) => this.utilisateur = data,
+            (error) => this.message = 'Erreur lors de la récupération de l\'utilisateur'
+        );
+    }
+
+    updateUtilisateur(id: number, utilisateur: Utilisateur): void {
+        utilisateur.pseudo = "Mise à jour"
+        this.utilisateurService.updateUtilisateur(id, utilisateur).subscribe(
+            () => this.message = `Utilisateur ${id} mis à jour avec succès !`,
+            (error) => this.message = 'Erreur lors de la mise à jour de l\'utilisateur'
+        );
+    }
+
+    deleteUtilisateur(id: number): void {
+        this.utilisateurService.deleteUtilisateur(id).subscribe(
+            () => {
+                this.message = `Utilisateur ${id} supprimé avec succès !`;
+                this.getAllUtilisateurs(); // Mettre à jour la liste des utilisateurs après suppression
             },
-            error: (err) => {
-                this.messageErreur = 'Erreur lors de la récupération des totaux';
-                console.error(this.messageErreur, err);
-            }
-        });
+            (error) => this.message = 'Erreur lors de la suppression de l\'utilisateur'
+        );
     }
 }

@@ -1,18 +1,25 @@
 <div>
-    <h2>Test de Statistique Service</h2>
-    <button (click)="ajouterStatistique()">Ajouter Statistique</button>
-    <button (click)="modifierStatistique()">Modifier Statistique</button>
-    <button (click)="recupererTotaux()">Récupérer Totaux</button>
+    <h1>Test Utilisateur Component</h1>
+    <div *ngIf="message">{{ message }}</div>
 
-    <div *ngIf="messageErreur">{{ messageErreur }}</div>
+    <h2>Tous les utilisateurs</h2>
+    <ul>
+        <li *ngFor="let utilisateur of utilisateurs">
+            {{ utilisateur.pseudo }} ({{ utilisateur.email }})
+            <button (click)="getUtilisateurById(utilisateur.id)">Détails</button>
+            <button (click)="deleteUtilisateur(utilisateur.id)">Supprimer</button>
+        </li>
+    </ul>
 
-    <div *ngIf="statistiqueAjoutee">
-        Statistique ajoutée : {{ statistiqueAjoutee.datePublication }}
-    </div>
-    <div *ngIf="statistiqueModifiee">
-        Statistique modifiée : {{ statistiqueModifiee.dateModification }}
-    </div>
-    <div *ngIf="totaux">
-        Totaux - Appréciations: {{ totaux.totalAppreciations }}, Téléchargements: {{ totaux.totalTelechargements }}
+    <h2>Détails de l'utilisateur</h2>
+    <div *ngIf="utilisateur">
+        <p>ID: {{ utilisateur.id }}</p>
+        <p>Pseudo: {{ utilisateur.pseudo }}</p>
+        <p>Email: {{ utilisateur.email }}</p>
+        <p>Date de Naissance: {{ utilisateur.dateNaissance | date }}</p>
+        <p>Biographie: {{ utilisateur.biographie }}</p>
+        <p>Centre d'Intérêts: {{ utilisateur.centreInterets }}</p>
+        <p>Statut: {{ utilisateur.statutCompte ? 'Actif' : 'Inactif' }}</p>
+        <button (click)="updateUtilisateur(utilisateur.id, utilisateur)">Mettre à jour</button>
     </div>
 </div>

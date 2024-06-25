@@ -5,9 +5,9 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NavBarComponent } from './components/shared/nav-bar/nav-bar.component';
 import { HomeComponent } from './components/shared/home/home.component';
-import { TestComponent } from './components/shared/test/test.component';
-import { HttpClientModule, provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
+import { provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
 import { FooterComponent } from './components/shared/footer/footer.component';
+import { TestComponent } from './components/shared/test/test.component';
 
 @NgModule({
     declarations: [
@@ -20,7 +20,6 @@ import { FooterComponent } from './components/shared/footer/footer.component';
     imports: [
         BrowserModule,
         AppRoutingModule
-        // HttpClientModule // old
     ],
     providers: [
         provideClientHydration(),

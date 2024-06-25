@@ -1,4 +1,5 @@
 const dbConnector = require("../tools/ConnexionDb.tools").get();
+const projectController = require('../controllers/projet.controller');
 const fs = require('fs');
 
 // Récupérer tous les utilisateurs
@@ -127,6 +128,11 @@ exports.delete = async (req, res, next) => {
     try {
         const user = await dbConnector.Utilisateur.findByPk(req.params.id);
         if (user) {
+            // Supprimer les projets de l'utilisateur
+            const userProjects = await dbConnector.Projet.findAll({ where: { utilisateurId: user.id } });
+            for (const project of userProjects) {
+                await projectController.deleteProjectById(project.id); // Appelez la méthode de suppression de projet
+            }
             // Trouver et supprimer l'image de profil associée dans la base de données
             const imageUtilisateur = await dbConnector.ImageUtilisateur.findOne({ where: { utilisateurId: user.id } });
             if (imageUtilisateur) {
@@ -141,6 +147,7 @@ exports.delete = async (req, res, next) => {
                     }
                 });
             }
+
             // Supprimer l'utilisateur de la base de données
             await user.destroy();
             res.status(200).json({ message: `Utilisateur ${req.params.id} supprimé avec succès !` });
@@ -148,6 +155,7 @@ exports.delete = async (req, res, next) => {
             res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
     } catch (error) {
+        console.error('Erreur lors de la suppression de l\'utilisateur:', error);
         res.status(500).json({ message: 'Erreur lors de la suppression de l\'utilisateur' });
     }
 };

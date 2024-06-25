@@ -179,7 +179,7 @@ exports.updateById = async (req, res, next) => {
     }
 };
 
-// Supprimer un projet par ID
+// Supprimer un projet par ID avec req et res
 exports.delete = async (req, res, next) => {
     try {
         const projectId = req.params.id;
@@ -202,17 +202,54 @@ exports.delete = async (req, res, next) => {
         await dbConnector.Modele3D.destroy({
             where: { projetId: projectId }
         });
-
+        
+        // Supprimer le projet
         await projet.destroy();
 
         await dbConnector.Statistique.destroy({
             where: { id: projet.statistiqueId }
         });
 
-        res.status(200).json({ message: `Projet ${projectId} supprimé avec succès !` });
+
+        return res.status(200).json({ message: `Projet ${projectId} supprimé avec succès !` });
     } catch (error) {
         console.error('Erreur lors de la suppression du projet :', error);
-        res.status(500).json({ message: 'Erreur lors de la suppression du projet' });
+        return res.status(500).json({ message: 'Erreur lors de la suppression du projet' });
+    }
+};
+
+// Supprimer un projet par ID sans req et res (helper method)
+exports.deleteProjectById = async (projectId) => {
+    try {
+        // Vérifier si le projet existe
+        const projet = await dbConnector.Projet.findByPk(projectId);
+        if (!projet) {
+            console.log(`Projet ${projectId} non trouvé`);
+            return;
+        }
+
+        // Supprimer les relations associées (Images, Commentaires, Modèles 3D, Statistiques)
+        await dbConnector.ImageProjet.destroy({
+            where: { projetId: projectId }
+        });
+
+        await dbConnector.Commentaire.destroy({
+            where: { projetId: projectId }
+        });
+
+        await dbConnector.Modele3D.destroy({
+            where: { projetId: projectId }
+        });
+        // Supprimer le projet
+        await projet.destroy();
+
+        await dbConnector.Statistique.destroy({
+            where: { id: projet.statistiqueId }
+        });
+
+        console.log(`Projet ${projectId} supprimé avec succès !`);
+    } catch (error) {
+        console.error('Erreur lors de la suppression du projet :', error);
     }
 };
 
