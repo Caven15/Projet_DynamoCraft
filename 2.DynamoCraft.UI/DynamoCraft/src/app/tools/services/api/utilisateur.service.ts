@@ -37,13 +37,11 @@ export class UtilisateurService extends BaseApiService {
     /**
      * Mettre à jour un utilisateur par ID
      * @param id Identifiant de l'utilisateur
-     * @param utilisateur Objet contenant les nouvelles informations de l'utilisateur
+     * @param utilisateur Objet contenant les nouvelles informations de l'utilisateur sous forme de FormData
      * @returns Observable indiquant le résultat de l'opération
      */
-    updateUtilisateur(id: number, utilisateur: Utilisateur): Observable<any> {
-        return this.put<any>(`utilisateur/${id}`, utilisateur).pipe(
-            tap(() => console.log(`Utilisateur id=${id} mis à jour`))
-        );
+    updateUtilisateur(id: number, utilisateur: FormData): Observable<any> {
+        return this.put(`utilisateur/${id}`, utilisateur);
     }
 
     /**

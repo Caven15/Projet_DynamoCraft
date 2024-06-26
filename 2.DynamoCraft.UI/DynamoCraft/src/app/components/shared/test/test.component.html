@@ -13,13 +13,29 @@
 
     <h2>Détails de l'utilisateur</h2>
     <div *ngIf="utilisateur">
-        <p>ID: {{ utilisateur.id }}</p>
-        <p>Pseudo: {{ utilisateur.pseudo }}</p>
-        <p>Email: {{ utilisateur.email }}</p>
-        <p>Date de Naissance: {{ utilisateur.dateNaissance | date }}</p>
-        <p>Biographie: {{ utilisateur.biographie }}</p>
-        <p>Centre d'Intérêts: {{ utilisateur.centreInterets }}</p>
-        <p>Statut: {{ utilisateur.statutCompte ? 'Actif' : 'Inactif' }}</p>
-        <button (click)="updateUtilisateur(utilisateur.id, utilisateur)">Mettre à jour</button>
+        <form (ngSubmit)="updateUtilisateur(utilisateur.id, utilisateur)" enctype="multipart/form-data">
+            <label for="pseudo">Pseudo:</label>
+            <input id="pseudo" [(ngModel)]="utilisateur.pseudo" name="pseudo" type="text" />
+
+            <label for="email">Email:</label>
+            <input id="email" [(ngModel)]="utilisateur.email" name="email" type="email" />
+
+            <label for="dateNaissance">Date de Naissance:</label>
+            <input id="dateNaissance" [(ngModel)]="utilisateur.dateNaissance" name="dateNaissance" type="date" />
+
+            <label for="biographie">Biographie:</label>
+            <textarea id="biographie" [(ngModel)]="utilisateur.biographie" name="biographie"></textarea>
+
+            <label for="centreInterets">Centre d'Intérêts:</label>
+            <input id="centreInterets" [(ngModel)]="utilisateur.centreInterets" name="centreInterets" type="text" />
+
+            <label for="statutCompte">Statut:</label>
+            <input id="statutCompte" [(ngModel)]="utilisateur.statutCompte" name="statutCompte" type="checkbox" />
+
+            <label for="image">Image:</label>
+            <input id="image" type="file" (change)="onFileSelected($event)" name="image" />
+
+            <button type="submit">Mettre à jour</button>
+        </form>
     </div>
 </div>

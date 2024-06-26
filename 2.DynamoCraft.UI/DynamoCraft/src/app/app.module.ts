@@ -8,6 +8,7 @@ import { HomeComponent } from './components/shared/home/home.component';
 import { provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
 import { FooterComponent } from './components/shared/footer/footer.component';
 import { TestComponent } from './components/shared/test/test.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
     declarations: [
@@ -19,7 +20,9 @@ import { TestComponent } from './components/shared/test/test.component';
     ],
     imports: [
         BrowserModule,
-        AppRoutingModule
+        AppRoutingModule,
+        FormsModule,
+        ReactiveFormsModule
     ],
     providers: [
         provideClientHydration(),

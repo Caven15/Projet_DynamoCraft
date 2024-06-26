@@ -13,6 +13,7 @@ export class TestComponent {
     utilisateurs: Utilisateur[] = [];
     utilisateur: Utilisateur | null = null;
     message: string = '';
+    selectedFile: File | null = null;
 
     constructor(private utilisateurService: UtilisateurService) { }
 
@@ -29,14 +30,39 @@ export class TestComponent {
 
     getUtilisateurById(id: number): void {
         this.utilisateurService.getUtilisateurById(id).subscribe(
-            (data) => this.utilisateur = data,
+            (data) => {
+                data.dateNaissance = new Date(data.dateNaissance);
+                this.utilisateur = data;
+            },
             (error) => this.message = 'Erreur lors de la récupération de l\'utilisateur'
         );
     }
 
+    onFileSelected(event: any): void {
+        this.selectedFile = event.target.files[0];
+    }
+
     updateUtilisateur(id: number, utilisateur: Utilisateur): void {
-        utilisateur.pseudo = "Mise à jour"
-        this.utilisateurService.updateUtilisateur(id, utilisateur).subscribe(
+        if (!utilisateur) {
+            this.message = 'Utilisateur non trouvé';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('pseudo', utilisateur.pseudo ?? '');
+        formData.append('email', utilisateur.email ?? '');
+        formData.append('dateNaissance', utilisateur.dateNaissance ? utilisateur.dateNaissance.toISOString() : '');
+        formData.append('biographie', utilisateur.biographie ?? '');
+        formData.append('password', utilisateur.password ?? '');
+        formData.append('centreInterets', utilisateur.centreInterets ?? '');
+        formData.append('statutCompte', utilisateur.statutCompte?.toString() ?? '');
+        formData.append('roleId', utilisateur.roleId?.toString() ?? '');
+
+        if (this.selectedFile) {
+            formData.append('image', this.selectedFile);
+        }
+
+        this.utilisateurService.updateUtilisateur(id, formData).subscribe(
             () => this.message = `Utilisateur ${id} mis à jour avec succès !`,
             (error) => this.message = 'Erreur lors de la mise à jour de l\'utilisateur'
         );

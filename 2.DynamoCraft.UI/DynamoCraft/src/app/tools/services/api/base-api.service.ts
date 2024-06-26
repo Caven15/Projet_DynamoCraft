@@ -7,7 +7,7 @@ import { environment } from '../../../../environments/environment.dev';
     providedIn: 'root'
 })
 export class BaseApiService {
-    protected baseUrl: string = environment.apiUrl
+    protected baseUrl: string = environment.apiUrl;
 
     protected httpOptions = {
         headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -45,7 +45,9 @@ export class BaseApiService {
      * @returns Observable contenant les données de l'API
      */
     protected post<T>(endpoint: string, data: any): Observable<T> {
-        return this.httpClient.post<T>(`${this.baseUrl}/${endpoint}`, data, this.httpOptions).pipe(
+        // Utiliser des options différentes si les données sont un FormData
+        const options = data instanceof FormData ? {} : this.httpOptions;
+        return this.httpClient.post<T>(`${this.baseUrl}/${endpoint}`, data, options).pipe(
             catchError(this.handleError<T>('post'))
         );
     }
@@ -57,7 +59,9 @@ export class BaseApiService {
      * @returns Observable contenant les données de l'API
      */
     protected put<T>(endpoint: string, data: any): Observable<T> {
-        return this.httpClient.put<T>(`${this.baseUrl}/${endpoint}`, data, this.httpOptions).pipe(
+        // Utiliser des options différentes si les données sont un FormData
+        const options = data instanceof FormData ? {} : this.httpOptions;
+        return this.httpClient.put<T>(`${this.baseUrl}/${endpoint}`, data, options).pipe(
             catchError(this.handleError<T>('put'))
         );
     }
