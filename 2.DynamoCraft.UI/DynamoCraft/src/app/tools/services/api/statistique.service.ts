@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BaseApiService } from './base-api.service';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, catchError } from 'rxjs';
 import { Statistique } from '../../../models/statistique.model';
 
 @Injectable({
@@ -20,7 +20,11 @@ export class StatistiqueService extends BaseApiService {
      */
     postStatistique(statistique: Statistique): Observable<Statistique> {
         return this.post<Statistique>('statistique', statistique).pipe(
-            tap((newStat: Statistique) => console.log(`Statistique créée avec l'id=${newStat.id}`))
+            tap({
+                next: (newStat: Statistique) => console.log(`Statistique créée avec l'id=${newStat.id}`),
+                error: (error) => console.error('Erreur lors de la création de la statistique :', error)
+            }),
+            catchError(this.handleError<Statistique>('postStatistique'))
         );
     }
 
@@ -32,7 +36,11 @@ export class StatistiqueService extends BaseApiService {
      */
     updateStatistique(id: number, statistique: Statistique): Observable<any> {
         return this.put<any>(`statistique/${id}`, statistique).pipe(
-            tap(() => console.log(`Statistique id=${id} mise à jour`))
+            tap({
+                next: () => console.log(`Statistique id=${id} mise à jour`),
+                error: (error) => console.error(`Erreur lors de la mise à jour de la statistique id=${id} :`, error)
+            }),
+            catchError(this.handleError<any>('updateStatistique'))
         );
     }
 
@@ -42,7 +50,11 @@ export class StatistiqueService extends BaseApiService {
      */
     getTotalsStatistique(): Observable<any> {
         return this.get<any>('statistique/totals').pipe(
-            tap(() => console.log('Récupération des totaux'))
+            tap({
+                next: () => console.log('Récupération des totaux'),
+                error: (error) => console.error('Erreur lors de la récupération des totaux :', error)
+            }),
+            catchError(this.handleError<any>('getTotalsStatistique'))
         );
     }
 }

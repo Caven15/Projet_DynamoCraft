@@ -1,41 +1,11 @@
 <div>
-    <h1>Test Utilisateur Component</h1>
+    <h1>Test Image Utilisateur Component</h1>
     <div *ngIf="message">{{ message }}</div>
 
-    <h2>Tous les utilisateurs</h2>
-    <ul>
-        <li *ngFor="let utilisateur of utilisateurs">
-            {{ utilisateur.pseudo }} ({{ utilisateur.email }})
-            <button (click)="getUtilisateurById(utilisateur.id)">Détails</button>
-            <button (click)="deleteUtilisateur(utilisateur.id)">Supprimer</button>
-        </li>
-    </ul>
+    <label for="image">Image:</label>
+    <input id="image" type="file" (change)="onFileSelected($event)" />
 
-    <h2>Détails de l'utilisateur</h2>
-    <div *ngIf="utilisateur">
-        <form (ngSubmit)="updateUtilisateur(utilisateur.id, utilisateur)" enctype="multipart/form-data">
-            <label for="pseudo">Pseudo:</label>
-            <input id="pseudo" [(ngModel)]="utilisateur.pseudo" name="pseudo" type="text" />
-
-            <label for="email">Email:</label>
-            <input id="email" [(ngModel)]="utilisateur.email" name="email" type="email" />
-
-            <label for="dateNaissance">Date de Naissance:</label>
-            <input id="dateNaissance" [(ngModel)]="utilisateur.dateNaissance" name="dateNaissance" type="date" />
-
-            <label for="biographie">Biographie:</label>
-            <textarea id="biographie" [(ngModel)]="utilisateur.biographie" name="biographie"></textarea>
-
-            <label for="centreInterets">Centre d'Intérêts:</label>
-            <input id="centreInterets" [(ngModel)]="utilisateur.centreInterets" name="centreInterets" type="text" />
-
-            <label for="statutCompte">Statut:</label>
-            <input id="statutCompte" [(ngModel)]="utilisateur.statutCompte" name="statutCompte" type="checkbox" />
-
-            <label for="image">Image:</label>
-            <input id="image" type="file" (change)="onFileSelected($event)" name="image" />
-
-            <button type="submit">Mettre à jour</button>
-        </form>
-    </div>
+    <button (click)="addImage(1)">Ajouter Image</button>
+    <button (click)="updateImage(1)">Mettre à jour Image</button>
+    <button (click)="deleteImage(1)">Supprimer Image</button>
 </div>

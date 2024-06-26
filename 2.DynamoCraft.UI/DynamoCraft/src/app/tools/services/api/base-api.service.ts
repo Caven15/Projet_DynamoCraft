@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { Observable, catchError, of } from 'rxjs';
+import { Observable, catchError, throwError } from 'rxjs';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment.dev';
 
@@ -85,7 +85,12 @@ export class BaseApiService {
      */
     protected handleError<T>(operation = 'operation', result?: T) {
         return (error: HttpErrorResponse): Observable<T> => {
-            console.error(`${operation} a échoué: ${error.message}`);
+            let errorMessage = `${operation} a échoué: ${error.message}`;
+            if (error.error && error.error.message) {
+                errorMessage = `${operation} a échoué: ${error.error.message}`;
+            }
+
+            console.error(errorMessage);
 
             switch (error.status) {
                 case 400:
@@ -107,7 +112,7 @@ export class BaseApiService {
                     console.error('Erreur inconnue');
             }
 
-            return of(result as T);
+            return throwError(() => new Error(errorMessage));
         };
     }
 }

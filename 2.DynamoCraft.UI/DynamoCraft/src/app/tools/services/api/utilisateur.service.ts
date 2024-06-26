@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BaseApiService } from './base-api.service';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, catchError } from 'rxjs';
 import { Utilisateur } from '../../../models/utilisateur.model';
 
 @Injectable({
@@ -19,7 +19,11 @@ export class UtilisateurService extends BaseApiService {
      */
     getAllUtilisateurs(): Observable<Utilisateur[]> {
         return this.getAll<Utilisateur>('utilisateurs').pipe(
-            tap(() => console.log('Récupération de tous les utilisateurs'))
+            tap({
+                next: () => console.log('Récupération de tous les utilisateurs'),
+                error: (error) => console.error('Erreur lors de la récupération de tous les utilisateurs :', error)
+            }),
+            catchError(this.handleError<Utilisateur[]>('getAllUtilisateurs'))
         );
     }
 
@@ -30,7 +34,11 @@ export class UtilisateurService extends BaseApiService {
      */
     getUtilisateurById(id: number): Observable<Utilisateur> {
         return this.get<Utilisateur>(`utilisateur/${id}`).pipe(
-            tap(() => console.log(`Récupération de l'utilisateur avec l'id=${id}`))
+            tap({
+                next: () => console.log(`Récupération de l'utilisateur avec l'id=${id}`),
+                error: (error) => console.error(`Erreur lors de la récupération de l'utilisateur avec l'id=${id} :`, error)
+            }),
+            catchError(this.handleError<Utilisateur>('getUtilisateurById'))
         );
     }
 
@@ -41,7 +49,13 @@ export class UtilisateurService extends BaseApiService {
      * @returns Observable indiquant le résultat de l'opération
      */
     updateUtilisateur(id: number, utilisateur: FormData): Observable<any> {
-        return this.put(`utilisateur/${id}`, utilisateur);
+        return this.put(`utilisateur/${id}`, utilisateur).pipe(
+            tap({
+                next: () => console.log(`Utilisateur id=${id} mis à jour`),
+                error: (error) => console.error(`Erreur lors de la mise à jour de l'utilisateur id=${id} :`, error)
+            }),
+            catchError(this.handleError<any>('updateUtilisateur'))
+        );
     }
 
     /**
@@ -51,7 +65,11 @@ export class UtilisateurService extends BaseApiService {
      */
     deleteUtilisateur(id: number): Observable<any> {
         return this.delete<any>(`utilisateur/${id}`).pipe(
-            tap(() => console.log(`Utilisateur id=${id} supprimé`))
+            tap({
+                next: () => console.log(`Utilisateur id=${id} supprimé`),
+                error: (error) => console.error(`Erreur lors de la suppression de l'utilisateur id=${id} :`, error)
+            }),
+            catchError(this.handleError<any>('deleteUtilisateur'))
         );
     }
 }

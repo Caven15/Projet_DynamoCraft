@@ -20,6 +20,14 @@ exports.addImage = async (req, res, next) => {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
 
+        const existingImage = await dbConnector.ImageUtilisateur.findOne({ where: { utilisateurId: id } });
+        if (existingImage) {
+            fs.unlink(`./uploads/${file.filename}`, (err) => {
+                if (err) console.log(err);
+            });
+            return res.status(400).json({ message: 'Une image existe déjà pour cet utilisateur' });
+        }
+
         const newImageUtilisateur = await dbConnector.ImageUtilisateur.create({
             nom: file.filename,
             dateAjout: new Date(),
@@ -37,11 +45,11 @@ exports.addImage = async (req, res, next) => {
     }
 };
 
-// Mettre à jour une image utilisateur par ID
+// Mettre à jour une image utilisateur par ID d'utilisateur
 exports.updateImage = async (req, res, next) => {
     try {
         const { file } = req;
-        const { id } = req.params;
+        const { id } = req.params; // id from URL params, which is the utilisateur ID
 
         if (!file) {
             return res.status(400).json({ message: 'Aucun fichier fourni' });
@@ -55,7 +63,7 @@ exports.updateImage = async (req, res, next) => {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
 
-        const imageUtilisateur = await dbConnector.ImageUtilisateur.findOne({ where: { id } });
+        const imageUtilisateur = await dbConnector.ImageUtilisateur.findOne({ where: { utilisateurId: id } });
         if (!imageUtilisateur) {
             fs.unlink(`./uploads/${file.filename}`, (err) => {
                 if (err) console.log(err);
@@ -91,7 +99,7 @@ exports.deleteImage = async (req, res, next) => {
             return res.status(404).json({ message: 'Utilisateur non trouvé' });
         }
 
-        const imageUtilisateur = await dbConnector.ImageUtilisateur.findOne({ where: { id } });
+        const imageUtilisateur = await dbConnector.ImageUtilisateur.findOne({where: { utilisateurId: id } });
         if (!imageUtilisateur) {
             return res.status(404).json({ message: 'Image utilisateur non trouvée' });
         }

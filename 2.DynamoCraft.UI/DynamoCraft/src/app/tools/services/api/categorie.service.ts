@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, tap } from 'rxjs';
 import { BaseApiService } from './base-api.service';
 import { categorie } from '../../../models/categorie.model';
 
@@ -19,7 +19,11 @@ export class CategorieService extends BaseApiService {
      */
     getAllCategorie(): Observable<categorie[]> {
         return this.getAll<categorie>('categories').pipe(
-            tap(() => console.log('Récupération de toutes les catégories'))
+            tap({
+                next: () => console.log('Récupération de toutes les catégories'),
+                error: (error) => console.error('Erreur lors de la récupération de toutes les catégories :', error)
+            }),
+            catchError(this.handleError<categorie[]>('getAllCategorie'))
         );
     }
 
@@ -30,7 +34,11 @@ export class CategorieService extends BaseApiService {
      */
     getCategorieById(id: number): Observable<categorie> {
         return this.get<categorie>(`categorie/${id}`).pipe(
-            tap(() => console.log(`Récupération de la catégorie id=${id}`))
+            tap({
+                next: () => console.log(`Récupération de la catégorie id=${id}`),
+                error: (error) => console.error(`Erreur lors de la récupération de la catégorie id=${id} :`, error)
+            }),
+            catchError(this.handleError<categorie>('getCategorieById'))
         );
     }
 
@@ -41,7 +49,11 @@ export class CategorieService extends BaseApiService {
      */
     postCategorie(categorie: categorie): Observable<categorie> {
         return this.post<categorie>('categorie', categorie).pipe(
-            tap((newCategorie: categorie) => console.log(`Catégorie créée avec l'id=${newCategorie.id}`))
+            tap({
+                next: (newCategorie: categorie) => console.log(`Catégorie créée avec l'id=${newCategorie.id}`),
+                error: (error) => console.error('Erreur lors de la création de la catégorie :', error)
+            }),
+            catchError(this.handleError<categorie>('postCategorie'))
         );
     }
 
@@ -53,7 +65,11 @@ export class CategorieService extends BaseApiService {
      */
     updateCategorie(id: number, categorie: categorie): Observable<any> {
         return this.put<any>(`categorie/${id}`, categorie).pipe(
-            tap(() => console.log(`Catégorie id=${id} mise à jour`))
+            tap({
+                next: () => console.log(`Catégorie id=${id} mise à jour`),
+                error: (error) => console.error(`Erreur lors de la mise à jour de la catégorie id=${id} :`, error)
+            }),
+            catchError(this.handleError<any>('updateCategorie'))
         );
     }
 }
