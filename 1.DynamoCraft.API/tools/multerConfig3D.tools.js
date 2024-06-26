@@ -1,16 +1,26 @@
-const multer = require('multer');
-const path = require('path');
+const multer = require("multer");
+const path = require("path");
 
 // Liste des extensions de fichiers 3D acceptées
-const allowedExtensions = ['.stl', '.obj', '.amf', '.3mf', '.ply', '.step', '.fbx', '.iges', '.x3d'];
+const allowedExtensions = [
+    ".stl",
+    ".obj",
+    ".amf",
+    ".3mf",
+    ".ply",
+    ".step",
+    ".fbx",
+    ".iges",
+    ".x3d",
+];
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        cb(null, "uploads/");
     },
     filename: (req, file, cb) => {
         cb(null, `${Date.now()}-${file.originalname}`);
-    }
+    },
 });
 
 const fileFilter = (req, file, cb) => {
@@ -25,9 +35,9 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
     storage: storage,
     limits: {
-        fileSize: 1024 * 1024 * 50 // 50MB
+        fileSize: 1024 * 1024 * 50, // 50MB
     },
-    fileFilter: fileFilter
+    fileFilter: fileFilter,
 });
 
 module.exports = upload;

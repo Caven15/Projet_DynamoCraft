@@ -1,6 +1,6 @@
 require("dotenv").config();
 const { Sequelize, DataTypes } = require("sequelize");
-const { logSQLQuery } = require('../tools/logs.tools');
+const { logSQLQuery } = require("../tools/logs.tools");
 
 // Import des modèles Sequelize
 const utilisateurModel = require("../models/utilisateur");
@@ -29,7 +29,7 @@ module.exports = {
                     dialect: "mysql",
                     port: process.env.PORT,
                     timezone: "+02:00",
-                    logging: (msg) => logSQLQuery('SQL Query Executed', msg)
+                    logging: (msg) => logSQLQuery("SQL Query Executed", msg),
                 }
             );
             dbConnector = {
@@ -45,7 +45,7 @@ module.exports = {
                 ImageProjet: imageProjetModel(sequelize, DataTypes),
                 Modele3D: modele3dModel(sequelize, DataTypes),
                 Commentaire: commentaireModel(sequelize, DataTypes),
-                UtilisateurProjet: utilisateurProjetModel(sequelize, DataTypes)
+                UtilisateurProjet: utilisateurProjetModel(sequelize, DataTypes),
             };
 
             // Relation entre Utilisateur et Role
@@ -73,8 +73,12 @@ module.exports = {
             dbConnector.Categorie.hasMany(dbConnector.Projet);
 
             // Relation entre Projet et UtilisateurProjet
-            dbConnector.Projet.belongsToMany(dbConnector.Utilisateur, { through: dbConnector.UtilisateurProjet });
-            dbConnector.Utilisateur.belongsToMany(dbConnector.Projet, { through: dbConnector.UtilisateurProjet });
+            dbConnector.Projet.belongsToMany(dbConnector.Utilisateur, {
+                through: dbConnector.UtilisateurProjet,
+            });
+            dbConnector.Utilisateur.belongsToMany(dbConnector.Projet, {
+                through: dbConnector.UtilisateurProjet,
+            });
 
             // Relation entre Projet et Commentaire
             dbConnector.Projet.hasOne(dbConnector.Commentaire);
@@ -94,9 +98,7 @@ module.exports = {
     },
 
     get: () => {
-        if (!dbConnector)
-            this.connect();
-        else
-            return dbConnector;
-    }
+        if (!dbConnector) this.connect();
+        else return dbConnector;
+    },
 };

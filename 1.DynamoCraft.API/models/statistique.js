@@ -1,25 +1,26 @@
-'use strict';
-const { Model } = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class Statistique extends Model {
-
-  }
-  Statistique.init({
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    nombreApreciation: DataTypes.INTEGER,
-    nombreTelechargement: DataTypes.INTEGER,
-    datePublication: DataTypes.DATE,
-    dateModification: DataTypes.DATE
-  }, {
-    sequelize,
-    modelName: 'Statistique',
-    tableName: 'Statistique',
-    timestamps: false
-  });
-  return Statistique;
+    class Statistique extends Model {}
+    Statistique.init(
+        {
+            id: {
+                type: DataTypes.INTEGER,
+                primaryKey: true,
+                autoIncrement: true,
+            },
+            nombreApreciation: DataTypes.INTEGER,
+            nombreTelechargement: DataTypes.INTEGER,
+            datePublication: DataTypes.DATE,
+            dateModification: DataTypes.DATE,
+        },
+        {
+            sequelize,
+            modelName: "Statistique",
+            tableName: "Statistique",
+            timestamps: false,
+        }
+    );
+    return Statistique;
 };

@@ -1,5 +1,5 @@
 export class ImageProjet {
-    id?: number;
+    id: number;
     nom: string;
     dateCreation: Date;
     dateModif: Date;
@@ -10,7 +10,7 @@ export class ImageProjet {
         dateCreation: Date = new Date(),
         dateModif: Date = new Date(),
         projetId: number,
-        id?: number
+        id: number
     ) {
         this.nom = nom;
         this.dateCreation = dateCreation;
