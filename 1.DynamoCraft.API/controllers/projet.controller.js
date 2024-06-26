@@ -1,49 +1,99 @@
 const dbConnector = require("../tools/ConnexionDb.tools").get();
-const { Op } = require('sequelize');
-
+const path = require("path");
+const fs = require("fs");
+const { Op } = require("sequelize");
+const {
+    logMessage,
+    logSQLQuery,
+    COLOR_GREEN,
+    COLOR_RED,
+    COLOR_YELLOW,
+} = require("../tools/logs.tools");
 
 exports.create = async (req, res, next) => {
+    logMessage("Début de la création du projet", COLOR_YELLOW);
+
     try {
         const { nom, description, categorieId, utilisateurId } = req.body;
         const { files } = req;
 
         if (!nom || !categorieId || !description || !utilisateurId) {
-            return res.status(400).json({ message: 'Le nom, la description, la catégorie et l\'utilisateur sont obligatoires' });
+            logMessage(
+                "Le nom, la description, la catégorie et l'utilisateur sont obligatoires",
+                COLOR_RED
+            );
+            return res.status(400).json({
+                message:
+                    "Le nom, la description, la catégorie et l'utilisateur sont obligatoires",
+            });
+        }
+
+        // Vérifier l'unicité du nom du projet
+        logMessage(
+            `Vérification de l'unicité du nom du projet: ${nom}`,
+            COLOR_YELLOW
+        );
+        const existingProject = await dbConnector.Projet.findOne({
+            where: { nom },
+        });
+        if (existingProject) {
+            logMessage("Un projet avec ce nom existe déjà", COLOR_RED);
+            return res
+                .status(400)
+                .json({ message: "Un projet avec ce nom existe déjà" });
         }
 
         // Vérifier si l'utilisateur existe
-        const utilisateur = await dbConnector.Utilisateur.findByPk(utilisateurId);
+        logMessage(
+            `Vérification de l'existence de l'utilisateur avec ID: ${utilisateurId}`,
+            COLOR_YELLOW
+        );
+        const utilisateur = await dbConnector.Utilisateur.findByPk(
+            utilisateurId
+        );
         if (!utilisateur) {
-            return res.status(404).json({ message: 'Utilisateur non trouvé' });
+            logMessage("Utilisateur non trouvé", COLOR_RED);
+            return res.status(404).json({ message: "Utilisateur non trouvé" });
         }
 
         // Vérifier le nombre total d'images de projet
+        logMessage(
+            "Vérification du nombre total d'images de projet",
+            COLOR_YELLOW
+        );
         const existingImagesCount = await dbConnector.ImageProjet.count();
         if (existingImagesCount + (files ? files.length : 0) > 8) {
-            return res.status(400).json({ message: 'Limite de 8 images par projet atteinte' });
+            logMessage("Limite de 8 images par projet atteinte", COLOR_RED);
+            return res
+                .status(400)
+                .json({ message: "Limite de 8 images par projet atteinte" });
         }
 
         // Créer une nouvelle statistique
+        logMessage("Création d'une nouvelle statistique", COLOR_YELLOW);
         const newStat = await dbConnector.Statistique.create({
             nombreApreciation: 0,
             nombreTelechargement: 0,
             datePublication: new Date(),
-            dateModification: new Date()
+            dateModification: new Date(),
         });
 
         // Créer le projet avec la référence de la statistique
+        logMessage(
+            "Création du projet avec la référence de la statistique",
+            COLOR_YELLOW
+        );
         const newProjet = await dbConnector.Projet.create({
             nom,
             description,
             estvalide: false,
             commentaire_admin: "En attente de validation.",
-            statutId: 3, 
+            statutId: 3,
             statistiqueId: newStat.id,
             categorieId,
             utilisateurId,
         });
 
-        // Ajouter les images de projet, si des fichiers sont joints
         if (files && files.length > 0) {
             const images = [];
             for (const file of files) {
@@ -51,497 +101,811 @@ exports.create = async (req, res, next) => {
                     nom: file.filename,
                     dateCreation: new Date(),
                     dateModif: new Date(),
-                    projetId: newProjet.id
+                    projetId: newProjet.id,
                 });
                 images.push(newImageProjet);
             }
-            res.status(201).json({ message: 'Projet créé avec succès', projet: newProjet, images });
+            logMessage("Projet créé avec succès avec images", COLOR_GREEN);
+            return res.status(201).json({
+                message: "Projet créé avec succès",
+                projet: newProjet,
+                images,
+            });
         } else {
-            res.status(201).json({ message: 'Projet créé avec succès', projet: newProjet });
+            logMessage("Projet créé avec succès sans images", COLOR_GREEN);
+            return res.status(201).json({
+                message: "Projet créé avec succès",
+                projet: newProjet,
+            });
         }
-
     } catch (error) {
-        console.error('Erreur lors de la création du projet :', error);
-        res.status(500).json({ message: 'Erreur lors de la création du projet' });
+        logMessage("Erreur lors de la création du projet", COLOR_RED);
+        console.error("Erreur lors de la création du projet :", error);
+        return res
+            .status(500)
+            .json({ message: "Erreur lors de la création du projet" });
     }
 };
 
 // Récupérer tous les projets
 exports.getAll = async (req, res, next) => {
+    logMessage("Début de la récupération de tous les projets", COLOR_YELLOW);
     try {
         const projects = await dbConnector.Projet.findAll({
             include: [
-                { model: dbConnector.Statut, attributes: { exclude: ['id'] } },
-                { model: dbConnector.Statistique, attributes: { exclude: ['id'] } },
-                { model: dbConnector.Categorie, attributes: { exclude: ['id'] } },
-                { model: dbConnector.Utilisateur, attributes: { exclude: ['roleId'] } },
-                { 
+                { model: dbConnector.Statut, attributes: { exclude: ["id"] } },
+                {
+                    model: dbConnector.Statistique,
+                    attributes: { exclude: ["id"] },
+                },
+                {
+                    model: dbConnector.Categorie,
+                    attributes: { exclude: ["id"] },
+                },
+                {
                     model: dbConnector.Utilisateur,
-                    attributes: { exclude: ['id', 'password'] } 
-                }
+                    attributes: { exclude: ["roleId"] },
+                },
+                {
+                    model: dbConnector.Utilisateur,
+                    attributes: { exclude: ["id", "password"] },
+                },
             ],
-            attributes: { exclude: ['statutId', 'statistiqueId', 'categorieId', 'utilisateurId'] } // Exclure les champs redondants
+            attributes: {
+                exclude: [
+                    "statutId",
+                    "statistiqueId",
+                    "categorieId",
+                    "utilisateurId",
+                ],
+            },
         });
-
-        res.status(200).json({ projects });
+        logMessage("Tous les projets récupérés avec succès", COLOR_GREEN);
+        return res.status(200).json({ projects });
     } catch (error) {
-        console.error('Erreur lors de la récupération des projets :', error);
-        res.status(500).json({ message: 'Erreur lors de la récupération des projets' });
+        logMessage("Erreur lors de la récupération des projets", COLOR_RED);
+        console.error("Erreur lors de la récupération des projets :", error);
+        return res
+            .status(500)
+            .json({ message: "Erreur lors de la récupération des projets" });
     }
 };
 
 // Récupérer un projet par ID
 exports.getById = async (req, res, next) => {
+    logMessage(
+        `Début de la récupération du projet avec ID: ${req.params.id}`,
+        COLOR_YELLOW
+    );
     try {
         const projectId = req.params.id;
-
-        // Récupérer le projet avec son ID
         const project = await dbConnector.Projet.findByPk(projectId, {
             include: [
                 { model: dbConnector.Statut },
                 { model: dbConnector.Statistique },
                 { model: dbConnector.Categorie },
-                { model: dbConnector.Utilisateur, attributes: { exclude: ['roleId'] } },
-                { 
+                {
                     model: dbConnector.Utilisateur,
-                    attributes: { exclude: ['password'] } // Exclure le mot de passe de l'utilisateur
-                }
+                    attributes: { exclude: ["roleId"] },
+                },
+                {
+                    model: dbConnector.Utilisateur,
+                    attributes: { exclude: ["password"] },
+                },
             ],
-            attributes: { exclude: ['statutId', 'statistiqueId', 'categorieId', 'utilisateurId'] } // Exclure les champs redondants
+            attributes: {
+                exclude: [
+                    "statutId",
+                    "statistiqueId",
+                    "categorieId",
+                    "utilisateurId",
+                ],
+            },
         });
 
         if (!project) {
-            console.log("test");
-            return res.status(404).json({ message: 'Projet non trouvé' });
+            logMessage("Projet non trouvé", COLOR_RED);
+            return res.status(404).json({ message: "Projet non trouvé" });
         }
 
-        res.status(200).json({ project });
+        logMessage(
+            `Projet avec ID: ${req.params.id} récupéré avec succès`,
+            COLOR_GREEN
+        );
+        return res.status(200).json({ project });
     } catch (error) {
-        console.error('Erreur lors de la récupération du projet :', error);
-        res.status(500).json({ message: 'Erreur lors de la récupération du projet' });
+        logMessage("Erreur lors de la récupération du projet", COLOR_RED);
+        console.error("Erreur lors de la récupération du projet :", error);
+        return res
+            .status(500)
+            .json({ message: "Erreur lors de la récupération du projet" });
     }
 };
 
 // Récupérer les projets par utilisateurId
 exports.getByUserId = async (req, res, next) => {
+    logMessage(
+        `Début de la récupération des projets pour l'utilisateur avec ID: ${req.params.id}`,
+        COLOR_YELLOW
+    );
     try {
-        const userId = req.params.id; // Récupérer l'ID de l'utilisateur à partir des paramètres de la requête
-
-        // Récupérer les projets associés à l'utilisateur
+        const userId = req.params.id;
         const projects = await dbConnector.Projet.findAll({
             where: {
-                utilisateurId: userId // Filtrer les projets par utilisateurId
+                utilisateurId: userId,
             },
             include: [
                 { model: dbConnector.Statut },
                 { model: dbConnector.Statistique },
                 { model: dbConnector.Categorie },
-                { model: dbConnector.Utilisateur, attributes: { exclude: ['roleId'] } },
-                { 
+                {
                     model: dbConnector.Utilisateur,
-                    attributes: { exclude: ['password'] } // Exclure le mot de passe de l'utilisateur
-                }
+                    attributes: { exclude: ["roleId"] },
+                },
+                {
+                    model: dbConnector.Utilisateur,
+                    attributes: { exclude: ["password"] },
+                },
             ],
-            attributes: { exclude: ['statutId', 'statistiqueId', 'categorieId', 'utilisateurId'] } // Exclure les champs redondants
+            attributes: {
+                exclude: [
+                    "statutId",
+                    "statistiqueId",
+                    "categorieId",
+                    "utilisateurId",
+                ],
+            },
         });
 
-        res.status(200).json({ projects });
+        logMessage(
+            `Projets pour l'utilisateur avec ID: ${req.params.id} récupérés avec succès`,
+            COLOR_GREEN
+        );
+        return res.status(200).json({ projects });
     } catch (error) {
-        console.error('Erreur lors de la récupération des projets par utilisateurId :', error);
-        res.status(500).json({ message: 'Erreur lors de la récupération des projets par utilisateurId' });
+        logMessage(
+            "Erreur lors de la récupération des projets par utilisateurId",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de la récupération des projets par utilisateurId :",
+            error
+        );
+        return res.status(500).json({
+            message:
+                "Erreur lors de la récupération des projets par utilisateurId",
+        });
     }
 };
 
 // Mettre à jour un projet par ID
 exports.updateById = async (req, res, next) => {
+    logMessage(
+        `Début de la mise à jour du projet avec ID: ${req.params.id}`,
+        COLOR_YELLOW
+    );
     try {
         const { nom, description, categorieId } = req.body;
         const projectId = req.params.id;
-        console.log(projectId);
 
-        // Vérifier si le projet existe
         const projet = await dbConnector.Projet.findByPk(projectId);
         if (!projet) {
-            return res.status(404).json({ message: 'Projet non trouvé' });
+            logMessage("Projet non trouvé", COLOR_RED);
+            return res.status(404).json({ message: "Projet non trouvé" });
         }
 
-        // Mettre à jour les attributs du projet
         await projet.update({
             nom,
             description,
-            categorieId
+            categorieId,
         });
 
-        res.status(200).json({ message: `Projet ${projectId} mis à jour avec succès !` });
+        logMessage(
+            `Projet avec ID: ${req.params.id} mis à jour avec succès`,
+            COLOR_GREEN
+        );
+        return res
+            .status(200)
+            .json({ message: `Projet ${projectId} mis à jour avec succès !` });
     } catch (error) {
-        console.error('Erreur lors de la mise à jour du projet :', error);
-        res.status(500).json({ message: 'Erreur lors de la mise à jour du projet' });
+        logMessage("Erreur lors de la mise à jour du projet", COLOR_RED);
+        console.error("Erreur lors de la mise à jour du projet :", error);
+        return res
+            .status(500)
+            .json({ message: "Erreur lors de la mise à jour du projet" });
     }
 };
 
 // Supprimer un projet par ID avec req et res
 exports.delete = async (req, res, next) => {
+    logMessage(
+        `Début de la suppression du projet avec ID: ${req.params.id}`,
+        COLOR_YELLOW
+    );
     try {
         const projectId = req.params.id;
 
-        // Vérifier si le projet existe
         const projet = await dbConnector.Projet.findByPk(projectId);
         if (!projet) {
-            return res.status(404).json({ message: 'Projet non trouvé' });
+            logMessage("Projet non trouvé", COLOR_RED);
+            return res.status(404).json({ message: "Projet non trouvé" });
         }
 
-        // Supprimer les relations associées (Images, Commentaires, Modèles 3D, Statistiques)
+        const images = await dbConnector.ImageProjet.findAll({
+            where: { projetId: projectId },
+        });
+
+        for (const image of images) {
+            const imagePath = path.join(__dirname, "../uploads/", image.nom);
+            fs.unlink(imagePath, (err) => {
+                if (err) {
+                    logMessage(
+                        `Erreur lors de la suppression de l'image : ${image.nom}`,
+                        COLOR_RED
+                    );
+                    console.error(
+                        "Erreur lors de la suppression de l'image :",
+                        err
+                    );
+                } else {
+                    logMessage(`Image ${image.nom} supprimée`, COLOR_GREEN);
+                }
+            });
+        }
+
         await dbConnector.ImageProjet.destroy({
-            where: { projetId: projectId }
+            where: { projetId: projectId },
         });
 
         await dbConnector.Commentaire.destroy({
-            where: { projetId: projectId }
+            where: { projetId: projectId },
         });
 
         await dbConnector.Modele3D.destroy({
-            where: { projetId: projectId }
+            where: { projetId: projectId },
         });
-        
-        // Supprimer le projet
+
         await projet.destroy();
 
         await dbConnector.Statistique.destroy({
-            where: { id: projet.statistiqueId }
+            where: { id: projet.statistiqueId },
         });
 
-
-        return res.status(200).json({ message: `Projet ${projectId} supprimé avec succès !` });
+        logMessage(
+            `Projet avec ID: ${req.params.id} supprimé avec succès`,
+            COLOR_GREEN
+        );
+        return res
+            .status(200)
+            .json({ message: `Projet ${projectId} supprimé avec succès !` });
     } catch (error) {
-        console.error('Erreur lors de la suppression du projet :', error);
-        return res.status(500).json({ message: 'Erreur lors de la suppression du projet' });
+        logMessage("Erreur lors de la suppression du projet", COLOR_RED);
+        console.error("Erreur lors de la suppression du projet :", error);
+        return res
+            .status(500)
+            .json({ message: "Erreur lors de la suppression du projet" });
     }
-};
-
-// Supprimer un projet par ID sans req et res (helper method)
-exports.deleteProjectById = async (projectId) => {
-    try {
-        // Vérifier si le projet existe
-        const projet = await dbConnector.Projet.findByPk(projectId);
-        if (!projet) {
-            console.log(`Projet ${projectId} non trouvé`);
-            return;
-        }
-
-        // Supprimer les relations associées (Images, Commentaires, Modèles 3D, Statistiques)
-        await dbConnector.ImageProjet.destroy({
-            where: { projetId: projectId }
-        });
-
-        await dbConnector.Commentaire.destroy({
-            where: { projetId: projectId }
-        });
-
-        await dbConnector.Modele3D.destroy({
-            where: { projetId: projectId }
-        });
-        // Supprimer le projet
-        await projet.destroy();
-
-        await dbConnector.Statistique.destroy({
-            where: { id: projet.statistiqueId }
-        });
-
-        console.log(`Projet ${projectId} supprimé avec succès !`);
-    } catch (error) {
-        console.error('Erreur lors de la suppression du projet :', error);
-    }
-};
-
-// Télécharger un projet
-exports.download = async (req, res, next) => {
-    console.log("manque controller image pour fonctionner correctement...");
-    return res.status(201).json({ message: 'manque modèle 3 et image pour fonctionner correctement...' });
 };
 
 // Récupérer tous les projets par catégorie
 exports.getByCategoryId = async (req, res, next) => {
+    logMessage(
+        `Début de la récupération des projets pour la catégorie avec ID: ${req.params.id}`,
+        COLOR_YELLOW
+    );
     try {
         const categoryId = req.params.id;
 
-        // Vérifier si la catégorie existe
         const categorie = await dbConnector.Categorie.findByPk(categoryId);
         if (!categorie) {
-            return res.status(404).json({ message: 'Catégorie non trouvée' });
+            logMessage("Catégorie non trouvée", COLOR_RED);
+            return res.status(404).json({ message: "Catégorie non trouvée" });
         }
 
-        // Récupérer les projets associés à la catégorie
         const projects = await dbConnector.Projet.findAll({
             where: { categorieId: categoryId },
             include: [
-                { model: dbConnector.Statut, attributes: { exclude: ['id'] } },
-                { model: dbConnector.Statistique, attributes: { exclude: ['id'] } },
-                { model: dbConnector.Categorie, attributes: { exclude: ['id'] } },
-                { 
+                { model: dbConnector.Statut, attributes: { exclude: ["id"] } },
+                {
+                    model: dbConnector.Statistique,
+                    attributes: { exclude: ["id"] },
+                },
+                {
+                    model: dbConnector.Categorie,
+                    attributes: { exclude: ["id"] },
+                },
+                {
                     model: dbConnector.Utilisateur,
-                    attributes: { exclude: ['id', 'password'] } 
-                }
-            ]
+                    attributes: { exclude: ["id", "password"] },
+                },
+            ],
         });
 
-        res.status(200).json({ projects });
+        logMessage(
+            `Projets pour la catégorie avec ID: ${req.params.id} récupérés avec succès`,
+            COLOR_GREEN
+        );
+        return res.status(200).json({ projects });
     } catch (error) {
-        console.error('Erreur lors de la récupération des projets par catégorie :', error);
-        res.status(500).json({ message: 'Erreur lors de la récupération des projets par catégorie' });
+        logMessage(
+            "Erreur lors de la récupération des projets par catégorie",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de la récupération des projets par catégorie :",
+            error
+        );
+        return res.status(500).json({
+            message: "Erreur lors de la récupération des projets par catégorie",
+        });
     }
 };
 
 // Récupérer tous les projets valides
 exports.getValidProjet = async (req, res, next) => {
+    logMessage("Début de la récupération des projets valides", COLOR_YELLOW);
     try {
-        // Récupérer les projets avec le statut "valide"
         const projects = await dbConnector.Projet.findAll({
             where: { estvalide: true },
             include: [
-                { model: dbConnector.Statut, attributes: { exclude: ['id'] } },
-                { model: dbConnector.Statistique, attributes: { exclude: ['id'] } },
-                { model: dbConnector.Categorie, attributes: { exclude: ['id'] } },
-                { 
+                { model: dbConnector.Statut, attributes: { exclude: ["id"] } },
+                {
+                    model: dbConnector.Statistique,
+                    attributes: { exclude: ["id"] },
+                },
+                {
+                    model: dbConnector.Categorie,
+                    attributes: { exclude: ["id"] },
+                },
+                {
                     model: dbConnector.Utilisateur,
-                    attributes: { exclude: ['id', 'password'] } 
-                }
-            ]
+                    attributes: { exclude: ["id", "password"] },
+                },
+            ],
         });
 
-        res.status(200).json({ projects });
+        logMessage("Projets valides récupérés avec succès", COLOR_GREEN);
+        return res.status(200).json({ projects });
     } catch (error) {
-        console.error('Erreur lors de la récupération des projets valides :', error);
-        res.status(500).json({ message: 'Erreur lors de la récupération des projets valides' });
+        logMessage(
+            "Erreur lors de la récupération des projets valides",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de la récupération des projets valides :",
+            error
+        );
+        return res.status(500).json({
+            message: "Erreur lors de la récupération des projets valides",
+        });
     }
 };
 
 // Récupérer tous les projets invalides
 exports.getInvalidProjet = async (req, res, next) => {
+    logMessage("Début de la récupération des projets invalides", COLOR_YELLOW);
     try {
-        // Récupérer les projets avec le statut "invalide"
         const projects = await dbConnector.Projet.findAll({
-            where: {  statutId: 2 },
+            where: { statutId: 2 },
             include: [
-                { model: dbConnector.Statut, attributes: { exclude: ['id'] } },
-                { model: dbConnector.Statistique, attributes: { exclude: ['id'] } },
-                { model: dbConnector.Categorie, attributes: { exclude: ['id'] } },
-                { 
+                { model: dbConnector.Statut, attributes: { exclude: ["id"] } },
+                {
+                    model: dbConnector.Statistique,
+                    attributes: { exclude: ["id"] },
+                },
+                {
+                    model: dbConnector.Categorie,
+                    attributes: { exclude: ["id"] },
+                },
+                {
                     model: dbConnector.Utilisateur,
-                    attributes: { exclude: ['id', 'password'] } 
-                }
-            ]
+                    attributes: { exclude: ["id", "password"] },
+                },
+            ],
         });
 
-        res.status(200).json({ projects });
+        logMessage("Projets invalides récupérés avec succès", COLOR_GREEN);
+        return res.status(200).json({ projects });
     } catch (error) {
-        console.error('Erreur lors de la récupération des projets invalides :', error);
-        res.status(500).json({ message: 'Erreur lors de la récupération des projets invalides' });
+        logMessage(
+            "Erreur lors de la récupération des projets invalides",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de la récupération des projets invalides :",
+            error
+        );
+        return res.status(500).json({
+            message: "Erreur lors de la récupération des projets invalides",
+        });
     }
 };
 
 // Récupérer tous les projets en attente
 exports.getPendingProjet = async (req, res, next) => {
+    logMessage("Début de la récupération des projets en attente", COLOR_YELLOW);
     try {
-        // Récupérer les projets avec le statut "en attente"
         const projects = await dbConnector.Projet.findAll({
-            where: { statutId: 3 }, // Supposant que le statut "en attente" a l'ID 3
+            where: { statutId: 3 },
             include: [
-                { model: dbConnector.Statut, attributes: { exclude: ['id'] } },
-                { model: dbConnector.Statistique, attributes: { exclude: ['id'] } },
-                { model: dbConnector.Categorie, attributes: { exclude: ['id'] } },
-                { 
+                { model: dbConnector.Statut, attributes: { exclude: ["id"] } },
+                {
+                    model: dbConnector.Statistique,
+                    attributes: { exclude: ["id"] },
+                },
+                {
+                    model: dbConnector.Categorie,
+                    attributes: { exclude: ["id"] },
+                },
+                {
                     model: dbConnector.Utilisateur,
-                    attributes: { exclude: ['id', 'password'] } 
-                }
-            ]
+                    attributes: { exclude: ["id", "password"] },
+                },
+            ],
         });
 
-        res.status(200).json({ projects });
+        logMessage("Projets en attente récupérés avec succès", COLOR_GREEN);
+        return res.status(200).json({ projects });
     } catch (error) {
-        console.error('Erreur lors de la récupération des projets en attente :', error);
-        res.status(500).json({ message: 'Erreur lors de la récupération des projets en attente' });
+        logMessage(
+            "Erreur lors de la récupération des projets en attente",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de la récupération des projets en attente :",
+            error
+        );
+        return res.status(500).json({
+            message: "Erreur lors de la récupération des projets en attente",
+        });
     }
 };
 
 // Mettre à jour l'état d'un projet en "valide"
 exports.setValidProjet = async (req, res, next) => {
+    logMessage(
+        `Début de la mise à jour du projet avec ID: ${req.params.id} en "valide"`,
+        COLOR_YELLOW
+    );
     try {
         const projectId = req.params.id;
         const project = await dbConnector.Projet.findByPk(projectId);
 
         if (!project) {
-            return res.status(404).json({ message: 'Projet non trouvé' });
+            logMessage("Projet non trouvé", COLOR_RED);
+            return res.status(404).json({ message: "Projet non trouvé" });
         }
 
-        await project.update({ estvalide: true, statutId: 1 }); // Supposons que statutId 1 correspond à "valide"
-        res.status(200).json({ message: `Le projet ${projectId} a été mis à jour en "valide".` });
+        await project.update({
+            estvalide: true,
+            statutId: 1,
+            commentaire_admin: "Le projet a été validé.",
+        });
+
+        logMessage(
+            `Projet avec ID: ${req.params.id} mis à jour en "valide" avec succès`,
+            COLOR_GREEN
+        );
+        return res.status(200).json({
+            message: `Le projet ${projectId} a été mis à jour en "valide".`,
+        });
     } catch (error) {
-        console.error('Erreur lors de la mise à jour du projet en valide :', error);
-        res.status(500).json({ message: 'Erreur lors de la mise à jour du projet en valide.' });
+        logMessage(
+            "Erreur lors de la mise à jour du projet en valide",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de la mise à jour du projet en valide :",
+            error
+        );
+        return res.status(500).json({
+            message: "Erreur lors de la mise à jour du projet en valide.",
+        });
     }
 };
 
 // Mettre à jour l'état d'un projet en "invalide"
 exports.setInvalidProjet = async (req, res, next) => {
+    logMessage(
+        `Début de la mise à jour du projet avec ID: ${req.params.id} en "invalide"`,
+        COLOR_YELLOW
+    );
     try {
         const projectId = req.params.id;
         const project = await dbConnector.Projet.findByPk(projectId);
 
         if (!project) {
-            return res.status(404).json({ message: 'Projet non trouvé' });
+            logMessage("Projet non trouvé", COLOR_RED);
+            return res.status(404).json({ message: "Projet non trouvé" });
         }
 
-        await project.update({ estvalide: false, statutId: 2 }); // Supposons que statutId 2 correspond à "invalide"
-        res.status(200).json({ message: `Le projet ${projectId} a été mis à jour en "invalide".` });
+        await project.update({
+            estvalide: false,
+            statutId: 2,
+            commentaire_admin: "Le projet a été invalidé.",
+        });
+
+        logMessage(
+            `Projet avec ID: ${req.params.id} mis à jour en "invalide" avec succès`,
+            COLOR_GREEN
+        );
+        return res.status(200).json({
+            message: `Le projet ${projectId} a été mis à jour en "invalide".`,
+        });
     } catch (error) {
-        console.error('Erreur lors de la mise à jour du projet en invalide :', error);
-        res.status(500).json({ message: 'Erreur lors de la mise à jour du projet en invalide.' });
+        logMessage(
+            "Erreur lors de la mise à jour du projet en invalide",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de la mise à jour du projet en invalide :",
+            error
+        );
+        return res.status(500).json({
+            message: "Erreur lors de la mise à jour du projet en invalide.",
+        });
     }
 };
 
 // Mettre à jour l'état d'un projet en "en attente"
 exports.setPendingProjet = async (req, res, next) => {
+    logMessage(
+        `Début de la mise à jour du projet avec ID: ${req.params.id} en "en attente"`,
+        COLOR_YELLOW
+    );
     try {
         const projectId = req.params.id;
         const project = await dbConnector.Projet.findByPk(projectId);
 
         if (!project) {
-            return res.status(404).json({ message: 'Projet non trouvé' });
+            logMessage("Projet non trouvé", COLOR_RED);
+            return res.status(404).json({ message: "Projet non trouvé" });
         }
 
-        await project.update({ estvalide: false, statutId: 3 }); // Supposons que statutId 3 correspond à "en attente"
-        res.status(200).json({ message: `Le projet ${projectId} a été mis à jour en "en attente".` });
+        await project.update({
+            estvalide: false,
+            statutId: 3,
+            commentaire_admin: "Le projet est en attente de validation.",
+        });
+
+        logMessage(
+            `Projet avec ID: ${req.params.id} mis à jour en "en attente" avec succès`,
+            COLOR_GREEN
+        );
+        return res.status(200).json({
+            message: `Le projet ${projectId} a été mis à jour en "en attente".`,
+        });
     } catch (error) {
-        console.error('Erreur lors de la mise à jour du projet en attente :', error);
-        res.status(500).json({ message: 'Erreur lors de la mise à jour du projet en attente.' });
+        logMessage(
+            "Erreur lors de la mise à jour du projet en attente",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de la mise à jour du projet en attente :",
+            error
+        );
+        return res.status(500).json({
+            message: "Erreur lors de la mise à jour du projet en attente.",
+        });
     }
 };
 
 // Incrémenter le nombre de likes pour un projet spécifique
 exports.incrementLike = async (req, res, next) => {
+    logMessage(
+        `Début de l'incrémentation du nombre de likes pour le projet avec ID: ${req.params.id}`,
+        COLOR_YELLOW
+    );
     try {
         const projectId = req.params.id;
-
-        // Vérifier si le projet existe
         const project = await dbConnector.Projet.findByPk(projectId);
         if (!project) {
-            return res.status(404).json({ message: 'Projet non trouvé' });
+            logMessage("Projet non trouvé", COLOR_RED);
+            return res.status(404).json({ message: "Projet non trouvé" });
         }
 
-        // Incrémenter le nombre de likes dans la statistique associée au projet
-        await dbConnector.Statistique.increment('nombreApreciation', { where: { id: project.statistiqueId } });
+        await dbConnector.Statistique.increment("nombreApreciation", {
+            where: { id: project.statistiqueId },
+        });
 
-        res.status(200).json({ message: 'Nombre de likes incrémenté avec succès pour le projet ' + projectId });
+        logMessage(
+            `Nombre de likes incrémenté avec succès pour le projet avec ID: ${req.params.id}`,
+            COLOR_GREEN
+        );
+        return res.status(200).json({
+            message:
+                "Nombre de likes incrémenté avec succès pour le projet " +
+                projectId,
+        });
     } catch (error) {
-        console.error('Erreur lors de l\'incrémentation du nombre de likes pour le projet :', error);
-        res.status(500).json({ message: 'Erreur lors de l\'incrémentation du nombre de likes pour le projet' });
+        logMessage(
+            "Erreur lors de l'incrémentation du nombre de likes pour le projet",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de l'incrémentation du nombre de likes pour le projet :",
+            error
+        );
+        return res.status(500).json({
+            message:
+                "Erreur lors de l'incrémentation du nombre de likes pour le projet",
+        });
     }
 };
 
 // Incrémenter le nombre de téléchargements pour un projet spécifique
 exports.incrementDownload = async (req, res, next) => {
+    logMessage(
+        `Début de l'incrémentation du nombre de téléchargements pour le projet avec ID: ${req.params.id}`,
+        COLOR_YELLOW
+    );
     try {
         const projectId = req.params.id;
-
-        // Vérifier si le projet existe
         const project = await dbConnector.Projet.findByPk(projectId);
         if (!project) {
-            return res.status(404).json({ message: 'Projet non trouvé' });
+            logMessage("Projet non trouvé", COLOR_RED);
+            return res.status(404).json({ message: "Projet non trouvé" });
         }
 
-        // Incrémenter le nombre de téléchargements dans la statistique associée au projet
-        await dbConnector.Statistique.increment('nombreTelechargement', { where: { id: project.statistiqueId } });
+        await dbConnector.Statistique.increment("nombreTelechargement", {
+            where: { id: project.statistiqueId },
+        });
 
-        res.status(200).json({ message: 'Nombre de téléchargements incrémenté avec succès pour le projet ' + projectId });
+        logMessage(
+            `Nombre de téléchargements incrémenté avec succès pour le projet avec ID: ${req.params.id}`,
+            COLOR_GREEN
+        );
+        return res.status(200).json({
+            message:
+                "Nombre de téléchargements incrémenté avec succès pour le projet " +
+                projectId,
+        });
     } catch (error) {
-        console.error('Erreur lors de l\'incrémentation du nombre de téléchargements pour le projet :', error);
-        res.status(500).json({ message: 'Erreur lors de l\'incrémentation du nombre de téléchargements pour le projet' });
+        logMessage(
+            "Erreur lors de l'incrémentation du nombre de téléchargements pour le projet",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de l'incrémentation du nombre de téléchargements pour le projet :",
+            error
+        );
+        return res.status(500).json({
+            message:
+                "Erreur lors de l'incrémentation du nombre de téléchargements pour le projet",
+        });
     }
 };
 
 // Récupérer les 10 projets les plus likés
 exports.getTop10Liked = async (req, res, next) => {
+    logMessage(
+        "Début de la récupération des 10 projets les plus likés",
+        COLOR_YELLOW
+    );
     try {
         const topProjects = await dbConnector.Projet.findAll({
             where: {
-                '$Statut.nom$': 'Validé' // Condition pour inclure uniquement les projets validés
+                "$Statut.nom$": "Validé",
             },
             include: [
                 {
                     model: dbConnector.Statistique,
-                    attributes: ['nombreApreciation'], // Inclure uniquement l'attribut nombreApreciation
+                    attributes: ["nombreApreciation"],
                 },
-                {
-                    model: dbConnector.Statut,
-                    attributes: ['nom'] // Inclure uniquement l'attribut nom
-                },
-                {
-                    model: dbConnector.Categorie,
-                    attributes: ['nom'] // Inclure uniquement l'attribut nom
-                },
-                {
-                    model: dbConnector.Utilisateur,
-                    attributes: ['pseudo'] // Inclure uniquement l'attribut nom
-                }
+                { model: dbConnector.Statut, attributes: ["nom"] },
+                { model: dbConnector.Categorie, attributes: ["nom"] },
+                { model: dbConnector.Utilisateur, attributes: ["pseudo"] },
             ],
             attributes: {
-                exclude: ['statutId', 'statistiqueId', 'categorieId', 'utilisateurId']
+                exclude: [
+                    "statutId",
+                    "statistiqueId",
+                    "categorieId",
+                    "utilisateurId",
+                ],
             },
-            order: [[{ model: dbConnector.Statistique }, 'nombreApreciation', 'DESC']], // Ordonner par le nombre d'appréciations décroissant
-            limit: 10
+            order: [
+                [
+                    { model: dbConnector.Statistique },
+                    "nombreApreciation",
+                    "DESC",
+                ],
+            ],
+            limit: 10,
         });
 
-        res.status(200).json(topProjects);
+        logMessage(
+            "Les 10 projets les plus likés récupérés avec succès",
+            COLOR_GREEN
+        );
+        return res.status(200).json(topProjects);
     } catch (error) {
-        console.error('Erreur lors de la récupération des 10 projets les plus likés :', error);
-        res.status(500).json({ message: 'Erreur lors de la récupération des 10 projets les plus likés' });
+        logMessage(
+            "Erreur lors de la récupération des 10 projets les plus likés",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de la récupération des 10 projets les plus likés :",
+            error
+        );
+        return res.status(500).json({
+            message:
+                "Erreur lors de la récupération des 10 projets les plus likés",
+        });
     }
 };
 
 // Récupérer les 16 derniers projets créés
 exports.getLast = async (req, res, next) => {
+    logMessage(
+        "Début de la récupération des 16 derniers projets créés",
+        COLOR_YELLOW
+    );
     try {
         const recentProjects = await dbConnector.Projet.findAll({
             include: [
-                {
-                    model: dbConnector.Statut,
-                    attributes: { exclude: ['id'] }
-                },
+                { model: dbConnector.Statut, attributes: { exclude: ["id"] } },
                 {
                     model: dbConnector.Statistique,
-                    attributes: { exclude: ['id'] }
+                    attributes: { exclude: ["id"] },
                 },
                 {
                     model: dbConnector.Categorie,
-                    attributes: { exclude: ['id'] }
+                    attributes: { exclude: ["id"] },
                 },
                 {
                     model: dbConnector.Utilisateur,
-                    attributes: { exclude: ['roleId', 'password'] }
-                }
+                    attributes: { exclude: ["roleId", "password"] },
+                },
             ],
-            where: {
-                estvalide: true // Filtre pour les projets valides seulement
+            where: { estvalide: true },
+            attributes: {
+                exclude: [
+                    "statutId",
+                    "statistiqueId",
+                    "categorieId",
+                    "utilisateurId",
+                ],
             },
-            attributes: { exclude: ['statutId', 'statistiqueId', 'categorieId', 'utilisateurId'] },
-            order: [[dbConnector.Statistique, 'datePublication', 'DESC']],
-            limit: 16
+            order: [[dbConnector.Statistique, "datePublication", "DESC"]],
+            limit: 16,
         });
 
-        res.status(200).json({ recentProjects });
+        logMessage(
+            "Les 16 derniers projets créés récupérés avec succès",
+            COLOR_GREEN
+        );
+        return res.status(200).json({ recentProjects });
     } catch (error) {
-        console.error('Erreur lors de la récupération des derniers projets créés :', error);
-        res.status(500).json({ message: 'Erreur lors de la récupération des derniers projets créés' });
+        logMessage(
+            "Erreur lors de la récupération des derniers projets créés",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de la récupération des derniers projets créés :",
+            error
+        );
+        return res.status(500).json({
+            message:
+                "Erreur lors de la récupération des derniers projets créés",
+        });
     }
 };
 
-// Recherche de projet par mo clés => Propriétaire, catégorie, titre ou description liés au projet avec pagination pour gestion de grand ensembles
+// Recherche de projet par mot clés avec pagination pour gestion de grand ensembles
 exports.search = async (req, res, next) => {
+    logMessage(
+        `Début de la recherche de projets avec le mot-clé : ${req.params.keyword}`,
+        COLOR_YELLOW
+    );
     try {
         const { keyword, page = 1, limit = 10 } = req.params;
 
         if (!keyword) {
-            return res.status(400).json({ message: 'Le mot-clé de recherche est obligatoire' });
+            logMessage("Le mot-clé de recherche est obligatoire", COLOR_RED);
+            return res
+                .status(400)
+                .json({ message: "Le mot-clé de recherche est obligatoire" });
         }
 
         const offset = (page - 1) * limit;
@@ -553,32 +917,63 @@ exports.search = async (req, res, next) => {
                         [Op.or]: [
                             { nom: { [Op.like]: `%${keyword}%` } },
                             { description: { [Op.like]: `%${keyword}%` } },
-                            { '$Categorie.nom$': { [Op.like]: `%${keyword}%` } },
-                            { '$Utilisateur.pseudo$': { [Op.like]: `%${keyword}%` } }
-                        ]
+                            {
+                                "$Categorie.nom$": {
+                                    [Op.like]: `%${keyword}%`,
+                                },
+                            },
+                            {
+                                "$Utilisateur.pseudo$": {
+                                    [Op.like]: `%${keyword}%`,
+                                },
+                            },
+                        ],
                     },
-                    { '$Statut.nom$': 'Validé' } // Condition pour inclure uniquement les projets validés
-                ]
+                    { "$Statut.nom$": "Validé" },
+                ],
             },
             include: [
-                { model: dbConnector.Statut, attributes: { exclude: ['id'] } },
-                { model: dbConnector.Statistique, attributes: { exclude: ['id'] } },
-                { model: dbConnector.Categorie, attributes: { exclude: ['id'] } },
-                { model: dbConnector.Utilisateur, attributes: { exclude: ['roleId', 'password'] } }
+                { model: dbConnector.Statut, attributes: { exclude: ["id"] } },
+                {
+                    model: dbConnector.Statistique,
+                    attributes: { exclude: ["id"] },
+                },
+                {
+                    model: dbConnector.Categorie,
+                    attributes: { exclude: ["id"] },
+                },
+                {
+                    model: dbConnector.Utilisateur,
+                    attributes: { exclude: ["roleId", "password"] },
+                },
             ],
-            attributes: { exclude: ['statutId', 'statistiqueId', 'categorieId', 'utilisateurId'] },
+            attributes: {
+                exclude: [
+                    "statutId",
+                    "statistiqueId",
+                    "categorieId",
+                    "utilisateurId",
+                ],
+            },
             limit: parseInt(limit),
-            offset: parseInt(offset)
+            offset: parseInt(offset),
         });
 
-        res.status(200).json({
+        logMessage(
+            `Projets avec le mot-clé : ${keyword} récupérés avec succès`,
+            COLOR_GREEN
+        );
+        return res.status(200).json({
             totalItems: count,
             totalPages: Math.ceil(count / limit),
             currentPage: parseInt(page),
-            projects: rows
+            projects: rows,
         });
     } catch (error) {
-        console.error('Erreur lors de la recherche des projets :', error);
-        res.status(500).json({ message: 'Erreur lors de la recherche des projets' });
+        logMessage("Erreur lors de la recherche des projets", COLOR_RED);
+        console.error("Erreur lors de la recherche des projets :", error);
+        return res
+            .status(500)
+            .json({ message: "Erreur lors de la recherche des projets" });
     }
 };

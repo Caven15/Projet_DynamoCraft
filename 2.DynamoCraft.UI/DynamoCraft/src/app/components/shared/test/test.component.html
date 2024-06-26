@@ -1,11 +1,49 @@
-<div>
-    <h1>Test Image Utilisateur Component</h1>
-    <div *ngIf="message">{{ message }}</div>
+<div class="container">
+    <h1 class="text-center mb-4">Test Projet Component</h1>
+    <form [formGroup]="projetForm" (ngSubmit)="testCreateProjet()" enctype="multipart/form-data" class="mb-5">
+        <div class="form-group mb-3">
+            <label for="nom" class="form-label">Nom:</label>
+            <input id="nom" formControlName="nom" type="text" class="form-control" />
+        </div>
+        <div class="form-group mb-3">
+            <label for="description" class="form-label">Description:</label>
+            <input id="description" formControlName="description" type="text" class="form-control" />
+        </div>
+        <div class="form-group mb-3">
+            <label for="categorieId" class="form-label">Catégorie ID:</label>
+            <input id="categorieId" formControlName="categorieId" type="number" class="form-control" />
+        </div>
+        <div class="form-group mb-3">
+            <label for="utilisateurId" class="form-label">Utilisateur ID:</label>
+            <input id="utilisateurId" formControlName="utilisateurId" type="number" class="form-control" />
+        </div>
+        <div class="form-group mb-3">
+            <label for="images" class="form-label">Images:</label>
+            <input id="images" type="file" (change)="onFileSelected($event)" multiple class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Créer Projet</button>
+    </form>
 
-    <label for="image">Image:</label>
-    <input id="image" type="file" (change)="onFileSelected($event)" />
-
-    <button (click)="addImage(1)">Ajouter Image</button>
-    <button (click)="updateImage(1)">Mettre à jour Image</button>
-    <button (click)="deleteImage(1)">Supprimer Image</button>
+    <div class="mb-5">
+        <h2 class="text-center mb-4">Actions</h2>
+        <div class="d-grid gap-2">
+            <button class="btn btn-primary" (click)="testGetAllProjets()">Get All Projets</button>
+            <button class="btn btn-primary" (click)="testGetProjetById(1)">Get Projet by ID</button>
+            <button class="btn btn-primary" (click)="testUpdateProjet(1)">Update Projet</button>
+            <button class="btn btn-primary" (click)="testDeleteProjet(13)">Delete Projet</button>
+            <button class="btn btn-primary" (click)="testGetTop10Liked()">Get Top 10 Liked</button>
+            <button class="btn btn-primary" (click)="testGetLastProjects()">Get Last Projects</button>
+            <button class="btn btn-primary" (click)="testGetProjectsByCategoryId(2)">Get Projects by Category ID</button>
+            <button class="btn btn-primary" (click)="testGetProjectsByUserId(1)">Get Projects by User ID</button>
+            <button class="btn btn-primary" (click)="testIncrementLike(1)">Increment Like</button>
+            <button class="btn btn-primary" (click)="testIncrementDownload(1)">Increment Download</button>
+            <button class="btn btn-primary" (click)="testSetValidProjet(1)">Set Valid Projet</button>
+            <button class="btn btn-primary" (click)="testSetInvalidProjet(1)">Set Invalid Projet</button>
+            <button class="btn btn-primary" (click)="testSetPendingProjet(1)">Set Pending Projet</button>
+            <button class="btn btn-primary" (click)="testGetValidProjet()">Get Valid Projets</button>
+            <button class="btn btn-primary" (click)="testGetInvalidProjet()">Get Invalid Projets</button>
+            <button class="btn btn-primary" (click)="testGetPendingProjet()">Get Pending Projets</button>
+            <button class="btn btn-primary" (click)="testSearchProjects('keyword', 1, 10)">Search Projects</button>
+        </div>
+    </div>
 </div>

@@ -13,7 +13,7 @@ const createZip = async (outputDir, projectName, files, ownerName) => {
 
         // Événement déclenché lorsque l'archivage est terminé
         output.on('close', () => {
-            resolve(output.path); // Résout avec le chemin du fichier ZIP créé
+            resolve(output.path);
         });
 
         // Événement déclenché en cas d'erreur lors de l'écriture du fichier ZIP

@@ -3,16 +3,17 @@ const app = express();
 const port = process.env.PORT || 3000;
 const cors = require("cors");
 const db = require("./tools/ConnexionDb.tools");
-const upload = require("./tools/multerConfig.tools"); // Assurez-vous d'importer multerConfig
+const upload = require("./tools/multerConfig.tools");
+const { logMessage, COLOR_GREEN, COLOR_RED, COLOR_YELLOW } = require('./tools/logs.tools');
 
 // Connexion à la base de données
 db.connect();
 
 // Middleware pour traiter les données JSON avec une taille maximale augmentée
-app.use(express.json({ limit: '10mb' })); // Augmentez la limite selon vos besoins
+app.use(express.json({ limit: '10mb' }));
 
 // Middleware pour traiter les données de formulaire
-app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Augmentez la limite selon vos besoins
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Configuration du middleware CORS pour autoriser uniquement le domaine spécifié (local pour le moment)
 const corsOptions = {
@@ -32,8 +33,6 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     next();
 });
-
-// Activation du middleware CORS
 
 // Import des différents routeurs avec leurs endpoints...
 const routers = [
@@ -57,7 +56,7 @@ routers.forEach(router => {
 // Gestion de la requête pour les routes non définies
 app.all("*", (req, res) => {
     const message = `La requête ${req.url} ne correspond à aucune route connue... ⚠️`;
-    console.log(message);
+    logMessage(message, COLOR_YELLOW)
     res.write(JSON.stringify(message));
     res.end();
 });
@@ -65,5 +64,5 @@ app.all("*", (req, res) => {
 // Démarrage du serveur et affichage du message
 app.listen(port, console.clear(), () => {
     const message = `Serveur local en ligne sur le port : ${port} ✅`;
-    console.log(message);
+    logMessage(message, COLOR_GREEN)
 });

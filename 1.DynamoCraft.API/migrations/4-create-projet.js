@@ -10,6 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       nom: {
+        unique : true,
         type: Sequelize.STRING
       },
       description: {

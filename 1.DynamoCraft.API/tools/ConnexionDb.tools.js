@@ -1,5 +1,6 @@
 require("dotenv").config();
 const { Sequelize, DataTypes } = require("sequelize");
+const { logSQLQuery } = require('../tools/logs.tools');
 
 // Import des modèles Sequelize
 const utilisateurModel = require("../models/utilisateur");
@@ -27,10 +28,10 @@ module.exports = {
                     host: process.env.DBHOST,
                     dialect: "mysql",
                     port: process.env.PORT,
-                    timezone: "+02:00"
+                    timezone: "+02:00",
+                    logging: (msg) => logSQLQuery('SQL Query Executed', msg)
                 }
             );
-
             dbConnector = {
                 Sequelize: Sequelize,
                 sequelize: sequelize,
