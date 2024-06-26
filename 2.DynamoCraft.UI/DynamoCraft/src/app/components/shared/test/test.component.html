@@ -1,23 +1,20 @@
 <div class="container">
-    <h2>Images du Projet</h2>
+    <h2>Commentaires du Projet</h2>
 
     <div class="mb-3">
-        <label for="formFileMultiple" class="form-label">Sélectionner des images</label>
-        <input class="form-control" type="file" id="formFileMultiple" (change)="onFileSelected($event)" multiple>
+        <label for="description" class="form-label">Ajouter un commentaire</label>
+        <textarea class="form-control" id="description" [(ngModel)]="currentDescription"></textarea>
+        <button class="btn btn-primary mt-3" (click)="addCommentaire()">{{ editing ? 'Mettre à jour' : 'Ajouter' }} Commentaire</button>
+        <button *ngIf="editing" class="btn btn-secondary mt-3" (click)="cancelEditing()">Annuler</button>
     </div>
-    <button class="btn btn-primary mb-3" (click)="addImages()">Ajouter Images</button>
-    <button class="btn btn-primary mb-3" (click)="getImages()">Charger Images</button>
 
-    <div *ngIf="images.length > 0">
-        <h3 class="my-4">Liste des Images</h3>
-        <div class="row">
-            <div class="col-md-4" *ngFor="let image of images">
-                <div class="card mb-4 shadow-sm">
-                    <img [src]="getImageUrl(image.nom)" class="card-img-top" alt="Image projet">
-                    <div class="card-body">
-                        <button class="btn btn-danger btn-sm" (click)="deleteImage(image.id)">Supprimer</button>
-                    </div>
-                </div>
+    <div *ngIf="commentaires.length > 0">
+        <h3 class="my-4">Liste des Commentaires</h3>
+        <div class="list-group">
+            <div class="list-group-item" *ngFor="let commentaire of commentaires">
+                <p class="text-black">{{ commentaire.description }}</p>
+                <button class="btn btn-info btn-sm" (click)="editCommentaire(commentaire)">Modifier</button>
+                <button class="btn btn-danger btn-sm" (click)="deleteCommentaire(commentaire.id)">Supprimer</button>
             </div>
         </div>
     </div>
