@@ -139,10 +139,19 @@ exports.delete = async (req, res, next) => {
             return res.status(404).json({ message: "Modèle 3D non trouvé" });
         }
 
-        logMessage(
-            "Suppression du modèle 3D de la base de données",
-            COLOR_YELLOW
-        );
+        // Supprimer le fichier du modèle 3D
+        logMessage("Suppression du fichier du modèle 3D", COLOR_YELLOW);
+        const filePath = path.join(__dirname, "../uploads/", modele3D.nom);
+        fs.unlink(filePath, (err) => {
+            if (err) {
+                logMessage("Erreur lors de la suppression du fichier du modèle 3D", COLOR_RED);
+                console.error("Erreur lors de la suppression du fichier du modèle 3D :", err);
+            } else {
+                logMessage("Fichier du modèle 3D supprimé avec succès", COLOR_GREEN);
+            }
+        });
+
+        logMessage("Suppression du modèle 3D de la base de données", COLOR_YELLOW);
         await modele3D.destroy();
 
         logMessage("Modèle 3D supprimé avec succès", COLOR_GREEN);

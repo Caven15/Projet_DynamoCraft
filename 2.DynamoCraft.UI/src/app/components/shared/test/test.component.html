@@ -1,0 +1,62 @@
+<h2>Modèles 3D du Projet</h2>
+
+<div class="mb-3">
+    <label for="formFileMultiple" class="form-label">Sélectionner des modèles 3D</label>
+    <input #fileInput class="form-control" type="file" id="formFileMultiple" (change)="onFileSelected($event)" multiple>
+</div>
+<button class="btn btn-primary mb-3" (click)="addModeles3D()">Ajouter Modèles 3D</button>
+
+<div *ngIf="modeles3D.length > 0">
+    <h3 class="my-4 text-center"> Modèle => {{ modeles3D[indexActuel].nom }}</h3>
+    <div class="row">
+        <div class="col-12">
+            <div class="mb-4 shadow-sm">
+                <div class="card-body">
+                    <div #rendererContainer class="renderer-container bg-secondary mb-3"></div>
+                    <div class="row mb-5">
+                        <div class="col-12 mb-3">
+                            <label for="rotationSpeed" class="form-label">Vitesse de rotation</label>
+                            <input type="range" class="form-range" id="rotationSpeed" min="0" max="0.01" step="0.001"
+                                [value]="vitesseRotation" (input)="ajusterVitesseRotation($event)">
+                        </div>
+                        <div class="col-6 d-grid gap-1">
+                            <button class="btn btn-warning btn-sm mt-2" (click)="reinitialiserVue()">
+                                <i class="bi bi-eye text-black"></i> Réinitialiser vue
+                            </button>
+                            <button class="btn btn-success btn-sm mt-2" (click)="deplacerHaut()">
+                                <i class="bi bi-arrow-up-square text-black"></i>
+                            </button>
+                            <button class="btn btn-success btn-sm mt-2" (click)="deplacerBas()">
+                                <i class="bi bi-arrow-down-square text-black"></i>
+                            </button>
+                            <button class="btn btn-success btn-sm mt-2" (click)="deplacerGauche()">
+                                <i class="bi bi-arrow-left-square text-black"></i>
+                            </button>
+                            <button class="btn btn-success btn-sm mt-2" (click)="deplacerDroite()">
+                                <i class="bi bi-arrow-right-square text-black"></i>
+                            </button>
+                        </div>
+                        <div class="col-6 d-grid gap-1">
+                            <button class="btn btn-danger btn-sm mt-2"
+                                (click)="deleteModele3D(modeles3D[indexActuel].id)">
+                                Supprimer
+                            </button>
+                            <button class="btn btn-info btn-sm mt-2" (click)="zoomAvant()">
+                                <i class="bi bi-zoom-in text-black"></i>
+                            </button>
+                            <button class="btn btn-info btn-sm mt-2" (click)="zoomArriere()">
+                                <i class="bi bi-zoom-out text-black"></i>
+                            </button>
+                            <button class="btn btn-primary btn-sm mt-2" (click)="modelePrecedent()">
+                                <i class="bi bi-arrow-90deg-left text-black"></i>
+                            </button>
+                            <button class="btn btn-primary btn-sm mt-2" (click)="modeleSuivant()">
+                                <i class="bi bi-arrow-90deg-right text-black"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
