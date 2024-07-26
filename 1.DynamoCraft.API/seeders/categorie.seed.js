@@ -22,10 +22,10 @@ module.exports = {
                     nom: "Prototypes",
                 },
                 {
-                    nom: "Éducation",
+                    nom: "Éducations",
                 },
                 {
-                    nom: "Art",
+                    nom: "Arts",
                 },
                 {
                     nom: "Gadgets",
