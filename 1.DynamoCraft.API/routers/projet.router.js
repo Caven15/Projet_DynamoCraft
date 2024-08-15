@@ -12,10 +12,11 @@ router.get('/projet/:id', projetController.getById);
 router.get('/projet/:id/utilisateur', projetController.getByUserId);
 router.put('/projet/:id', projetController.updateById);
 router.delete('/projet/:id', projetController.delete);
-router.get('/projet/:id/download', projetController.download);
+// router.get('/projet/:id/download', projetController.download); // a implémenter 
 router.get('/projet/:id/categorie', projetController.getByCategoryId);
 router.get('/projets/search/:keyword/:page/:limit', projetController.search);
 router.put('/projet/:id/incrementLike', projetController.incrementLike);
+router.put('/projet/:id/incrementDownloads', projetController.incrementDownload);
 
 router.get('/projets/valide', projetController.getValidProjet);
 router.get('/projets/invalide', projetController.getInvalidProjet);

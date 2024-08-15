@@ -10,7 +10,11 @@ export class Projet {
     categorieId: number;
     utilisateurId: number;
     id?: number;
+<<<<<<< HEAD
     ImageProjet?: ImageProjet[];
+=======
+    images?: ImageProjet[];
+>>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
 
     constructor(
         nom: string,
@@ -21,7 +25,11 @@ export class Projet {
         categorieId: number,
         utilisateurId: number,
         id?: number,
+<<<<<<< HEAD
         ImageProjet: ImageProjet[] = [],
+=======
+        images: ImageProjet[] = [],
+>>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
         statistiqueId?: number
     ) {
         this.nom = nom;
@@ -32,7 +40,11 @@ export class Projet {
         this.statistiqueId = statistiqueId;
         this.categorieId = categorieId;
         this.utilisateurId = utilisateurId;
+<<<<<<< HEAD
         this.ImageProjet = ImageProjet;
+=======
+        this.images = images;
+>>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
         this.id = id;
     }
 }

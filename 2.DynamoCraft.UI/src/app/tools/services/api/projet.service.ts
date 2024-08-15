@@ -1,6 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+<<<<<<< HEAD
 import { Observable, catchError, map, tap } from 'rxjs';
+=======
+import { Observable, catchError, tap } from 'rxjs';
+>>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
 import { BaseApiService } from './base-api.service';
 import { Projet } from '../../../models/projet.model';
 
@@ -111,6 +115,7 @@ export class ProjetService extends BaseApiService {
         );
     }
 
+<<<<<<< HEAD
     getLastProjects(): Observable<Projet[]> {
         return this.get<{ recentProjects: Projet[] }>('projet/last').pipe(
             map(response => {
@@ -136,6 +141,19 @@ export class ProjetService extends BaseApiService {
                 next: () => console.log('Récupération des derniers projets'),
                 error: (error) => console.error('Erreur lors de la récupération des derniers projets :', error)
             })
+=======
+    /**
+     * Récupérer les derniers projets créés
+     * @returns Observable contenant la liste des derniers projets
+     */
+    getLastProjects(): Observable<Projet[]> {
+        return this.getAll<Projet>('projet/last').pipe(
+            tap({
+                next: () => console.log('Récupération des derniers projets'),
+                error: (error) => console.error('Erreur lors de la récupération des derniers projets :', error)
+            }),
+            catchError(this.handleError<Projet[]>('getLastProjects'))
+>>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
         );
     }
 

@@ -1,5 +1,9 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+<<<<<<< HEAD
 import { Observable, catchError, map, throwError } from 'rxjs';
+=======
+import { Observable, catchError, throwError } from 'rxjs';
+>>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment.dev';
 
@@ -7,7 +11,11 @@ import { environment } from '../../../../environments/environment.dev';
     providedIn: 'root'
 })
 export class BaseApiService {
+<<<<<<< HEAD
     protected baseUrl: string = `${environment.apiUrl}/Api`;
+=======
+    protected baseUrl: string = environment.apiUrl;
+>>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
 
     protected httpOptions = {
         headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
@@ -33,9 +41,14 @@ export class BaseApiService {
      * @returns Observable contenant les données de l'API
      */
     protected getAll<T>(endpoint: string): Observable<T[]> {
+<<<<<<< HEAD
         return this.httpClient.get<T | T[]>(`${this.baseUrl}/${endpoint}`, this.httpOptions).pipe(
             map(response => Array.isArray(response) ? response : [response]),
             catchError(this.handleError<T[]>('getAll', [])) // Retourne un tableau vide en cas d'erreur
+=======
+        return this.httpClient.get<T[]>(`${this.baseUrl}/${endpoint}`, this.httpOptions).pipe(
+            catchError(this.handleError<T[]>('getAll'))
+>>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
         );
     }
 

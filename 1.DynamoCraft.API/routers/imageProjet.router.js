@@ -6,6 +6,6 @@ const upload = require("../tools/multerConfig.tools")
 // Ajouter des images projet à un projet existant
 router.post('/imageProjet/:id/projet', upload.array('images', 8), imageProjetController.create);
 router.get('/imagesProjet/:id/projet', imageProjetController.getAllByProjetId);
-router.delete('/imagesProjet/:id', imageProjetController.delete);
+router.delete('/imageProjet/:id', imageProjetController.delete);
 
 module.exports = router;

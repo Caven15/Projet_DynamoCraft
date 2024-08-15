@@ -16,11 +16,14 @@ $couleur-main: rgb(227, 178, 0);
     color: white;
 }
 
+<<<<<<< HEAD
 h5{
     text-decoration: none;
     color:  white;
 }
 
+=======
+>>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
 p {
     text-align: justify;
     overflow: none;
@@ -142,6 +145,7 @@ ul.nav .nav-link {
     font-family: 'ethnocentric', Courier, monospace;
 }
 
+<<<<<<< HEAD
 /* Variantes de tailles pour les cartes */
 
 /* Taille petite */
@@ -149,6 +153,10 @@ ul.nav .nav-link {
     height: 100%;
     width: 100%;
     max-width: 200px; /* Taille réduite pour petite */
+=======
+.card {
+    height: 100%;
+>>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
     background-color: $couleur-main;
     overflow: hidden;
     position: relative;
@@ -167,7 +175,10 @@ ul.nav .nav-link {
         transition: transform 0.3s ease;
         width: 100%;
         height: auto;
+<<<<<<< HEAD
         max-height: 150px; /* Taille réduite de l'image pour petite */
+=======
+>>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
     }
 
     &:hover .card-img-top {
@@ -183,13 +194,20 @@ ul.nav .nav-link {
         transition: background 0.3s ease, opacity 0.3s ease;
         text-align: center;
         display: flex;
+<<<<<<< HEAD
         align-items: flex-end;
         justify-content: center;
         opacity: 0;
+=======
+        align-items: flex-end; /* Aligne le contenu en bas */
+        justify-content: center;
+        opacity: 0; /* Caché par défaut */
+>>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
     }
 
     &:hover .card-img-overlay {
         background: rgba(0, 0, 0, 0.5);
+<<<<<<< HEAD
         opacity: 1;
     }
 
@@ -309,6 +327,9 @@ ul.nav .nav-link {
     &:hover .card-img-overlay {
         background: rgba(0, 0, 0, 0.5);
         opacity: 1;
+=======
+        opacity: 1; /* Affiché au survol */
+>>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
     }
 
     .card-text {

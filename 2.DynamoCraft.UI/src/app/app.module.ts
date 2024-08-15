@@ -9,7 +9,10 @@ import { provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/c
 import { FooterComponent } from './components/footer/footer.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CategorieComponent } from './components/categorie/categorie.component';
+<<<<<<< HEAD
 import { NouveautesComponent } from './components/nouveautes/nouveautes.component';
+=======
+>>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
 
 @NgModule({
     declarations: [
@@ -17,8 +20,12 @@ import { NouveautesComponent } from './components/nouveautes/nouveautes.componen
         HomeComponent,
         NavBarComponent,
         FooterComponent,
+<<<<<<< HEAD
         CategorieComponent,
         NouveautesComponent
+=======
+        CategorieComponent
+>>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
     ],
     imports: [
         BrowserModule,
