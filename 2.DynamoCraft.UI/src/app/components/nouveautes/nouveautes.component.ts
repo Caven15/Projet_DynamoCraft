@@ -18,14 +18,14 @@ export class NouveautesComponent implements OnInit {
         this.projetService.getLastProjects().subscribe({
             next: (data) => {
                 this.nouveautes = data;
-                console.log(data);
-                data.forEach((projet, index) => {
-                    if (projet.ImageProjet && projet.ImageProjet.length > 0) {
-                        console.log(`${this.url}${projet.ImageProjet[0].nom}`);
-                    } else {
-                        console.log(`Projet ${index} n'a pas d'image.`);
-                    }
-                });
+                // console.log(data);
+                // data.forEach((projet, index) => {
+                //     if (projet.ImageProjet && projet.ImageProjet.length > 0) {
+                //         console.log(`${this.url}${projet.ImageProjet[0].nom}`);
+                //     } else {
+                //         console.log(`Projet ${index} n'a pas d'image.`);
+                //     }
+                // });
             },
             error: (error) => {
                 console.log(error);
@@ -36,15 +36,15 @@ export class NouveautesComponent implements OnInit {
         });
     }
 
-    logImageNames(projects: Projet[]): void {
-        projects.forEach(projet => {
-            if (projet.ImageProjet && projet.ImageProjet.length > 0) {
-                projet.ImageProjet.forEach(image => {
-                    console.log(`Nom de l'image du projet ${projet.id}: ${image.nom}`);
-                });
-            } else {
-                console.log(`Le projet ${projet.id} n'a pas d'image associée.`);
-            }
-        });
-    }
+    // logImageNames(projects: Projet[]): void {
+    //     projects.forEach(projet => {
+    //         if (projet.ImageProjet && projet.ImageProjet.length > 0) {
+    //             projet.ImageProjet.forEach(image => {
+    //                 console.log(`Nom de l'image du projet ${projet.id}: ${image.nom}`);
+    //             });
+    //         } else {
+    //             console.log(`Le projet ${projet.id} n'a pas d'image associée.`);
+    //         }
+    //     });
+    // }
 }

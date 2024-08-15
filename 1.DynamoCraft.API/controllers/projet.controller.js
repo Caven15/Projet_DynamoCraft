@@ -784,18 +784,37 @@ exports.getTop10Liked = async (req, res, next) => {
     );
     try {
         const topProjects = await dbConnector.Projet.findAll({
-            where: {
-                "$Statut.nom$": "Validé",
-            },
             include: [
                 {
                     model: dbConnector.Statistique,
                     attributes: ["nombreApreciation"],
                 },
-                { model: dbConnector.Statut, attributes: ["nom"] },
-                { model: dbConnector.Categorie, attributes: ["nom"] },
-                { model: dbConnector.Utilisateur, attributes: ["pseudo"] },
+                { 
+                    model: dbConnector.Statut, 
+                    attributes: ["nom"] 
+                },
+                { 
+                    model: dbConnector.Categorie, 
+                    attributes: ["nom"] 
+                },
+                { 
+                    model: dbConnector.Utilisateur, 
+                    attributes: ["pseudo"],
+                    include: [
+                        {
+                            model: dbConnector.ImageUtilisateur,
+                            attributes: ["nom"], // Inclure l'image utilisateur liée
+                        },
+                    ],
+                },
+                { 
+                    model: dbConnector.ImageProjet, 
+                    attributes: ["nom", "dateCreation"], // Inclure l'image du projet
+                },
             ],
+            where: {
+                "$Statut.nom$": "Valide", // Filtre basé sur le statut "Valide"
+            },
             attributes: {
                 exclude: [
                     "statutId",
@@ -815,6 +834,7 @@ exports.getTop10Liked = async (req, res, next) => {
         });
 
         logMessage(
+            JSON.stringify(topProjects[0].Utilisateur.ImageUtilisateur.nom, null, 2),
             "Les 10 projets les plus likés récupérés avec succès",
             COLOR_GREEN
         );
@@ -834,6 +854,8 @@ exports.getTop10Liked = async (req, res, next) => {
         });
     }
 };
+
+
 
 // Récupérer les 16 derniers projets créés
 exports.getLast = async (req, res, next) => {
@@ -855,15 +877,11 @@ exports.getLast = async (req, res, next) => {
                 },
                 {
                     model: dbConnector.Utilisateur,
-<<<<<<< HEAD
                     attributes: { exclude: ['roleId', 'password'] }
                 },
                 {
                     model: dbConnector.ImageProjet,
                     attributes: { exclude: ["projetId"] }, // Exclude foreign key if not needed
-=======
-                    attributes: { exclude: ["roleId", "password"] },
->>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
                 },
             ],
             where: { estvalide: true },
@@ -875,7 +893,7 @@ exports.getLast = async (req, res, next) => {
                     "utilisateurId",
                 ],
             },
-            order: [[dbConnector.Statistique, "datePublication", "DESC"]],
+            order: [[dbConnector.Statistique, "datePublication", "ASC"]], // Trier par ordre croissant
             limit: 16,
         });
 

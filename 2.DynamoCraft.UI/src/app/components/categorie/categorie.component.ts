@@ -4,23 +4,23 @@ import { CategorieService } from '../../tools/services/api/categorie.service';
 import { error } from 'console';
 
 @Component({
-  selector: 'app-categorie',
-  templateUrl: './categorie.component.html',
-  styleUrl: './categorie.component.scss'
+    selector: 'app-categorie',
+    templateUrl: './categorie.component.html',
+    styleUrl: './categorie.component.scss'
 })
 export class CategorieComponent {
 
-    categories! : categorie[]
+    categories!: categorie[]
 
-    constructor( categorieService : CategorieService) {
+    constructor(categorieService: CategorieService) {
         categorieService.getAllCategorie().subscribe({
-            next : (data) => {
+            next: (data) => {
                 this.categories = data
             },
-            error : (error) => {
+            error: (error) => {
                 console.log("Erreur lor de la récupération des catégories");
             },
-            complete : () => {
+            complete: () => {
                 console.log("Catégorie récupérée avec succès !");
             }
         })

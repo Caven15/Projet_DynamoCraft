@@ -1,4 +1,5 @@
 import { ImageProjet } from "./imageProjet.model";
+import { Utilisateur } from "./utilisateur.model";
 
 export class Projet {
     nom: string;
@@ -9,12 +10,9 @@ export class Projet {
     statistiqueId?: number;
     categorieId: number;
     utilisateurId: number;
-    id?: number;
-<<<<<<< HEAD
-    ImageProjet?: ImageProjet[];
-=======
-    images?: ImageProjet[];
->>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
+    id: number;
+    ImageProjet?: ImageProjet[];  // Toujours un tableau d'images
+    Utilisateur!: Utilisateur;
 
     constructor(
         nom: string,
@@ -24,12 +22,9 @@ export class Projet {
         statutId: number,
         categorieId: number,
         utilisateurId: number,
-        id?: number,
-<<<<<<< HEAD
-        ImageProjet: ImageProjet[] = [],
-=======
-        images: ImageProjet[] = [],
->>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
+        id: number,
+        ImageProjet: ImageProjet[] = [],  // Initialisation par défaut à un tableau vide
+        utilisateur : Utilisateur,
         statistiqueId?: number
     ) {
         this.nom = nom;
@@ -40,11 +35,8 @@ export class Projet {
         this.statistiqueId = statistiqueId;
         this.categorieId = categorieId;
         this.utilisateurId = utilisateurId;
-<<<<<<< HEAD
         this.ImageProjet = ImageProjet;
-=======
-        this.images = images;
->>>>>>> 5d2bb88eaa554108c2dbc2ff41a57a28e512ebbb
+        this.Utilisateur = utilisateur;
         this.id = id;
     }
 }

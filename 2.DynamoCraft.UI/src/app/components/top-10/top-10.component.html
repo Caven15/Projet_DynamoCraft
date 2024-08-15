@@ -1,0 +1,66 @@
+<div class="container">
+    <h2 class="text-center text-warning mb-4">Top 10 Projets Les Plus Likés</h2>
+    <div class="row g-4">
+        @for (projet of top10LikedProjects; track projet.id; let i = $index) {
+        <div class="col-12">
+            <!-- <a [routerLink]="['/projet', projet.id]" class="text-decoration-none"> -->
+            <a [routerLink]="'/home'" class="text-decoration-none">
+                <div class="card p-4 shadow-sm couleur-main card-hover">
+                    <div class="row g-0 align-items-center">
+                        <!-- Numéro de classement -->
+                        <div class="col-1 d-flex justify-content-center">
+                            <div class="number-circle d-flex justify-content-center align-items-center bg-dark text-white rounded-circle"
+                                style="width: 60px; height: 60px;">
+                                <h4 class="m-0">{{ i + 1 }}</h4>
+                            </div>
+                        </div>
+
+                        <!-- Image du projet -->
+                        <div class="col-2 text-center">
+                            @if (projet.ImageProjet && projet.ImageProjet.length > 0) {
+                            <img [src]="url + projet.ImageProjet[0].nom" class="img-fluid rounded" alt="Image du projet"
+                                style="width: 160px; height: 160px; object-fit: cover;">
+                            } @else {
+                            <p class="text-muted">Pas d'image disponible</p>
+                            }
+                        </div>
+
+                        <!-- Détails du projet -->
+                        <div class="col-6">
+                            <div class="ms-3 ">
+                                <h5 class="mb-2 font-dc">{{ projet.nom | slice: 0: 20 }}...</h5>
+                                <p class="text-white p-3 couleur-fond-2">
+                                    {{ projet.description | slice: 0: 255 }}...
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Profil de l'utilisateur (Cercle) -->
+                        <div class="col-3 text-end">
+                            <div class="d-flex flex-column align-items-center">
+                                <!-- Vérification de la présence d'une image utilisateur -->
+                                @if (projet.Utilisateur && projet.Utilisateur.ImageUtilisateur) {
+                                <!-- Cercle contenant l'image de l'utilisateur -->
+                                <div class="profile-circle d-flex justify-content-center align-items-center bg-light text-dark rounded-circle mb-2"
+                                    style="width: 110px; height: 110px;">
+                                    <img [src]="url + projet.Utilisateur.ImageUtilisateur.nom" alt="Image de l'utilisateur"
+                                        class="rounded-circle" style="width: 100px; height: 100px;">
+                                </div>
+                                } @else {
+                                <!-- Placeholder si l'utilisateur n'a pas d'image -->
+                                <div class="profile-circle d-flex justify-content-center align-items-center bg-light text-dark rounded-circle mb-2"
+                                    style="width: 110px; height: 110px;">
+                                    <span class="initials">Image non disponible...</span>
+                                </div>
+                                }
+                                <span class="text-center font-dc">{{ projet.Utilisateur.pseudo }}</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </a>
+        </div>
+        }
+    </div>
+</div>
