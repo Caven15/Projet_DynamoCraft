@@ -460,7 +460,11 @@ exports.getLast = async (req, res, next) => {
                 {
                     model: dbConnector.Utilisateur,
                     attributes: { exclude: ['roleId', 'password'] }
-                }
+                },
+                {
+                    model: dbConnector.ImageProjet,
+                    attributes: { exclude: ["projetId"] }, // Exclude foreign key if not needed
+                },
             ],
             where: {
                 estvalide: true // Filtre pour les projets valides seulement

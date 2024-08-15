@@ -1,29 +1,29 @@
 {
-  "development": {
-    "username": "AdminDC",
-    "password": "DynamoCraft",
-    "database": "DynamoCraftDb",
-    "host": "127.0.0.1",
-    "dialect": "mysql",
-    "timezone": "+02:00",
-    "port":3308
-  },
-  "test": {
-    "username": "AdminDC",
-    "password": "DynamoCraft",
-    "database": "DynamoCraftDb",
-    "host": "127.0.0.1",
-    "dialect": "mysql",
-    "timezone": "+02:00",
-    "port":3308
-  },
-  "production": {
-    "username": "AdminDC",
-    "password": "DynamoCraft",
-    "database": "DynamoCraftDb",
-    "host": "127.0.0.1",
-    "dialect": "mysql",
-    "timezone": "+02:00",
-    "port":3308
-  }
+    "development": {
+        "username": "AdminDC",
+        "password": "DynamoCraft",
+        "database": "DynamoCraftDb",
+        "host": "127.0.0.1",
+        "dialect": "mysql",
+        "timezone": "+02:00",
+        "port": 3308
+    },
+    "test": {
+        "username": "AdminDC",
+        "password": "DynamoCraft",
+        "database": "DynamoCraftDb",
+        "host": "127.0.0.1",
+        "dialect": "mysql",
+        "timezone": "+02:00",
+        "port": 3308
+    },
+    "production": {
+        "username": "AdminDC",
+        "password": "DynamoCraft",
+        "database": "DynamoCraftDb",
+        "host": "127.0.0.1",
+        "dialect": "mysql",
+        "timezone": "+02:00",
+        "port": 3308
+    }
 }
