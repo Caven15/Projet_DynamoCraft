@@ -11,7 +11,7 @@ export class Projet {
     categorieId: number;
     utilisateurId: number;
     id: number;
-    ImageProjet?: ImageProjet[];  // Toujours un tableau d'images
+    ImageProjet?: ImageProjet[];
     Utilisateur!: Utilisateur;
 
     constructor(
@@ -23,7 +23,7 @@ export class Projet {
         categorieId: number,
         utilisateurId: number,
         id: number,
-        ImageProjet: ImageProjet[] = [],  // Initialisation par défaut à un tableau vide
+        ImageProjet: ImageProjet[] = [],
         utilisateur : Utilisateur,
         statistiqueId?: number
     ) {

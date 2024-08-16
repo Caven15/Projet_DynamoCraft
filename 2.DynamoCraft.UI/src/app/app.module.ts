@@ -11,6 +11,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CategorieComponent } from './components/categorie/categorie.component';
 import { NouveautesComponent } from './components/nouveautes/nouveautes.component';
 import { Top10Component } from './components/top-10/top-10.component';
+import { RechercheComponent } from './components/recherche/recherche.component';
 
 @NgModule({
     declarations: [
@@ -20,7 +21,8 @@ import { Top10Component } from './components/top-10/top-10.component';
         FooterComponent,
         CategorieComponent,
         NouveautesComponent,
-        Top10Component
+        Top10Component,
+        RechercheComponent
     ],
     imports: [
         BrowserModule,

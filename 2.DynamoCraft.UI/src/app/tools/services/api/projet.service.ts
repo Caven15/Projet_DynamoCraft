@@ -327,8 +327,26 @@ getPendingProjet(): Observable < Projet[] > {
  * @param limit Nombre de résultats par page
  * @returns Observable contenant les résultats de la recherche
  */
-searchProjects(keyword: string, page: number, limit: number): Observable < any > {
+searchProjects(keyword: string, page: number, limit: number): Observable<any> {
     return this.get<any>(`projets/search/${keyword}/${page}/${limit}`).pipe(
+        map(response => {
+            // Vérification et traitement des projets et des images projets
+            response.projects = response.projects.map((projet: any) => {
+                // Vérifier si `ImageProjet` est un tableau, sinon le transformer en tableau
+                if (projet.ImageProjet && !Array.isArray(projet.ImageProjet)) {
+                    projet.ImageProjet = [projet.ImageProjet];
+                }
+
+                // Ne conserver qu'une seule image par projet (la première)
+                if (projet.ImageProjet && projet.ImageProjet.length > 0) {
+                    projet.ImageProjet = [projet.ImageProjet[0]];
+                }
+
+                return projet;
+            });
+
+            return response;
+        }),
         tap({
             next: () => console.log(`Recherche des projets avec le mot-clé ${keyword}`),
             error: (error) => console.error(`Erreur lors de la recherche des projets avec le mot-clé ${keyword} :`, error)
@@ -336,4 +354,6 @@ searchProjects(keyword: string, page: number, limit: number): Observable < any >
         catchError(this.handleError<any>('searchProjects'))
     );
 }
+
+
 }

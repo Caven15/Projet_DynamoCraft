@@ -18,7 +18,7 @@ export class Top10Component implements OnInit {
         this.projetService.getTop10Liked().subscribe({
             next: (data) => {
                 this.top10LikedProjects = data.map(projet => {
-                    // Vérification si `ImageProjet` est un tableau
+                    // Pas besoin de transformer `ImageUtilisateur` en tableau, car il est déjà un objet
                     if (!Array.isArray(projet.ImageProjet)) {
                         projet.ImageProjet = projet.ImageProjet ? [projet.ImageProjet] : [];
                     }
@@ -26,6 +26,7 @@ export class Top10Component implements OnInit {
                     return projet;
                 });
 
+                // Debugging: Vérification des données en console
                 console.log("Données récupérées pour les projets les plus likés :", this.top10LikedProjects);
             },
             error: (error) => {

@@ -918,7 +918,7 @@ exports.getLast = async (req, res, next) => {
     }
 };
 
-// Recherche de projet par mot clés avec pagination pour gestion de grand ensembles
+// Recherche de projet par mot-clé avec pagination pour gestion de grand ensembles
 exports.search = async (req, res, next) => {
     logMessage(
         `Début de la recherche de projets avec le mot-clé : ${req.params.keyword}`,
@@ -972,6 +972,10 @@ exports.search = async (req, res, next) => {
                     model: dbConnector.Utilisateur,
                     attributes: { exclude: ["roleId", "password"] },
                 },
+                {
+                    model: dbConnector.ImageProjet,
+                    attributes: ["nom", "dateCreation"],
+                }
             ],
             attributes: {
                 exclude: [
