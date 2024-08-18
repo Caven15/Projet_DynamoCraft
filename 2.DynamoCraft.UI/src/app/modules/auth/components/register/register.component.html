@@ -1,0 +1,94 @@
+<div class="container d-flex justify-content-center align-items-center min-vh-75">
+    <div class="col-md-6">
+        <div class="card p-4 shadow-lg bg-dc-2">
+            <h2 class="text-center text-warning mb-4 font-dc">Créer un compte</h2>
+
+            <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+
+                <!-- Image de profil avec bouton d'ajout ou de mise à jour -->
+                <div class="profile-image-wrapper position-relative mb-4">
+                    <img [src]="imagePreview || defaultImage" class="profile-image" alt="Prévisualisation">
+                    <div class="overlay d-flex justify-content-center align-items-center" (click)="triggerFileInput()">
+                        <i [class]="selectedFile ? 'bi bi-arrow-clockwise' : 'bi bi-plus'"></i>
+                    </div>
+                    <!-- Input de fichier caché -->
+                    <input type="file" id="image" (change)="onFileSelected($event)" class="d-none" #fileInput>
+                </div>
+
+                <!-- Pseudo -->
+                <div class="form-floating mb-3">
+                    <input type="text" id="pseudo" formControlName="pseudo" class="form-control"
+                        placeholder="Votre pseudo"
+                        [class.is-invalid]="registerForm.get('pseudo')?.touched && registerForm.get('pseudo')?.invalid">
+                    <label for="pseudo">Pseudo</label>
+                    <div *ngIf="registerForm.get('pseudo')?.touched && registerForm.get('pseudo')?.invalid"
+                        class="invalid-feedback">
+                        Le pseudo est obligatoire.
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-floating mb-3">
+                    <input type="email" id="email" formControlName="email" class="form-control"
+                        placeholder="Votre email"
+                        [class.is-invalid]="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
+                    <label for="email">Email</label>
+                    <div *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid"
+                        class="invalid-feedback">
+                        Un email valide est requis.
+                    </div>
+                </div>
+
+                <!-- Date de naissance -->
+                <div class="form-floating mb-3">
+                    <input type="date" id="dateNaissance" formControlName="dateNaissance" class="form-control"
+                        [class.is-invalid]="registerForm.get('dateNaissance')?.touched && registerForm.get('dateNaissance')?.invalid">
+                    <label for="dateNaissance">Date de naissance</label>
+                    <div *ngIf="registerForm.get('dateNaissance')?.touched && registerForm.get('dateNaissance')?.invalid"
+                        class="invalid-feedback">
+                        La date de naissance est obligatoire.
+                    </div>
+                </div>
+
+                <!-- Biographie (Textarea) -->
+                <div class="form-floating mb-3">
+                    <textarea id="biographie" formControlName="biographie" class="form-control" style="height: 120px"
+                        placeholder="Parlez de vous..."
+                        [class.is-invalid]="registerForm.get('biographie')?.touched && registerForm.get('biographie')?.invalid"></textarea>
+                    <label for="biographie">Biographie</label>
+                    <div *ngIf="registerForm.get('biographie')?.touched && registerForm.get('biographie')?.invalid"
+                        class="invalid-feedback">
+                        La biographie ne doit pas dépasser 500 caractères.
+                    </div>
+                </div>
+
+                <!-- Centre d'intérêts (Textarea) -->
+                <div class="form-floating mb-3">
+                    <textarea id="centreInterets" formControlName="centreInterets" class="form-control" style="height: 100px"
+                        placeholder="Vos centres d'intérêts"></textarea>
+                    <label for="centreInterets">Centres d'intérêts</label>
+                </div>
+
+                <!-- Mot de passe -->
+                <div class="form-floating mb-3 position-relative">
+                    <input [type]="isPasswordVisible ? 'text' : 'password'" id="password" formControlName="password"
+                        class="form-control" placeholder="Votre mot de passe"
+                        [class.is-invalid]="registerForm.get('password')?.touched && registerForm.get('password')?.invalid">
+                    <label for="password">Mot de passe</label>
+                    <i (click)="togglePasswordVisibility()"
+                        [class]="isPasswordVisible ? 'bi bi-eye position-absolute end-0 top-50 translate-middle-y pe-3' : 'bi bi-eye-slash position-absolute end-0 top-50 translate-middle-y pe-3'"
+                        style="cursor: pointer;"></i>
+                    <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid"
+                        class="invalid-feedback">
+                        Le mot de passe doit comporter au moins 6 caractères.
+                    </div>
+                </div>
+
+                <!-- Bouton de soumission -->
+                <button type="submit" class="btn btn-warning w-100 py-2 mt-3 font-dc"
+                    [disabled]="registerForm.invalid">Créer un compte</button>
+
+            </form>
+        </div>
+    </div>
+</div>

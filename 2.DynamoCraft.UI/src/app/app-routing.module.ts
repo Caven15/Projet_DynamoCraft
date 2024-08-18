@@ -8,12 +8,13 @@ import { Top10Component } from './components/top-10/top-10.component';
 import { RechercheComponent } from './components/recherche/recherche.component';
 
 const routes: Routes = [
+    {path: 'auth', loadChildren: () => import('./modules/auth/auth-routing.module').then(m => m.AuthRoutingModule)},
     { path: 'home', component: HomeComponent },
     { path: 'modele', children : [
         {path: 'categories', component : CategorieComponent},
-        {path: 'nouveautes', component : NouveautesComponent}
+        {path: 'nouveautes', component : NouveautesComponent},
+        { path: 'top10', component: Top10Component },
     ] },
-    { path: 'top10', component: Top10Component },
     { path: 'recherche', component: RechercheComponent },
 
     { path: '', redirectTo: 'home', pathMatch: 'full' }

@@ -165,6 +165,8 @@ exports.login = async (req, res, next) => {
         logMessage("Connexion réussie", COLOR_GREEN);
         res.status(202).json({
             accessToken: token,
+            id: utilisateur.id,
+            roleId: utilisateur.roleId,
         });
     } catch (error) {
         logMessage("Erreur lors de la connexion de l'utilisateur", COLOR_RED);

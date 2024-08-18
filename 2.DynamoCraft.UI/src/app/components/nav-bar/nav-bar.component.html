@@ -1,37 +1,35 @@
 <header class="p-3 bg-dc-2 text-white font-dc">
     <div class="container">
-        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-center justify-content-lg-center">
+        <div
+            class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-center justify-content-lg-center">
             <a class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none" routerLink="/home">
                 <img src="assets/png/logo.png" alt="logo" width="60" height="60">
                 <span class="navbar-brand font-dc text-white fs-4 ms-2 me-5">DynamoCraft</span>
             </a>
             <ul class="nav col-12 col-xl-auto me-lg-auto mb-2 d-flex justify-content-center mb-md-0">
-                <li>
-                    <a class="nav-link col-12 d-flex justify-content-center" routerLink="/recherche">Recherche</a>
-                </li>
-                <li>
-                    <a class="nav-link col-12 d-flex justify-content-center" routerLink="/top10">Top 10</a>
-                </li>
-                <li>
-                    <a class="nav-link col-12 d-flex justify-content-center" routerLink="/modele/nouveautes">Nouveautés</a>
-                </li>
-                <li>
-                    <a class="nav-link col-12 d-flex justify-content-center" routerLink="/modele/categories">Catégories</a>
-                </li>
+                <li><a class="nav-link col-12 d-flex justify-content-center" routerLink="/recherche">Recherche</a></li>
+                <li><a class="nav-link col-12 d-flex justify-content-center" routerLink="/modele/top10">Top 10</a></li>
+                <li><a class="nav-link col-12 d-flex justify-content-center"
+                        routerLink="/modele/nouveautes">Nouveautés</a></li>
+                <li><a class="nav-link col-12 d-flex justify-content-center"
+                        routerLink="/modele/categories">Catégories</a></li>
             </ul>
+
             <div class="dropdown text-end">
                 <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle text-white"
                     data-bs-toggle="dropdown" aria-expanded="false">
-                    <img src="https://github.com/mdo.png" alt="mdo" width="40" height="40" class="rounded-circle">
+                    <!-- Affichez l'image de profil si l'utilisateur est connecté, sinon utilisez l'image par défaut -->
+                    <img [src]="getProfileImage()" alt="profile image" width="40" height="40" class="rounded-circle">
                 </a>
                 <ul class="dropdown-menu text-small dropdown-menu-end">
-                    <li><a class="dropdown-item" href="#">New project...</a></li>
-                    <li><a class="dropdown-item" href="#">Settings</a></li>
-                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li><a class="dropdown-item" href="#">Sign out</a></li>
+                    <!-- Liens dépendants de l'état de connexion -->
+                    <ng-container *ngIf="isConnected(); else guestLinks">
+                        <li><a class="dropdown-item" (click)="logout()">Déconnexion</a></li>
+                    </ng-container>
+                    <ng-template #guestLinks>
+                        <li><a class="dropdown-item" routerLink="/auth/login">Login</a></li>
+                        <li><a class="dropdown-item" routerLink="/auth/register">Register</a></li>
+                    </ng-template>
                 </ul>
             </div>
         </div>

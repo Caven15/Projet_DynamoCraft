@@ -12,6 +12,8 @@ import { CategorieComponent } from './components/categorie/categorie.component';
 import { NouveautesComponent } from './components/nouveautes/nouveautes.component';
 import { Top10Component } from './components/top-10/top-10.component';
 import { RechercheComponent } from './components/recherche/recherche.component';
+import { AuthModule } from './modules/auth/auth.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
     declarations: [
@@ -28,7 +30,8 @@ import { RechercheComponent } from './components/recherche/recherche.component';
         BrowserModule,
         AppRoutingModule,
         FormsModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        AuthModule
     ],
     providers: [
         provideClientHydration(),
