@@ -514,3 +514,37 @@ ul.nav .nav-link {
     font-size: 3rem; /* Taille augmentée pour une meilleure visibilité */
     color: white;
 }
+
+
+.dropdown-menu-style {
+    background-color: $couleur-main;
+    color: black;
+    border: none;
+    font-family: 'ethnocentric', sans-serif;
+    font-size: 1rem;
+
+    & optgroup {
+        color: white;
+        background-color: $couleur-fond-2;
+    }
+
+    & option {
+        background-color: $couleur-main;
+        color: black;
+        padding: 10px;
+    }
+
+    & option:hover {
+        background-color: black;
+        color: white;
+    }
+
+    &:focus {
+        border-color: $couleur-main;
+        box-shadow: 0 0 0 0.25rem rgba(227, 178, 0, 0.25);
+    }
+
+    &::placeholder {
+        color: black;
+    }
+}

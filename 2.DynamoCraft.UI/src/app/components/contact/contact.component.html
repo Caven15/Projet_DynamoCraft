@@ -1,0 +1,66 @@
+<div class="container d-flex justify-content-center align-items-center min-vh-75">
+    <div class="col-md-6">
+        <div class="card p-4 shadow-lg bg-dc-2">
+            <h2 class="text-center text-warning mb-4 font-dc">Contactez-nous</h2>
+
+            <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+
+                <!-- Email -->
+                <div class="form-floating mb-3">
+                    <input type="email" id="email" formControlName="email" class="form-control"
+                        placeholder="Votre email"
+                        [class.is-invalid]="contactForm.get('email')?.touched && contactForm.get('email')?.invalid">
+                    <label for="email">Email</label>
+                    <div *ngIf="contactForm.get('email')?.touched && contactForm.get('email')?.invalid"
+                        class="invalid-feedback">
+                        Un email valide est requis.
+                    </div>
+                </div>
+
+                <!-- Subject Dropdown -->
+                <div class="form-floating mb-3">
+                    <select id="subject" formControlName="subject" class="form-select dropdown-menu-style"
+                        [class.is-invalid]="contactForm.get('subject')?.touched && contactForm.get('subject')?.invalid">
+                        <option value="" disabled selected>Sélectionnez un sujet</option>
+                        <optgroup label="Support Technique">
+                            <option value="Bug Report">Signaler un bug</option>
+                            <option value="Feature Request">Demander une fonctionnalité</option>
+                            <option value="Account Issue">Problème de compte</option>
+                        </optgroup>
+                        <optgroup label="Support Général">
+                            <option value="General Inquiry">Question générale</option>
+                            <option value="Feedback">Retour d'expérience</option>
+                            <option value="Partnership">Proposition de partenariat</option>
+                        </optgroup>
+                        <optgroup label="Autre">
+                            <option value="Other">Autre</option>
+                        </optgroup>
+                    </select>
+                    <label for="subject">Sujet</label>
+                    <div *ngIf="contactForm.get('subject')?.touched && contactForm.get('subject')?.invalid" class="invalid-feedback">
+                        Veuillez sélectionner un sujet.
+                    </div>
+                </div>
+
+                <!-- Message -->
+                <div class="form-floating mb-3">
+                    <textarea id="message" formControlName="message" class="form-control" style="height: 150px"
+                        placeholder="Votre message"
+                        [class.is-invalid]="contactForm.get('message')?.touched && contactForm.get('message')?.invalid"></textarea>
+                    <label for="message">Message</label>
+                    <div *ngIf="contactForm.get('message')?.touched && contactForm.get('message')?.invalid"
+                        class="invalid-feedback">
+                        Le message est requis.
+                    </div>
+                </div>
+
+                <!-- Boutons de soumission et de réinitialisation -->
+                <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary" (click)="onReset()">Réinitialiser</button>
+                    <button type="submit" class="btn btn-warning" [disabled]="contactForm.invalid">Envoyer</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

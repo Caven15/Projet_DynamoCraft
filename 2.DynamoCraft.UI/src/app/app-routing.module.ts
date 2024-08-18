@@ -6,6 +6,7 @@ import { CategorieComponent } from './components/categorie/categorie.component';
 import { NouveautesComponent } from './components/nouveautes/nouveautes.component';
 import { Top10Component } from './components/top-10/top-10.component';
 import { RechercheComponent } from './components/recherche/recherche.component';
+import { ContactComponent } from './components/contact/contact.component';
 
 const routes: Routes = [
     {path: 'auth', loadChildren: () => import('./modules/auth/auth-routing.module').then(m => m.AuthRoutingModule)},
@@ -16,6 +17,7 @@ const routes: Routes = [
         { path: 'top10', component: Top10Component },
     ] },
     { path: 'recherche', component: RechercheComponent },
+    { path: 'contact', component: ContactComponent },
 
     { path: '', redirectTo: 'home', pathMatch: 'full' }
 ];

@@ -89,6 +89,7 @@ const routers = [
     require("./routers/imageProjet.router"),
     require("./routers/modele3D.router"),
     require("./routers/utilisateurProjet.router"),
+    require("./routers/email.router"),
 ];
 
 // Utilisation des routeurs

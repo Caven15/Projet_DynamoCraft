@@ -14,6 +14,7 @@ import { Top10Component } from './components/top-10/top-10.component';
 import { RechercheComponent } from './components/recherche/recherche.component';
 import { AuthModule } from './modules/auth/auth.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ContactComponent } from './components/contact/contact.component';
 
 @NgModule({
     declarations: [
@@ -24,7 +25,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
         CategorieComponent,
         NouveautesComponent,
         Top10Component,
-        RechercheComponent
+        RechercheComponent,
+        ContactComponent
     ],
     imports: [
         BrowserModule,
