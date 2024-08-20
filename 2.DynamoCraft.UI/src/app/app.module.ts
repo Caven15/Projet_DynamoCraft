@@ -13,8 +13,10 @@ import { NouveautesComponent } from './components/nouveautes/nouveautes.componen
 import { Top10Component } from './components/top-10/top-10.component';
 import { RechercheComponent } from './components/recherche/recherche.component';
 import { AuthModule } from './modules/auth/auth.module';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ContactComponent } from './components/contact/contact.component';
+import { QuiSommesNousComponent } from './components/qui-sommes-nous/qui-sommes-nous.component';
+import { PolitiqueConfidentialiteComponent } from './components/politique-confidentialite/politique-confidentialite.component';
+import { ConditionsUtilisationComponent } from './components/conditions-utilisation/conditions-utilisation.component';
 
 @NgModule({
     declarations: [
@@ -26,7 +28,10 @@ import { ContactComponent } from './components/contact/contact.component';
         NouveautesComponent,
         Top10Component,
         RechercheComponent,
-        ContactComponent
+        ContactComponent,
+        QuiSommesNousComponent,
+        PolitiqueConfidentialiteComponent,
+        ConditionsUtilisationComponent
     ],
     imports: [
         BrowserModule,

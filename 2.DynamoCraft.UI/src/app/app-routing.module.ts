@@ -7,6 +7,9 @@ import { NouveautesComponent } from './components/nouveautes/nouveautes.componen
 import { Top10Component } from './components/top-10/top-10.component';
 import { RechercheComponent } from './components/recherche/recherche.component';
 import { ContactComponent } from './components/contact/contact.component';
+import { QuiSommesNousComponent } from './components/qui-sommes-nous/qui-sommes-nous.component';
+import { PolitiqueConfidentialiteComponent } from './components/politique-confidentialite/politique-confidentialite.component';
+import { ConditionsUtilisationComponent } from './components/conditions-utilisation/conditions-utilisation.component';
 
 const routes: Routes = [
     {path: 'auth', loadChildren: () => import('./modules/auth/auth-routing.module').then(m => m.AuthRoutingModule)},
@@ -18,6 +21,9 @@ const routes: Routes = [
     ] },
     { path: 'recherche', component: RechercheComponent },
     { path: 'contact', component: ContactComponent },
+    { path: 'quiSommesnous', component: QuiSommesNousComponent },
+    { path: 'politiqueConfidentialite', component: PolitiqueConfidentialiteComponent },
+    { path: 'conditionsUtilisation', component: ConditionsUtilisationComponent },
 
     { path: '', redirectTo: 'home', pathMatch: 'full' }
 ];
