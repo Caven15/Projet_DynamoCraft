@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { BaseApiService } from './base-api.service';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, catchError } from 'rxjs';
+import { Observable, tap, catchError, map } from 'rxjs';
 import { Utilisateur } from '../../../models/utilisateur.model';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class UtilisateurService extends BaseApiService {
 
@@ -38,10 +38,22 @@ export class UtilisateurService extends BaseApiService {
                 next: () => console.log(`Récupération de l'utilisateur avec l'id=${id}`),
                 error: (error) => console.error(`Erreur lors de la récupération de l'utilisateur avec l'id=${id} :`, error)
             }),
+            map((user: Utilisateur) => {
+                // Adapter chaque projet pour que imageProjet soit un tableau, même si un seul objet est présent
+                if (user.projet) {
+                    user.projet = user.projet.map(projet => {
+                        // Si imageProjet est un objet, le convertir en tableau
+                        if (projet.imageProjet && !Array.isArray(projet.imageProjet)) {
+                            projet.imageProjet = [projet.imageProjet];
+                        }
+                        return projet;
+                    });
+                }
+                return user;
+            }),
             catchError(this.handleError<Utilisateur>('getUtilisateurById'))
         );
     }
-
     /**
      * Mettre à jour un utilisateur par ID
      * @param id Identifiant de l'utilisateur

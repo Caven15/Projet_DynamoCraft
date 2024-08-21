@@ -10,16 +10,16 @@ import { ProjetService } from '../../tools/services/api/projet.service';
 })
 export class RechercheComponent {
     projects: Projet[] = [];
-    searchQuery: string = '';
+    searchQuery: string = 'projet';  // Définir la valeur par défaut
     page: number = 1;
     totalPages: number = 1;
-    limit: number = 8;  // Nombre de résultats par page
+    limit: number = 12;  // Nombre de résultats par page
     url: string = `${environment.apiUrl}/uploads/`;
 
     constructor(private projetService: ProjetService) { }
 
     ngOnInit(): void {
-        this.onSearch();  // Initialiser avec une recherche vide ou par défaut (optionnel)
+        this.onSearch();  // Initialiser la recherche avec le mot "projets"
     }
 
     onSearch(): void {
@@ -28,8 +28,8 @@ export class RechercheComponent {
                 next: (response) => {
                     this.projects = response.projects;  // Récupérer les projets
                     this.totalPages = response.totalPages;  // Nombre total de pages
-                    this.page = response.currentPage;  // Mettre à jour la page actuelle
                     console.log("Projets trouvés :", this.projects);
+                    console.log(this.projects[0].imageProjet);
                 },
                 error: (error) => {
                     console.log('Erreur lors de la recherche des projets', error);

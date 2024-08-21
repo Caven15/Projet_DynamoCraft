@@ -31,8 +31,8 @@ export class NavBarComponent implements OnInit {
 
     // Récupère l'image de profil si l'utilisateur est connecté, sinon retourne l'image par défaut
     getProfileImage(): string {
-        if (this.currentUser && this.currentUser.ImageUtilisateur && this.currentUser.ImageUtilisateur.nom) {
-            return `${this.url}${this.currentUser.ImageUtilisateur.nom}`; // Chemin vers le dossier des uploads
+        if (this.currentUser && this.currentUser.imageUtilisateur && this.currentUser.imageUtilisateur.nom) {
+            return `${this.url}${this.currentUser.imageUtilisateur.nom}`; // Chemin vers le dossier des uploads
         }
         return 'assets/png/logo.png'; // Image par défaut depuis le dossier assets
     }

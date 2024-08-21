@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { categorie } from '../../models/categorie.model';
 import { CategorieService } from '../../tools/services/api/categorie.service';
 import { error } from 'console';
+import { Categorie } from '../../models/categorie.model';
 
 @Component({
     selector: 'app-categorie',
@@ -10,7 +10,7 @@ import { error } from 'console';
 })
 export class CategorieComponent {
 
-    categories!: categorie[]
+    categories!: Categorie[]
 
     constructor(categorieService: CategorieService) {
         categorieService.getAllCategorie().subscribe({

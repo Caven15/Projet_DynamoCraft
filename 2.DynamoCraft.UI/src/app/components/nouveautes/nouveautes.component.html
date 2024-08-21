@@ -1,21 +1,20 @@
-<div class="container-fluid d-flex justify-content-center min-vh-75">
-    <div class="col-9 mt-5">
-        <h1 class="font-dc d-flex justify-content-center mb-5">Nouveautés</h1>
-        <div class="row g-4 d-flex justify-content-center">
-            @for (nouveaute of nouveautes; track nouveaute.id) {
-            <div class="col-sm-6 col-md-4 col-lg-3 mb-4 d-flex align-items-center justify-content-center">
-                <a routerLink="/home">
-                    <div class="card-medium">
-                        @if (nouveaute.ImageProjet && nouveaute.ImageProjet.length > 0) {
-                        <img [src]="url + nouveaute.ImageProjet[0].nom" class="card-img-top" alt="Image du projet">
-                        } @else {
-                        <p>Pas d'image disponible</p>
-                        }
-                    </div>
-                    <h5 class="font-dc text-center mt-3">{{nouveaute.nom}}</h5>
-                </a>
-            </div>
-            }
+<div class="container min-vh-75">
+    <h1 class="font-dc text-center text-warning mb-4">Nouveautés</h1>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
+        @for (nouveaute of nouveautes; track nouveaute.id) {
+        <div class="col d-flex align-items-stretch">
+            <a routerLink="/home" class="text-decoration-none w-100">
+                <div class="card h-100 text-center shadow-sm border-0 couleur-main card-hover rounded m-3">
+                    @if (nouveaute.imageProjet && nouveaute.imageProjet.length > 0) {
+                    <img [src]="url + nouveaute.imageProjet[0].nom" class="card-img-top rounded" alt="Image du projet"
+                        style="width: 100%; height: 200px; object-fit: cover;">
+                    } @else {
+                    <p class="text-muted">Pas d'image disponible</p>
+                    }
+                    <h5 class="card-title text-white text-center font-dc mt-3">{{nouveaute.nom | slice: 0: 20}}...</h5>
+                </div>
+            </a>
         </div>
+        }
     </div>
 </div>

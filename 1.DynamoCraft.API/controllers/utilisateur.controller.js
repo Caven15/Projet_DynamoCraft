@@ -47,7 +47,6 @@ exports.getAll = async (req, res, next) => {
     }
 };
 
-// Récupérer un utilisateur par ID
 exports.getById = async (req, res, next) => {
     logMessage(
         `Début de la récupération de l'utilisateur avec ID: ${req.params.id}`,
@@ -71,12 +70,58 @@ exports.getById = async (req, res, next) => {
                     model: dbConnector.Role,
                     attributes: ["nom"],
                 },
+                {
+                    model: dbConnector.Projet,
+                    as: "projet",
+                    attributes: ["id", "nom", "description", "statistiqueId"],
+                    include: [
+                        {
+                            model: dbConnector.Statistique,
+                            attributes: [
+                                "nombreApreciation",
+                                "nombreTelechargement",
+                            ],
+                        },
+                        {
+                            model: dbConnector.ImageProjet,
+                            attributes: ["nom"], // Inclure l'image du projet
+                            limit: 1, // Récupère uniquement la première image par projet
+                            separate: false, // Assurez-vous de ne pas utiliser `separate` ici
+                        },
+                    ],
+                },
             ],
         });
+        console.log(user);
 
         if (user) {
+            // Vérifiez si l'utilisateur a des projets
+            const userProjects = user.projet || [];
+
+            // Calculer le total des appréciations et des téléchargements sur tous les projets de l'utilisateur
+            const totalLikes = userProjects.reduce((total, projet) => {
+                const appreciation = projet.statistique
+                    ? projet.statistique.nombreApreciation || 0
+                    : 0;
+                return total + appreciation;
+            }, 0);
+
+            const totalDownloads = userProjects.reduce((total, projet) => {
+                const downloads = projet.statistique
+                    ? projet.statistique.nombreTelechargement || 0
+                    : 0;
+                return total + downloads;
+            }, 0);
+
+            // Ajouter les totaux aux données de l'utilisateur
+            const userWithTotals = {
+                ...user.toJSON(), // Convertir l'utilisateur en un objet JSON pour le modifier
+                totalLikes,
+                totalDownloads,
+            };
+
             logMessage("Utilisateur récupéré avec succès", COLOR_GREEN);
-            res.status(200).json(user);
+            res.status(200).json(userWithTotals);
         } else {
             logMessage("Utilisateur non trouvé", COLOR_RED);
             res.status(404).json({ message: "Utilisateur non trouvé" });

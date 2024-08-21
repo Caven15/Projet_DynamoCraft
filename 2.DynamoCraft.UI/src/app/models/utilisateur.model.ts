@@ -1,4 +1,5 @@
 import { ImageUtilisateur } from "./imageUtilisateur.model";
+import { Projet } from "./projet.model";
 
 export class Utilisateur {
     id?: number;
@@ -12,7 +13,10 @@ export class Utilisateur {
     roleId?: number;
     dateInscription?: Date;
     dateModif?: Date;
-    ImageUtilisateur?: ImageUtilisateur;
+    imageUtilisateur?: ImageUtilisateur;
+    totalLikes?: number;
+    totalDownloads?: number;
+    projet?: Projet[];
 
     constructor(
         email: string,
@@ -26,7 +30,11 @@ export class Utilisateur {
         dateInscription: Date = new Date(),
         dateModif: Date = new Date(),
         id?: number,
-        imageUtilisateur?: ImageUtilisateur
+        imageUtilisateur?: ImageUtilisateur,
+        totalLikes?: number,
+        totalDownloads?: number,
+        projets?: Projet[],
+
     ) {
         this.pseudo = pseudo;
         this.email = email;
@@ -39,6 +47,9 @@ export class Utilisateur {
         this.dateInscription = dateInscription;
         this.dateModif = dateModif;
         this.id = id;
-        this.ImageUtilisateur = imageUtilisateur;
+        this.imageUtilisateur = imageUtilisateur;
+        this.totalLikes = totalLikes;
+        this.totalDownloads = totalDownloads;
+        this.projet = projets;
     }
 }

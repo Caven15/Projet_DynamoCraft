@@ -17,6 +17,7 @@ import { ContactComponent } from './components/contact/contact.component';
 import { QuiSommesNousComponent } from './components/qui-sommes-nous/qui-sommes-nous.component';
 import { PolitiqueConfidentialiteComponent } from './components/politique-confidentialite/politique-confidentialite.component';
 import { ConditionsUtilisationComponent } from './components/conditions-utilisation/conditions-utilisation.component';
+import { UtilisateurModule } from './modules/utilisateur/utilisateur.module';
 
 @NgModule({
     declarations: [
@@ -38,7 +39,8 @@ import { ConditionsUtilisationComponent } from './components/conditions-utilisat
         AppRoutingModule,
         FormsModule,
         ReactiveFormsModule,
-        AuthModule
+        AuthModule,
+        UtilisateurModule
     ],
     providers: [
         provideClientHydration(),

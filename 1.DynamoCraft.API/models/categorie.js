@@ -13,8 +13,8 @@ module.exports = (sequelize) => {
         },
         {
             sequelize,
-            modelName: "Categorie",
-            tableName: "Categorie",
+            modelName: "categorie",
+            tableName: "categorie",
             timestamps: false,
         }
     );

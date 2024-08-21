@@ -22,8 +22,8 @@ module.exports = (sequelize) => {
         },
         {
             sequelize,
-            modelName: "Projet",
-            tableName: "Projet",
+            modelName: "projet",
+            tableName: "projet",
             timestamps: false,
         }
     );

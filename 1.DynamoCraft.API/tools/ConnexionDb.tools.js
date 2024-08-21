@@ -57,12 +57,12 @@ module.exports = {
             dbConnector.ImageUtilisateur.belongsTo(dbConnector.Utilisateur);
 
             // Relation entre Projet et Utilisateur
-            dbConnector.Projet.belongsTo(dbConnector.Utilisateur);
-            dbConnector.Utilisateur.hasMany(dbConnector.Projet);
+            dbConnector.Utilisateur.hasMany(dbConnector.Projet, { as: 'projet' });
+            dbConnector.Projet.belongsTo(dbConnector.Utilisateur, { as: 'utilisateur', foreignKey: 'utilisateurId' });
 
-            // Relation entre Projet et Statut
-            dbConnector.Projet.belongsTo(dbConnector.Statut);
-            dbConnector.Statut.hasMany(dbConnector.Projet);
+            // Relation entre Projet et Statut avec alias et clé étrangère explicite
+            dbConnector.Projet.belongsTo(dbConnector.Statut, { as: 'statut', foreignKey: 'statutId' });
+            dbConnector.Statut.hasMany(dbConnector.Projet, { as: 'projet', foreignKey: 'statutId' });
 
             // Relation entre Projet et Statistique
             dbConnector.Projet.belongsTo(dbConnector.Statistique);

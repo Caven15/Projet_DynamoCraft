@@ -1,7 +1,7 @@
 const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
-    class commentaire extends Model {}
-    commentaire.init(
+    class Commentaire extends Model {}
+    Commentaire.init(
         {
             description: DataTypes.STRING,
             dateCreation: DataTypes.DATE,
@@ -11,10 +11,10 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             sequelize,
-            modelName: "Commentaire",
-            tableName: "Commentaire",
+            modelName: "commentaire",
+            tableName: "commentaire",
             timestamps: false,
         }
     );
-    return commentaire;
+    return Commentaire;
 };

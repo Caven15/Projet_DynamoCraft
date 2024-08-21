@@ -1,0 +1,68 @@
+<div class="container-fluid min-vh-75 py-5">
+    <div class="container bg-custom-dark py-5 px-4 rounded-custom position-relative">
+        <div class="row">
+            <div class="col-md-4 d-flex justify-content-center align-items-center mb-4">
+                <div class="position-relative">
+                    <img [src]="getProfileImageUrl()" alt="Image de profil" class="profile-image shadow-lg">
+                    <div class="overlay">
+                        <i class="bi bi-pencil-fill"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <h2 class="text-warning font-dc mb-4">{{ utilisateur?.pseudo }}</h2>
+                <p class="text-white"><strong>Bio:</strong> {{ utilisateur?.biographie }}</p>
+                <p class="text-white"><strong>Intérêts :</strong> {{ utilisateur?.centreInterets }}</p>
+            </div>
+        </div>
+
+        <!-- Bouton engrenage en haut à droite -->
+        <button class="btn btn-dark settings-btn position-absolute">
+            <i class="bi bi-gear-fill"></i>
+        </button>
+
+        <div class="row mt-5">
+            <div class="col-md-4 text-center mb-4">
+                <div class="card shadow-lg bg-dark text-white p-4 rounded">
+                    <h5 class="font-dc">Projets Partagés</h5>
+                    <p class="display-4">{{ utilisateur?.projet?.length }}</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="card shadow-lg bg-dark text-white p-4 rounded">
+                    <h5 class="font-dc">Appréciations</h5>
+                    <p class="display-4">{{ utilisateur?.totalLikes }}</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="card shadow-lg bg-dark text-white p-4 rounded">
+                    <h5 class="font-dc">Téléchargements</h5>
+                    <p class="display-4">{{ utilisateur?.totalDownloads }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <h3 class="text-warning text-uppercase font-dc mb-4">Projets Récents</h3>
+            <div class="row g-4">
+                @for (projet of utilisateur?.projet | slice: 0: 3; track projet.id) {
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card h-100 text-center shadow-sm border-0 couleur-fond-2 rounded m-3">
+                        <a [routerLink]="['/projet', projet.id]" class="text-decoration-none">
+                            @if (projet.imageProjet && projet.imageProjet.length > 0) {
+                            <img [src]="url + projet.imageProjet[0].nom" class="card-img-top rounded-img"
+                                alt="Image du projet" style="width: 100%; height: 200px; object-fit: cover;">
+                            } @else {
+                            <p class="text-muted">Pas d'image disponible</p>
+                            }
+                            <h5 class="card-title text-white text-center font-dc mt-3">{{ projet.nom | slice: 0: 20
+                                }}...</h5>
+                        </a>
+                    </div>
+                </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

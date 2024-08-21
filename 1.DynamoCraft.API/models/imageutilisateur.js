@@ -17,8 +17,8 @@ module.exports = (sequelize, DataTypes) => {
         },
         {
             sequelize,
-            modelName: "ImageUtilisateur",
-            tableName: "ImageUtilisateur",
+            modelName: "imageUtilisateur",
+            tableName: "imageUtilisateur",
             timestamps: false,
         }
     );

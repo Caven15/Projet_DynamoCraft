@@ -11,8 +11,8 @@ export class Projet {
     categorieId: number;
     utilisateurId: number;
     id: number;
-    ImageProjet?: ImageProjet[];
-    Utilisateur!: Utilisateur;
+    imageProjet?: ImageProjet[];
+    utilisateur!: Utilisateur;
 
     constructor(
         nom: string,
@@ -23,7 +23,7 @@ export class Projet {
         categorieId: number,
         utilisateurId: number,
         id: number,
-        ImageProjet: ImageProjet[] = [],
+        imageProjet: ImageProjet[] = [],
         utilisateur : Utilisateur,
         statistiqueId?: number
     ) {
@@ -35,8 +35,8 @@ export class Projet {
         this.statistiqueId = statistiqueId;
         this.categorieId = categorieId;
         this.utilisateurId = utilisateurId;
-        this.ImageProjet = ImageProjet;
-        this.Utilisateur = utilisateur;
+        this.imageProjet = imageProjet;
+        this.utilisateur = utilisateur;
         this.id = id;
     }
 }

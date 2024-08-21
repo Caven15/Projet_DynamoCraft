@@ -56,19 +56,6 @@ exports.create = async (req, res, next) => {
             return res.status(404).json({ message: "Utilisateur non trouvé" });
         }
 
-        // Vérifier le nombre total d'images de projet
-        logMessage(
-            "Vérification du nombre total d'images de projet",
-            COLOR_YELLOW
-        );
-        const existingImagesCount = await dbConnector.ImageProjet.count();
-        if (existingImagesCount + (files ? files.length : 0) > 8) {
-            logMessage("Limite de 8 images par projet atteinte", COLOR_RED);
-            return res
-                .status(400)
-                .json({ message: "Limite de 8 images par projet atteinte" });
-        }
-
         // Créer une nouvelle statistique
         logMessage("Création d'une nouvelle statistique", COLOR_YELLOW);
         const newStat = await dbConnector.Statistique.create({
@@ -94,6 +81,19 @@ exports.create = async (req, res, next) => {
             utilisateurId,
         });
 
+        // Vérifier le nombre total d'images pour ce projet uniquement
+        const existingImagesCount = await dbConnector.ImageProjet.count({
+            where: { projetId: newProjet.id },
+        });
+
+        if (existingImagesCount + (files ? files.length : 0) > 8) {
+            logMessage("Limite de 8 images par projet atteinte", COLOR_RED);
+            return res
+                .status(400)
+                .json({ message: "Limite de 8 images par projet atteinte" });
+        }
+
+        // Associer les images au projet si présentes
         if (files && files.length > 0) {
             const images = [];
             for (const file of files) {
@@ -789,17 +789,19 @@ exports.getTop10Liked = async (req, res, next) => {
                     model: dbConnector.Statistique,
                     attributes: ["nombreApreciation"],
                 },
-                { 
-                    model: dbConnector.Statut, 
-                    attributes: ["nom"] 
+                {
+                    model: dbConnector.Statut,
+                    as: "statut", // Utilisation de l'alias défini pour la relation
+                    attributes: ["nom"],
                 },
-                { 
-                    model: dbConnector.Categorie, 
-                    attributes: ["nom"] 
+                {
+                    model: dbConnector.Categorie,
+                    attributes: ["nom"],
                 },
-                { 
-                    model: dbConnector.Utilisateur, 
-                    attributes: ["pseudo"],
+                {
+                    model: dbConnector.Utilisateur,
+                    as: "utilisateur", // Utilisation de l'alias défini pour la relation
+                    attributes: ["pseudo", "id"],
                     include: [
                         {
                             model: dbConnector.ImageUtilisateur,
@@ -807,13 +809,13 @@ exports.getTop10Liked = async (req, res, next) => {
                         },
                     ],
                 },
-                { 
-                    model: dbConnector.ImageProjet, 
+                {
+                    model: dbConnector.ImageProjet,
                     attributes: ["nom", "dateCreation"], // Inclure l'image du projet
                 },
             ],
             where: {
-                "$Statut.nom$": "Valide", // Filtre basé sur le statut "Valide"
+                "$statut.nom$": "Valide", // Filtre basé sur le statut "Valide"
             },
             attributes: {
                 exclude: [
@@ -834,7 +836,6 @@ exports.getTop10Liked = async (req, res, next) => {
         });
 
         logMessage(
-            JSON.stringify(topProjects[0].Utilisateur.ImageUtilisateur.nom, null, 2),
             "Les 10 projets les plus likés récupérés avec succès",
             COLOR_GREEN
         );
@@ -855,8 +856,6 @@ exports.getTop10Liked = async (req, res, next) => {
     }
 };
 
-
-
 // Récupérer les 16 derniers projets créés
 exports.getLast = async (req, res, next) => {
     logMessage(
@@ -866,7 +865,11 @@ exports.getLast = async (req, res, next) => {
     try {
         const recentProjects = await dbConnector.Projet.findAll({
             include: [
-                { model: dbConnector.Statut, attributes: { exclude: ["id"] } },
+                {
+                    model: dbConnector.Statut,
+                    as: "statut",
+                    attributes: { exclude: ["id"] },
+                },
                 {
                     model: dbConnector.Statistique,
                     attributes: { exclude: ["id"] },
@@ -877,7 +880,8 @@ exports.getLast = async (req, res, next) => {
                 },
                 {
                     model: dbConnector.Utilisateur,
-                    attributes: { exclude: ['roleId', 'password'] }
+                    as: "utilisateur", 
+                    attributes: { exclude: ["roleId", "password"] },
                 },
                 {
                     model: dbConnector.ImageProjet,
@@ -918,7 +922,6 @@ exports.getLast = async (req, res, next) => {
     }
 };
 
-// Recherche de projet par mot-clé avec pagination pour gestion de grand ensembles
 exports.search = async (req, res, next) => {
     logMessage(
         `Début de la recherche de projets avec le mot-clé : ${req.params.keyword}`,
@@ -955,11 +958,15 @@ exports.search = async (req, res, next) => {
                             },
                         ],
                     },
-                    { "$Statut.nom$": "Validé" },
+                    { "$statut.nom$": "Validé" }, // Utilisation correcte de l'alias
                 ],
             },
             include: [
-                { model: dbConnector.Statut, attributes: { exclude: ["id"] } },
+                {
+                    model: dbConnector.Statut,
+                    as: "statut", // Utilisation correcte de l'alias
+                    attributes: { exclude: ["id"] },
+                },
                 {
                     model: dbConnector.Statistique,
                     attributes: { exclude: ["id"] },
@@ -970,12 +977,13 @@ exports.search = async (req, res, next) => {
                 },
                 {
                     model: dbConnector.Utilisateur,
+                    as: "utilisateur", // Utilisation correcte de l'alias
                     attributes: { exclude: ["roleId", "password"] },
                 },
                 {
                     model: dbConnector.ImageProjet,
                     attributes: ["nom", "dateCreation"],
-                }
+                },
             ],
             attributes: {
                 exclude: [

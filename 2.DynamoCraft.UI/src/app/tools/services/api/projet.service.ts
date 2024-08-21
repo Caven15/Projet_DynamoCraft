@@ -29,14 +29,14 @@ export class ProjetService extends BaseApiService {
 
     /**
      * Récupérer un projet par ID
-     * @param id Identifiant du projet
+     * @param Id Identifiant du projet
      * @returns Observable contenant le projet
      */
-    getProjetById(id: number): Observable<Projet> {
-        return this.get<Projet>(`projet/${id}`).pipe(
+    getProjetById(Id: number): Observable<Projet> {
+        return this.get<Projet>(`projet/${Id}`).pipe(
             tap({
-                next: () => console.log(`Récupération du projet id=${id}`),
-                error: (error) => console.error(`Erreur lors de la récupération du projet id=${id} :`, error)
+                next: () => console.log(`Récupération du projet Id=${Id}`),
+                error: (error) => console.error(`Erreur lors de la récupération du projet Id=${Id} :`, error)
             }),
             catchError(this.handleError<Projet>('getProjetById'))
         );
@@ -44,20 +44,20 @@ export class ProjetService extends BaseApiService {
 
     /**
      * Créer un nouveau projet
-     * @param projet Objet contenant les informations du projet
-     * @param images Liste des fichiers d'image
+     * @param Projet Objet contenant les informations du projet
+     * @param Images Liste des fichiers d'image
      * @returns Observable indiquant le résultat de l'opération
      */
-    createProjet(projet: Projet, images: File[]): Observable<any> {
+    createProjet(Projet: Projet, Images: File[]): Observable<any> {
         const formData = new FormData();
-        formData.append('nom', projet.nom);
-        formData.append('description', projet.description);
-        formData.append('categorieId', projet.categorieId.toString());
-        formData.append('utilisateurId', projet.utilisateurId.toString());
+        formData.append('Nom', Projet.nom);
+        formData.append('Description', Projet.description);
+        formData.append('CategorieId', Projet.categorieId.toString());
+        formData.append('UtilisateurId', Projet.utilisateurId.toString());
 
-        images.forEach(image => formData.append('images', image, image.name));
+        Images.forEach(Image => formData.append('Images', Image, Image.name));
 
-        return this.post<any>('projet', formData).pipe(
+        return this.post<any>('projet', FormData).pipe(
             tap({
                 next: () => console.log(`Projet créé avec succès`),
                 error: (error) => console.error('Erreur lors de la création du projet :', error)
@@ -68,15 +68,15 @@ export class ProjetService extends BaseApiService {
 
     /**
      * Mettre à jour un projet par ID
-     * @param id Identifiant du projet
-     * @param projet Objet contenant les nouvelles informations du projet
+     * @param Id Identifiant du projet
+     * @param Projet Objet contenant les nouvelles informations du projet
      * @returns Observable indiquant le résultat de l'opération
      */
-    updateProjet(id: number, projet: Projet): Observable<any> {
-        return this.put<any>(`projet/${id}`, projet).pipe(
+    updateProjet(Id: number, Projet: Projet): Observable<any> {
+        return this.put<any>(`projet/${Id}`, Projet).pipe(
             tap({
-                next: () => console.log(`Projet id=${id} mis à jour`),
-                error: (error) => console.error(`Erreur lors de la mise à jour du projet id=${id} :`, error)
+                next: () => console.log(`Projet Id=${Id} mis à jour`),
+                error: (error) => console.error(`Erreur lors de la mise à jour du projet Id=${Id} :`, error)
             }),
             catchError(this.handleError<any>('updateProjet'))
         );
@@ -84,14 +84,14 @@ export class ProjetService extends BaseApiService {
 
     /**
      * Supprimer un projet par ID
-     * @param id Identifiant du projet
+     * @param Id Identifiant du projet
      * @returns Observable indiquant le résultat de l'opération
      */
-    deleteProjet(id: number): Observable<any> {
-        return this.delete<any>(`projet/${id}`).pipe(
+    deleteProjet(Id: number): Observable<any> {
+        return this.delete<any>(`projet/${Id}`).pipe(
             tap({
-                next: () => console.log(`Projet id=${id} supprimé`),
-                error: (error) => console.error(`Erreur lors de la suppression du projet id=${id} :`, error)
+                next: () => console.log(`Projet Id=${Id} supprimé`),
+                error: (error) => console.error(`Erreur lors de la suppression du projet Id=${Id} :`, error)
             }),
             catchError(this.handleError<any>('deleteProjet'))
         );
@@ -104,34 +104,24 @@ export class ProjetService extends BaseApiService {
     getTop10Liked(): Observable<Projet[]> {
         return this.get<Projet[]>('projet/top').pipe(
             map(projects => {
-                console.log("Service - Projets récupérés:", projects[0].Utilisateur);
-                console.log("Service - Projets récupérés:", projects[0].Utilisateur.ImageUtilisateur?.nom);
-
                 return projects.map(projet => {
-                    // Vérifier si `ImageProjet` est un tableau, sinon le transformer en tableau
-                    if (projet.ImageProjet && !Array.isArray(projet.ImageProjet)) {
-                        projet.ImageProjet = [projet.ImageProjet];
-                    }
+                    // Vérifier si l'utilisateur est présent avant d'accéder à ses propriétés
+                    if (projet.utilisateur) {
+                        console.log("Utilisateur trouvé :", projet.utilisateur.pseudo);
 
-                    // Ne conserver qu'une seule image par projet (la première)
-                    if (projet.ImageProjet && projet.ImageProjet.length > 0) {
-                        projet.ImageProjet = [projet.ImageProjet[0]];
-                    }
-
-                    // Gérer l'image utilisateur
-                    if (projet.Utilisateur) {
-                        console.log(`Utilisateur trouvé : ${projet.Utilisateur.pseudo}`);
-
-                        // Vérification pour accéder à l'image utilisateur avec la bonne propriété
-                        const imageUtilisateur = projet.Utilisateur.ImageUtilisateur;
-
-                        // Assurez-vous que `ImageUtilisateur` est un objet et a une propriété `nom`
-                        if (imageUtilisateur && imageUtilisateur.nom) {
-                            console.log("Nom de l'image utilisateur :", imageUtilisateur.nom);
-                        } else {
-                            console.log("Aucune image utilisateur trouvée.");
+                        if (projet.utilisateur.imageUtilisateur) {
+                            console.log("Nom de l'image utilisateur :", projet.utilisateur.imageUtilisateur.nom);
                         }
+                    } else {
+                        console.warn("Utilisateur non trouvé pour le projet :", projet.nom);
                     }
+
+                    // // Vérifier si ImageProjet est présent
+                    // if (projet.imageProjet) {
+                    //     console.log("Nom de l'image projet :", projet.imageProjet.nom);
+                    // } else {
+                    //     console.warn("ImageProjet non trouvée pour le projet :", projet.nom);
+                    // }
 
                     return projet;
                 });
@@ -142,218 +132,159 @@ export class ProjetService extends BaseApiService {
             }),
             catchError(this.handleError<Projet[]>('getTop10Liked'))
         );
-}
+    }
 
 
-getLastProjects(): Observable < Projet[] > {
-    return this.get<{ recentProjects: Projet[] }>('projet/last').pipe(
-        map(response => {
-            // Supprimer les doublons par identifiant
-            const uniqueProjects = response.recentProjects.filter((projet, index, self) =>
-                index === self.findIndex((t) => (
-                    t.id === projet.id
-                ))
-            );
+    getLastProjects(): Observable<Projet[]> {
+        return this.get<{ recentProjects: Projet[] }>('projet/last').pipe(
+            map(response => {
+                // Supprimer les doublons par identifiant
+                const UniqueProjects = response.recentProjects.filter((Projet, index, self) =>
+                    index === self.findIndex((t) => (
+                        t.id === Projet.id
+                    ))
+                );
 
-            return uniqueProjects.map(projet => {
-                // Ne conserver qu'une seule image par projet
-                if (projet.ImageProjet && !Array.isArray(projet.ImageProjet)) {
-                    projet.ImageProjet = [projet.ImageProjet];
-                }
-                if (projet.ImageProjet && projet.ImageProjet.length > 0) {
-                    projet.ImageProjet = [projet.ImageProjet[0]];
-                }
-                return projet;
-            });
-        }),
-        tap({
-            next: () => console.log('Récupération des derniers projets'),
-            error: (error) => console.error('Erreur lors de la récupération des derniers projets :', error)
-        })
-    );
-}
+                return UniqueProjects.map(Projet => {
+                    // Ne conserver qu'une seule image par projet
+                    if (Projet.imageProjet && !Array.isArray(Projet.imageProjet)) {
+                        Projet.imageProjet = [Projet.imageProjet];
+                    }
+                    if (Projet.imageProjet && Projet.imageProjet.length > 0) {
+                        Projet.imageProjet = [Projet.imageProjet[0]];
+                    }
+                    return Projet;
+                });
+            }),
+            tap({
+                next: () => console.log('Récupération des derniers projets'),
+                error: (error) => console.error('Erreur lors de la récupération des derniers projets :', error)
+            })
+        );
+    }
 
-/**
- * Récupérer les projets par catégorie ID
- * @param id Identifiant de la catégorie
- * @returns Observable contenant la liste des projets
- */
-getProjectsByCategoryId(id: number): Observable < Projet[] > {
-    return this.getAll<Projet>(`projet/${id}/categorie`).pipe(
-        tap({
-            next: () => console.log(`Récupération des projets de la catégorie id=${id}`),
-            error: (error) => console.error(`Erreur lors de la récupération des projets de la catégorie id=${id} :`, error)
-        }),
-        catchError(this.handleError<Projet[]>('getProjectsByCategoryId'))
-    );
-}
+    getProjectsByCategoryId(Id: number): Observable<Projet[]> {
+        return this.getAll<Projet>(`projet/${Id}/categorie`).pipe(
+            tap({
+                next: () => console.log(`Récupération des projets de la catégorie Id=${Id}`),
+                error: (error) => console.error(`Erreur lors de la récupération des projets de la catégorie Id=${Id} :`, error)
+            }),
+            catchError(this.handleError<Projet[]>('getProjectsByCategoryId'))
+        );
+    }
 
-/**
- * Récupérer les projets par utilisateur ID
- * @param id Identifiant de l'utilisateur
- * @returns Observable contenant la liste des projets
- */
-getProjectsByUserId(id: number): Observable < Projet[] > {
-    return this.getAll<Projet>(`projet/${id}/utilisateur`).pipe(
-        tap({
-            next: () => console.log(`Récupération des projets de l'utilisateur id=${id}`),
-            error: (error) => console.error(`Erreur lors de la récupération des projets de l'utilisateur id=${id} :`, error)
-        }),
-        catchError(this.handleError<Projet[]>('getProjectsByUserId'))
-    );
-}
+    getProjectsByUserId(Id: number): Observable<Projet[]> {
+        return this.getAll<Projet>(`projet/${Id}/utilisateur`).pipe(
+            tap({
+                next: () => console.log(`Récupération des projets de l'utilisateur Id=${Id}`),
+                error: (error) => console.error(`Erreur lors de la récupération des projets de l'utilisateur Id=${Id} :`, error)
+            }),
+            catchError(this.handleError<Projet[]>('getProjectsByUserId'))
+        );
+    }
 
-/**
- * Incrémenter le nombre de likes pour un projet spécifique
- * @param id Identifiant du projet
- * @returns Observable indiquant le résultat de l'opération
- */
-incrementLike(id: number): Observable < any > {
-    return this.put<any>(`projet/${id}/incrementLike`, {}).pipe(
-        tap({
-            next: () => console.log(`Nombre de likes incrémenté pour le projet id=${id}`),
-            error: (error) => console.error(`Erreur lors de l'incrémentation des likes pour le projet id=${id} :`, error)
-        }),
-        catchError(this.handleError<any>('incrementLike'))
-    );
-}
+    incrementLike(Id: number): Observable<any> {
+        return this.put<any>(`projet/${Id}/incrementLike`, {}).pipe(
+            tap({
+                next: () => console.log(`Nombre de likes incrémenté pour le projet Id=${Id}`),
+                error: (error) => console.error(`Erreur lors de l'incrémentation des likes pour le projet Id=${Id} :`, error)
+            }),
+            catchError(this.handleError<any>('incrementLike'))
+        );
+    }
 
-/**
- * Incrémenter le nombre de téléchargements pour un projet spécifique
- * @param id Identifiant du projet
- * @returns Observable indiquant le résultat de l'opération
- */
-incrementDownload(id: number): Observable < any > {
-    return this.put<any>(`projet/${id}/incrementDownloads`, {}).pipe(
-        tap({
-            next: () => console.log(`Nombre de téléchargements incrémenté pour le projet id=${id}`),
-            error: (error) => console.error(`Erreur lors de l'incrémentation des téléchargements pour le projet id=${id} :`, error)
-        }),
-        catchError(this.handleError<any>('incrementDownload'))
-    );
-}
+    incrementDownload(Id: number): Observable<any> {
+        return this.put<any>(`projet/${Id}/incrementDownloads`, {}).pipe(
+            tap({
+                next: () => console.log(`Nombre de téléchargements incrémenté pour le projet Id=${Id}`),
+                error: (error) => console.error(`Erreur lors de l'incrémentation des téléchargements pour le projet Id=${Id} :`, error)
+            }),
+            catchError(this.handleError<any>('incrementDownload'))
+        );
+    }
 
-/**
- * Mettre à jour l'état d'un projet en "valide"
- * @param id Identifiant du projet
- * @returns Observable indiquant le résultat de l'opération
- */
-setValidProjet(id: number): Observable < any > {
-    return this.put<any>(`projet/${id}/valide`, {}).pipe(
-        tap({
-            next: () => console.log(`Le projet id=${id} a été mis à jour en "valide"`),
-            error: (error) => console.error(`Erreur lors de la mise à jour du projet en valide id=${id} :`, error)
-        }),
-        catchError(this.handleError<any>('setValidProjet'))
-    );
-}
+    setValidProjet(Id: number): Observable<any> {
+        return this.put<any>(`projet/${Id}/valide`, {}).pipe(
+            tap({
+                next: () => console.log(`Le projet Id=${Id} a été mis à jour en "valide"`),
+                error: (error) => console.error(`Erreur lors de la mise à jour du projet en valide Id=${Id} :`, error)
+            }),
+            catchError(this.handleError<any>('setValidProjet'))
+        );
+    }
 
-/**
- * Mettre à jour l'état d'un projet en "invalide"
- * @param id Identifiant du projet
- * @returns Observable indiquant le résultat de l'opération
- */
-setInvalidProjet(id: number): Observable < any > {
-    return this.put<any>(`projet/${id}/invalide`, {}).pipe(
-        tap({
-            next: () => console.log(`Le projet id=${id} a été mis à jour en "invalide"`),
-            error: (error) => console.error(`Erreur lors de la mise à jour du projet en invalide id=${id} :`, error)
-        }),
-        catchError(this.handleError<any>('setInvalidProjet'))
-    );
-}
+    setInvalidProjet(Id: number): Observable<any> {
+        return this.put<any>(`projet/${Id}/invalide`, {}).pipe(
+            tap({
+                next: () => console.log(`Le projet Id=${Id} a été mis à jour en "invalide"`),
+                error: (error) => console.error(`Erreur lors de la mise à jour du projet en invalide Id=${Id} :`, error)
+            }),
+            catchError(this.handleError<any>('setInvalidProjet'))
+        );
+    }
 
-/**
- * Mettre à jour l'état d'un projet en "en attente"
- * @param id Identifiant du projet
- * @returns Observable indiquant le résultat de l'opération
- */
-setPendingProjet(id: number): Observable < any > {
-    return this.put<any>(`projet/${id}/attente`, {}).pipe(
-        tap({
-            next: () => console.log(`Le projet id=${id} a été mis à jour en "en attente"`),
-            error: (error) => console.error(`Erreur lors de la mise à jour du projet en attente id=${id} :`, error)
-        }),
-        catchError(this.handleError<any>('setPendingProjet'))
-    );
-}
+    setPendingProjet(Id: number): Observable<any> {
+        return this.put<any>(`projet/${Id}/attente`, {}).pipe(
+            tap({
+                next: () => console.log(`Le projet Id=${Id} a été mis à jour en "en attente"`),
+                error: (error) => console.error(`Erreur lors de la mise à jour du projet en attente Id=${Id} :`, error)
+            }),
+            catchError(this.handleError<any>('setPendingProjet'))
+        );
+    }
 
-/**
- * Récupérer les projets valides
- * @returns Observable contenant la liste des projets valides
- */
-getValidProjet(): Observable < Projet[] > {
-    return this.getAll<Projet>('projets/valide').pipe(
-        tap({
-            next: () => console.log('Récupération des projets valides'),
-            error: (error) => console.error('Erreur lors de la récupération des projets valides :', error)
-        }),
-        catchError(this.handleError<Projet[]>('getValidProjet'))
-    );
-}
+    getValidProjet(): Observable<Projet[]> {
+        return this.getAll<Projet>('projets/valide').pipe(
+            tap({
+                next: () => console.log('Récupération des projets valides'),
+                error: (error) => console.error('Erreur lors de la récupération des projets valides :', error)
+            }),
+            catchError(this.handleError<Projet[]>('getValidProjet'))
+        );
+    }
 
-/**
- * Récupérer les projets invalides
- * @returns Observable contenant la liste des projets invalides
- */
-getInvalidProjet(): Observable < Projet[] > {
-    return this.getAll<Projet>('projets/invalide').pipe(
-        tap({
-            next: () => console.log('Récupération des projets invalides'),
-            error: (error) => console.error('Erreur lors de la récupération des projets invalides :', error)
-        }),
-        catchError(this.handleError<Projet[]>('getInvalidProjet'))
-    );
-}
+    getInvalidProjet(): Observable<Projet[]> {
+        return this.getAll<Projet>('projets/invalide').pipe(
+            tap({
+                next: () => console.log('Récupération des projets invalides'),
+                error: (error) => console.error('Erreur lors de la récupération des projets invalides :', error)
+            }),
+            catchError(this.handleError<Projet[]>('getInvalidProjet'))
+        );
+    }
 
-/**
- * Récupérer les projets en attente
- * @returns Observable contenant la liste des projets en attente
- */
-getPendingProjet(): Observable < Projet[] > {
-    return this.getAll<Projet>('projets/attente').pipe(
-        tap({
-            next: () => console.log('Récupération des projets en attente'),
-            error: (error) => console.error('Erreur lors de la récupération des projets en attente :', error)
-        }),
-        catchError(this.handleError<Projet[]>('getPendingProjet'))
-    );
-}
+    getPendingProjet(): Observable<Projet[]> {
+        return this.getAll<Projet>('projets/attente').pipe(
+            tap({
+                next: () => console.log('Récupération des projets en attente'),
+                error: (error) => console.error('Erreur lors de la récupération des projets en attente :', error)
+            }),
+            catchError(this.handleError<Projet[]>('getPendingProjet'))
+        );
+    }
 
-/**
- * Rechercher des projets par mot-clé avec pagination
- * @param keyword Mot-clé de recherche
- * @param page Numéro de la page
- * @param limit Nombre de résultats par page
- * @returns Observable contenant les résultats de la recherche
- */
-searchProjects(keyword: string, page: number, limit: number): Observable<any> {
-    return this.get<any>(`projets/search/${keyword}/${page}/${limit}`).pipe(
-        map(response => {
-            // Vérification et traitement des projets et des images projets
-            response.projects = response.projects.map((projet: any) => {
-                // Vérifier si `ImageProjet` est un tableau, sinon le transformer en tableau
-                if (projet.ImageProjet && !Array.isArray(projet.ImageProjet)) {
-                    projet.ImageProjet = [projet.ImageProjet];
-                }
+    searchProjects(Keyword: string, Page: number, Limit: number): Observable<any> {
+        return this.get<any>(`projets/search/${Keyword}/${Page}/${Limit}`).pipe(
+            map(response => {
+                response.projects = response.projects.map((Projet: any) => {
+                    if (Projet.imageProjet && !Array.isArray(Projet.imageProjet)) {
+                        Projet.imageProjet = [Projet.imageProjet];
+                    }
 
-                // Ne conserver qu'une seule image par projet (la première)
-                if (projet.ImageProjet && projet.ImageProjet.length > 0) {
-                    projet.ImageProjet = [projet.ImageProjet[0]];
-                }
+                    if (Projet.imageProjet && Projet.imageProjet.length > 0) {
+                        Projet.imageProjet = [Projet.imageProjet[0]];
+                    }
 
-                return projet;
-            });
+                    return Projet;
+                });
 
-            return response;
-        }),
-        tap({
-            next: () => console.log(`Recherche des projets avec le mot-clé ${keyword}`),
-            error: (error) => console.error(`Erreur lors de la recherche des projets avec le mot-clé ${keyword} :`, error)
-        }),
-        catchError(this.handleError<any>('searchProjects'))
-    );
-}
-
-
+                return response;
+            }),
+            tap({
+                next: () => console.log(`Recherche des projets avec le mot-clé ${Keyword}`),
+                error: (error) => console.error(`Erreur lors de la recherche des projets avec le mot-clé ${Keyword} :`, error)
+            }),
+            catchError(this.handleError<any>('searchProjects'))
+        );
+    }
 }
