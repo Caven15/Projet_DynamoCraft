@@ -1,0 +1,214 @@
+<div class="container d-flex justify-content-center align-items-center min-vh-75">
+    <div class="col-md-8">
+        <h2 class="text-center text-warning mt-5 mb-5 font-dc">Nouveau projet</h2>
+        <div class="card p-4 shadow-lg bg-dc-2">
+
+            <form [formGroup]="projetForm" (ngSubmit)="onSubmit()" novalidate>
+                <!-- Champ Nom -->
+                <div class="form-floating mb-3">
+                    <input type="text" id="nom" formControlName="nom" class="form-control" placeholder="Nom du projet"
+                        [class.is-invalid]="projetForm.get('nom')?.touched && projetForm.get('nom')?.invalid" required>
+                    <label for="nom">Nom du projet</label>
+                    <div *ngIf="projetForm.get('nom')?.touched && projetForm.get('nom')?.invalid"
+                        class="invalid-feedback">
+                        Le nom du projet est obligatoire.
+                    </div>
+                </div>
+
+                <!-- Champ Description -->
+                <div class="form-floating mb-3">
+                    <textarea id="description" formControlName="description" class="form-control" style="height: 120px;"
+                        placeholder="Description du projet"
+                        [class.is-invalid]="projetForm.get('description')?.touched && projetForm.get('description')?.invalid"
+                        required></textarea>
+                    <label for="description">Description du projet</label>
+                    <div *ngIf="projetForm.get('description')?.touched && projetForm.get('description')?.invalid"
+                        class="invalid-feedback">
+                        La description du projet est obligatoire.
+                    </div>
+                </div>
+
+                <!-- Dropdown Catégorie -->
+                <div class="form-floating mb-3">
+                    <select id="categorie" formControlName="categorieId"
+                        class="form-select bg-dc-2 text-white couleur-main"
+                        [class.is-invalid]="projetForm.get('categorieId')?.touched && projetForm.get('categorieId')?.invalid"
+                        required>
+                        <option *ngFor="let categorie of categories" [value]="categorie.id">{{ categorie.nom }}</option>
+                    </select>
+                    <label for="categorie">Catégorie</label>
+                    <div *ngIf="projetForm.get('categorieId')?.touched && projetForm.get('categorieId')?.invalid"
+                        class="invalid-feedback">
+                        La sélection d'une catégorie est obligatoire.
+                    </div>
+                </div>
+
+                <!-- Section Image(s) -->
+                <div class="mb-4">
+                    <div class="d-flex align-items-center justify-content-start">
+                        <h4 class="text-warning mb-0">Image(s) :</h4>
+                        <label
+                            class="btn btn-warning text-dark bg-warning ms-3 d-flex align-items-center justify-content-center"
+                            style="width: 40px; height: 40px; border-radius: 50%;">
+                            <i class="bi bi-plus-lg"></i>
+                            <input #imageInput type="file" (change)="onImageSelected($event)" multiple accept="image/*"
+                                hidden>
+                        </label>
+                    </div>
+                    <p *ngIf="errorMessage" class="text-danger mt-2">{{ errorMessage }}</p>
+                    <div class="image-grid bg-dc rounded-custom p-4 mt-3">
+                        <div *ngIf="selectedImages.length === 0"
+                            class="d-flex flex-column justify-content-center align-items-center" style="height: 200px;">
+                            <i class="bi bi-x-lg text-warning" style="font-size: 5rem;"></i>
+                            <p class="text-warning mt-3 font-dc" style="font-size: 1.2rem;">Aucune image chargée</p>
+                        </div>
+
+                        <!-- Images ajoutées -->
+                        <div *ngIf="selectedImages.length > 0" class="row">
+                            <div *ngFor="let image of selectedImages; let i = index" class="col-4 p-2">
+                                <div class="position-relative image-container rounded">
+                                    <img [src]="imagePreviewUrls[i]" alt="Image ajoutée" class="card-img-top"
+                                        (click)="openImageModal(i)"
+                                        style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;">
+                                    <div class="hover-content d-flex justify-content-center align-items-center position-absolute top-0 start-0 w-100 h-100"
+                                        (click)="openImageModal(i)">
+                                        <i class="bi bi-arrows-fullscreen text-white" style="font-size: 2rem;"></i>
+                                        <p class="file-name text-white text-center mt-2">{{ image.name }}</p>
+                                    </div>
+                                    <button type="button"
+                                        class="btn btn-danger position-absolute top-0 end-0 rounded-circle"
+                                        (click)="removeImage(i)">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Modèle 3D -->
+                <div class="mb-4">
+                    <div class="d-flex align-items-center justify-content-start">
+                        <h4 class="text-warning mb-0">Fichiers 3D :</h4>
+                        <label
+                            class="btn btn-warning text-dark bg-warning ms-3 d-flex align-items-center justify-content-center"
+                            style="width: 40px; height: 40px; border-radius: 50%;">
+                            <i class="bi bi-plus-lg"></i>
+                            <input type="file" (change)="on3DFileSelected($event)" accept=".stl" multiple hidden>
+                        </label>
+                    </div>
+                    <div class="image-grid bg-dc rounded-custom p-4 mt-3">
+                        <div *ngIf="selected3DFiles.length === 0"
+                            class="d-flex flex-column justify-content-center align-items-center" style="height: 200px;">
+                            <i class="bi bi-x-lg text-warning" style="font-size: 5rem;"></i>
+                            <p class="text-warning mt-3 font-dc" style="font-size: 1.2rem;">Aucun fichier 3D chargé</p>
+                        </div>
+
+                        <!-- Fichiers 3D ajoutés -->
+                        <div *ngIf="selected3DFiles.length > 0" class="row">
+                            <div *ngFor="let file of selected3DFiles; let i = index" class="col-4 p-2">
+                                <div
+                                    class="position-relative image-container rounded bg-dc-2 d-flex justify-content-center">
+                                    <i class="bi bi-box text-center" style="font-size: 8rem; color: white;"
+                                        (click)="open3DModal(i)"></i>
+                                    <div class="hover-content d-flex justify-content-center align-items-center position-absolute top-0 start-0 w-100 h-100"
+                                        (click)="open3DModal(i)">
+                                        <i class="bi bi-arrows-fullscreen text-white" style="font-size: 2rem;"></i>
+                                        <p class="file-name text-white text-center mt-2">{{ file.name }}</p>
+                                    </div>
+                                    <button type="button"
+                                        class="btn btn-danger position-absolute top-0 end-0 rounded-circle"
+                                        (click)="remove3DFile(i)">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons -->
+                <div class="row mt-5">
+                    <div class="col-md-6 text-center mb-4">
+                        <button type="reset" class="btn btn-danger w-100">Reset</button>
+                    </div>
+                    <div class="col-md-6 text-center mb-4">
+                        <button type="submit" class="btn btn-success w-100" [disabled]="projetForm.invalid">Confirmer
+                            ajout</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal d'agrandissement pour les images -->
+<div *ngIf="showModal" class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.8);">
+    <div class="modal-dialog modal-lg modal-dialog-centered"> <!-- Réduit la taille de 10% -->
+        <div class="modal-content bg-dc rounded">
+            <div class="modal-header">
+                <h5 class="modal-title text-warning">Image {{ modalImageIndex + 1 }}</h5>
+                <button type="button" class="btn-close couleur-main" aria-label="Close" (click)="closeModal()"></button>
+            </div>
+            <div class="modal-body">
+                <img [src]="imagePreviewUrls[modalImageIndex]" class="img-fluid rounded shadow-sm" alt="Image"
+                    style="width: 100%; height: 75vh; object-fit: contain;"> <!-- Hauteur réduite -->
+            </div>
+            <div class="modal-footer d-flex justify-content-end">
+                <button class="btn btn-secondary" (click)="closeModal()">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal d'agrandissement pour les fichiers 3D -->
+<div *ngIf="show3DModal" class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.8);">
+    <div class="modal-dialog modal-lg modal-dialog-centered"> <!-- Réduit la taille de 10% -->
+        <div class="modal-content bg-dc rounded">
+            <div class="modal-header">
+                <h5 class="modal-title text-warning">Modèle 3D {{ modal3DIndex + 1 }}</h5>
+                <button type="button" class="btn-close couleur-main" aria-label="Close"
+                    (click)="close3DModal()"></button>
+            </div>
+            <div class="modal-body">
+                <div #threeContainer class="three-container" style="width: 100%; height: 75vh;"></div>
+                <!-- Hauteur réduite -->
+            </div>
+            <div class="modal-footer d-flex justify-content-between">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-info btn-sm" (click)="zoomAvant()">
+                        <i class="bi bi-zoom-in text-black"></i>
+                    </button>
+                    <button class="btn btn-info btn-sm" (click)="zoomArriere()">
+                        <i class="bi bi-zoom-out text-black"></i>
+                    </button>
+                </div>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-success btn-sm" (click)="deplacerHaut()">
+                        <i class="bi bi-arrow-up-square text-black"></i>
+                    </button>
+                    <button class="btn btn-success btn-sm" (click)="deplacerBas()">
+                        <i class="bi bi-arrow-down-square text-black"></i>
+                    </button>
+                    <button class="btn btn-success btn-sm" (click)="deplacerGauche()">
+                        <i class="bi bi-arrow-left-square text-black"></i>
+                    </button>
+                    <button class="btn btn-success btn-sm" (click)="deplacerDroite()">
+                        <i class="bi bi-arrow-right-square text-black"></i>
+                    </button>
+                </div>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-warning btn-sm" (click)="reinitialiserVue()">
+                        <i class="bi bi-eye text-black"></i> Réinitialiser vue
+                    </button>
+                </div>
+                <button class="btn btn-danger" (click)="remove3DFile(modal3DIndex)">
+                    Supprimer
+                </button>
+                <button class="btn btn-secondary" (click)="close3DModal()">
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

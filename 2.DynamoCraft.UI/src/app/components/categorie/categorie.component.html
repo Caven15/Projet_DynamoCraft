@@ -5,11 +5,11 @@
             @for (categorie of categories; track $index) {
             <div class="col-sm-6 col-md-4 col-lg-3 mb-5 d-flex align-items-center justify-content-center">
                 <a routerLink="/home">
-                    <div class="card-medium">
+                    <div class="card-hover">
                         <img src="assets/png/Categories/{{categorie.nom}}.png" class="card-img-top"
                             alt="{{categorie.nom}}">
-                        <div class="card-img-overlay">
-                            <h5 class="card-title font-dc fs-6">{{categorie.nom}}</h5>
+                        <div>
+                            <h5 class="card-title text-white text-center font-dc mt-3">{{categorie.nom }}</h5>
                         </div>
                     </div>
                 </a>

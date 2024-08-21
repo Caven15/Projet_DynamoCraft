@@ -18,6 +18,7 @@ import { QuiSommesNousComponent } from './components/qui-sommes-nous/qui-sommes-
 import { PolitiqueConfidentialiteComponent } from './components/politique-confidentialite/politique-confidentialite.component';
 import { ConditionsUtilisationComponent } from './components/conditions-utilisation/conditions-utilisation.component';
 import { UtilisateurModule } from './modules/utilisateur/utilisateur.module';
+import { ProjetModule } from './modules/projet/projet.module';
 
 @NgModule({
     declarations: [
@@ -40,7 +41,8 @@ import { UtilisateurModule } from './modules/utilisateur/utilisateur.module';
         FormsModule,
         ReactiveFormsModule,
         AuthModule,
-        UtilisateurModule
+        UtilisateurModule,
+        ProjetModule
     ],
     providers: [
         provideClientHydration(),

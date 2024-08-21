@@ -48,23 +48,23 @@ export class ProjetService extends BaseApiService {
      * @param Images Liste des fichiers d'image
      * @returns Observable indiquant le résultat de l'opération
      */
-    createProjet(Projet: Projet, Images: File[]): Observable<any> {
-        const formData = new FormData();
-        formData.append('Nom', Projet.nom);
-        formData.append('Description', Projet.description);
-        formData.append('CategorieId', Projet.categorieId.toString());
-        formData.append('UtilisateurId', Projet.utilisateurId.toString());
+createProjet(Projet: Projet, Images: File[]): Observable<any> {
+    const formData = new FormData();
+    formData.append('nom', Projet.nom);
+    formData.append('description', Projet.description);
+    formData.append('categorieId', Projet.categorieId.toString());
+    formData.append('utilisateurId', Projet.utilisateurId.toString());
 
-        Images.forEach(Image => formData.append('Images', Image, Image.name));
+    Images.forEach((Image, index) => formData.append('images', Image, Image.name));
 
-        return this.post<any>('projet', FormData).pipe(
-            tap({
-                next: () => console.log(`Projet créé avec succès`),
-                error: (error) => console.error('Erreur lors de la création du projet :', error)
-            }),
-            catchError(this.handleError<any>('createProjet'))
-        );
-    }
+    return this.post<any>('projet', formData).pipe(
+        tap({
+            next: () => console.log(`Projet créé avec succès`),
+            error: (error) => console.error('Erreur lors de la création du projet :', error)
+        }),
+        catchError(this.handleError<any>('createProjet'))
+    );
+}
 
     /**
      * Mettre à jour un projet par ID

@@ -18,7 +18,7 @@
         </div>
 
         <!-- Bouton engrenage en haut à droite -->
-        <button class="btn btn-dark settings-btn position-absolute">
+        <button *ngIf="isCurrentUser()" class="btn btn-dark settings-btn position-absolute">
             <i class="bi bi-gear-fill"></i>
         </button>
 

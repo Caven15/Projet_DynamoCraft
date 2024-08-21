@@ -9,29 +9,11 @@ $couleur-fond: rgb(35, 35, 35);
 $couleur-fond-2: rgb(25, 25, 25);
 $couleur-main: rgb(227, 178, 0);
 
-.couleur-fond-2 {
-    background-color: $couleur-fond-2;
-}
-
-.couleur-main {
-    background-color: $couleur-main;
-}
-
 * {
     margin: 0;
     padding: 0;
     font-size: 16px;
     color: white;
-}
-
-h5 {
-    text-decoration: none;
-    color: white;
-}
-
-p {
-    text-align: justify;
-    overflow: none;
 }
 
 .banner-image {
@@ -42,12 +24,32 @@ p {
     background-position: center;
 }
 
+h5,
+h2,
+.font-dc,
+h3 {
+    text-decoration: none;
+    font-family: 'ethnocentric', sans-serif;
+    color: white;
+    text-transform: uppercase;
+}
+
+p {
+    text-align: justify;
+    overflow: none;
+    line-height: 1.6;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
 .bg-dc {
     background-color: $couleur-fond;
 }
 
-.bg-dc-2 {
+.bg-dc-2,
+.bg-custom-dark {
     background-color: $couleur-fond-2;
+    color: #ffffff;
 }
 
 .header-gradient,
@@ -93,10 +95,6 @@ p {
     }
 }
 
-.blurred-image {
-    display: block;
-}
-
 .card-body {
     line-height: 2.2;
 }
@@ -129,320 +127,48 @@ ul.nav .nav-link {
     }
 }
 
-.dropdown-menu {
+.dropdown-menu,
+.dropdown-menu-style {
     background-color: $couleur-main;
     border: none;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    color: black;
+    font-family: 'ethnocentric', sans-serif;
+    font-size: 1rem;
 }
 
-.dropdown-item {
-    color: #333;
-    transition: background-color 0.3s, color 0.3s;
-
-    &:hover,
-    &:focus {
-        color: white;
-        background-color: $couleur-fond-2;
-    }
+.dropdown-item:hover,
+.dropdown-item:focus {
+    color: white;
+    background-color: $couleur-fond-2;
 }
 
-.font-dc {
-    font-family: 'ethnocentric', Courier, monospace;
+.invalid-feedback,
+.text-warning,
+.link-warning {
+    color: lighten($couleur-main, 40%) !important;
 }
 
-/* Variantes de tailles pour les cartes */
-
-/* Taille petite */
-.card-small {
-    height: 100%;
-    width: 100%;
-    max-width: 200px;
-    background-color: $couleur-main;
-    overflow: hidden;
-    position: relative;
-    border: none;
-    text-align: center;
-    transition: all 0.3s ease-in-out;
-
-    &:hover {
-        color: white;
-        background-color: $couleur-main;
-        transform: scale(1.05);
-        z-index: 1;
-    }
-
-    .card-img-top {
-        transition: transform 0.3s ease;
-        width: 100%;
-        height: auto;
-        max-height: 150px;
-    }
-
-    &:hover .card-img-top {
-        transform: scale(1.1);
-    }
-
-    .card-img-overlay {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        color: white;
-        padding: 10px;
-        transition: background 0.3s ease, opacity 0.3s ease;
-        text-align: center;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        opacity: 0;
-    }
-
-    &:hover .card-img-overlay {
-        background: rgba(0, 0, 0, 0.5);
-        opacity: 1;
-    }
-
-    .card-text {
-        display: flex;
-        flex-direction: column;
-        font-weight: bold;
-        color: black;
-        transition: all 0.3s ease-in-out;
-        border-radius: 5px;
-    }
-}
-
-/* Taille moyenne */
-.card-medium {
-    height: 100%;
-    width: 100%;
-    max-width: 300px;
-    background-color: $couleur-main;
-    overflow: hidden;
-    position: relative;
-    border: none;
-    text-align: center;
-    transition: all 0.3s ease-in-out;
-
-    &:hover {
-        color: white;
-        background-color: $couleur-main;
-        transform: scale(1.05);
-        z-index: 1;
-    }
-
-    .card-img-top {
-        transition: transform 0.3s ease;
-        width: 100%;
-        height: auto;
-        max-height: 250px;
-    }
-
-    &:hover .card-img-top {
-        transform: scale(1.1);
-    }
-
-    .card-img-overlay {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        color: white;
-        padding: 10px;
-        transition: background 0.3s ease, opacity 0.3s ease;
-        text-align: center;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        opacity: 0;
-    }
-
-    &:hover .card-img-overlay {
-        background: rgba(0, 0, 0, 0.5);
-        opacity: 1;
-    }
-
-    .card-text {
-        display: flex;
-        flex-direction: column;
-        font-weight: bold;
-        color: black;
-        transition: all 0.3s ease-in-out;
-        border-radius: 5px;
-    }
-}
-
-/* Taille grande */
-.card-large {
-    height: 100%;
-    width: 100%;
-    max-width: 400px;
-    background-color: $couleur-main;
-    overflow: hidden;
-    position: relative;
-    border: none;
-    text-align: center;
-    transition: all 0.3s ease-in-out;
-
-    &:hover {
-        color: white;
-        background-color: $couleur-main;
-        transform: scale(1.05);
-        z-index: 1;
-    }
-
-    .card-img-top {
-        transition: transform 0.3s ease;
-        width: 100%;
-        height: auto;
-        max-height: 350px;
-    }
-
-    &:hover .card-img-top {
-        transform: scale(1.1);
-    }
-
-    .card-img-overlay {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        color: white;
-        padding: 10px;
-        transition: background 0.3s ease, opacity 0.3s ease;
-        text-align: center;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        opacity: 0;
-    }
-
-    &:hover .card-img-overlay {
-        background: rgba(0, 0, 0, 0.5);
-        opacity: 1;
-    }
-
-    .card-text {
-        display: flex;
-        flex-direction: column;
-        font-weight: bold;
-        color: black;
-        transition: all 0.3s ease-in-out;
-        border-radius: 5px;
-    }
-}
-
-/* Effets de survol pour les cartes et les profils */
-.card-hover {
-    transition: transform 0.3s ease-in-out;
-
-    &:hover {
-        transform: scale(1.05);
-    }
-}
-
-.profile-circle {
-    transition: transform 0.3s ease-in-out;
-
-    &:hover {
-        transform: scale(1.1);
-    }
-}
-
-.card-img-top,
-.profile-circle img {
-    transition: transform 0.3s ease-in-out;
-
-    &:hover {
-        transform: scale(1.1);
-    }
-}
-
-/* Styles de formulaire */
 .form-floating .form-control {
     background-color: transparent;
     border: 1px solid $couleur-main;
     color: white;
+    transition: border-color 0.3s, box-shadow 0.3s;
+
+    &:focus {
+        border-color: $couleur-main;
+        box-shadow: 0 0 0 0.25rem rgba(227, 178, 0, 0.25);
+    }
 }
 
 .form-floating label {
     color: #b2b2b2;
 }
 
-.form-floating .form-control:focus {
-    border-color: $couleur-main;
-    box-shadow: 0 0 0 0.25rem rgba(227, 178, 0, 0.25);
-}
-
-.form-control::placeholder {
-    color: transparent;
-}
-
-.btn-warning {
-    background-color: $couleur-main;
-    border: none;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-.btn-warning:hover {
-    background-color: darken($couleur-main, 10%);
-    transform: scale(1.05);
-}
-
-.bi-eye-slash {
-    color: $couleur-main;
-    transition: color 0.3s ease;
-}
-
-.bi-eye-slash:hover {
-    color: lighten($couleur-main, 20%);
-}
-
-/* Ajout d'ombres pour améliorer le visuel */
-.shadow-lg {
-    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
-}
-
-/* Texte et liens améliorés */
-.text-warning {
-    color: $couleur-main !important;
-}
-
-.link-warning {
-    color: lighten($couleur-main, 20%);
-    text-decoration: none;
-    transition: color 0.3s ease-in-out;
-
-    &:hover {
-        color: white;
-    }
-}
-
-.invalid-feedback {
-    color: lighten($couleur-main, 40%);
-}
-
-.min-vh-75 {
-    min-height: 85vh;
-}
-
-.min-vh-90 {
-    min-height: 90vh;
-}
-
-/* Styles de la section Hero */
-.hero {
-    background-size: cover;
-    background-position: center;
-    background-blend-mode: overlay;
-    background-color: rgba(0, 0, 0, 0.5);
-    /* Overlay pour améliorer la lisibilité du texte */
-    color: white;
-}
-
-/* Alignement et espacement des cartes */
 .card-hover {
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     border-radius: 20px;
-    overflow: hidden;
-    background-color: $couleur-main;
+    background-color: $couleur-fond-2;
 
     &:hover {
         transform: scale(1.05);
@@ -450,27 +176,11 @@ ul.nav .nav-link {
     }
 }
 
-/* Boutons */
-.btn-light {
-    background-color: lighten($couleur-main, 25%);
-    border: none;
-    color: black;
-
-    &:hover {
-        background-color: darken($couleur-main, 10%);
-        color: white;
-    }
-}
-
-/* Section Hero Button */
-.hero .btn-warning {
-    background-color: $couleur-main;
-    border: none;
-
-    &:hover {
-        background-color: darken($couleur-main, 10%);
-        transform: scale(1.05);
-    }
+.file-name {
+    color: white;
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: 10px;
 }
 
 .profile-image-wrapper {
@@ -498,201 +208,28 @@ ul.nav .nav-link {
     display: flex;
     justify-content: center;
     align-items: center;
-    color: white;
     font-size: 3rem;
-    /* Augmenté pour une meilleure visibilité */
+    color: white;
     border-radius: 15px;
-    cursor: pointer;
     opacity: 0;
-    /* Initialement invisible */
     transition: opacity 0.3s ease;
 }
 
 .profile-image-wrapper:hover .overlay {
     opacity: 1;
-    /* Visible uniquement au survol */
 }
 
-.profile-image-wrapper:hover .profile-image {
-    opacity: 0.7;
-}
-
-.overlay i {
-    font-size: 3rem;
-    /* Taille augmentée pour une meilleure visibilité */
-    color: white;
-}
-
-
-.dropdown-menu-style {
+.btn-warning,
+.hero .btn-warning,
+.btn-light {
     background-color: $couleur-main;
-    color: black;
     border: none;
-    font-family: 'ethnocentric', sans-serif;
-    font-size: 1rem;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 
-    & optgroup {
-        color: white;
-        background-color: $couleur-fond-2;
+    &:hover {
+        background-color: darken($couleur-main, 10%);
+        transform: scale(1.05);
     }
-
-    & option {
-        background-color: $couleur-main;
-        color: black;
-        padding: 10px;
-    }
-
-    & option:hover {
-        background-color: black;
-        color: white;
-    }
-
-    &:focus {
-        border-color: $couleur-main;
-        box-shadow: 0 0 0 0.25rem rgba(227, 178, 0, 0.25);
-    }
-
-    &::placeholder {
-        color: black;
-    }
-}
-
-// Custom Dark Background and Text Colors
-.bg-custom-dark {
-    background-color: $couleur-fond-2;
-    color: #ffffff;
-}
-
-.text-warning {
-    color: #ffc107 !important;
-}
-
-.container {
-    border-radius: 10px;
-    padding: 2rem;
-}
-
-// Custom Rounded Corners for Sections
-.rounded-custom {
-    border-radius: 25px; // Rounded corners for modern look
-    padding: 30px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); // Soft shadow for depth
-}
-
-// Section Spacing
-h2 {
-    font-family: 'ethnocentric', sans-serif;
-    font-weight: bold;
-}
-
-p {
-    line-height: 1.6;
-    font-size: 1.1rem;
-    margin-bottom: 1.5rem;
-}
-
-.container-fluid {
-    padding: 0;
-}
-
-.rounded-custom {
-    border-radius: 15px;
-}
-
-.accordion-button {
-    background-color: rgb(25, 25, 25);
-    color: rgb(227, 178, 0);
-    font-family: 'ethnocentric', sans-serif;
-    text-transform: uppercase;
-    font-size: 1.2rem;
-}
-
-.accordion-button:not(.collapsed) {
-    color: #fff;
-    background-color: rgb(35, 35, 35);
-    box-shadow: inset 0 -1px 0 rgb(0 0 0 / 13%);
-}
-
-.accordion-body {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    color: #f8f9fa;
-    background-color: rgb(45, 45, 45);
-}
-
-h2,
-h3 {
-    font-family: 'ethnocentric', sans-serif;
-    text-transform: uppercase;
-}
-
-.text-warning {
-    color: rgb(227, 178, 0) !important;
-}
-
-.profile-image-wrapper {
-    position: relative;
-    width: 200px;
-    height: 200px;
-}
-
-.profile-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 15px;
-    /* Carré avec des coins arrondis */
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-.settings-btn {
-    top: 20px;
-    right: 20px;
-    background-color: #343a40;
-    /* Couleur sombre */
-    border-radius: 15%;
-    padding: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    /* Légère ombre */
-    z-index: 10;
-}
-
-.settings-btn:hover {
-    background-color: #495057;
-    /* Changement de couleur au survol */
-}
-
-.profile-image-wrapper {
-    position: relative;
-    width: 150px;
-    height: 150px;
-}
-
-.profile-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 15px;
-    /* Coins arrondis */
-}
-
-.overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.6);
-    border-radius: 15px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.profile-image-wrapper:hover .overlay {
-    opacity: 1;
 }
 
 .btn-dark {
@@ -700,8 +237,117 @@ h3 {
     border: none;
     color: #fff;
     transition: background-color 0.3s ease;
+
+    &:hover {
+        background-color: #343a40;
+    }
 }
 
-.btn-dark:hover {
-    background-color: #343a40;
+.shadow-lg {
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+}
+
+.image-container {
+    position: relative;
+
+    &:hover .enlarge-btn {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+.enlarge-btn {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.image-container:hover .image-overlay {
+    opacity: 1;
+}
+
+.min-vh-75 {
+    min-height: 85vh;
+}
+
+.min-vh-90 {
+    min-height: 90vh;
+}
+
+.rounded-custom {
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.accordion-button {
+    background-color: $couleur-fond-2;
+    color: $couleur-main;
+    text-transform: uppercase;
+    font-size: 1.2rem;
+}
+
+.accordion-body {
+    background-color: rgb(45, 45, 45);
+    color: #f8f9fa;
+}
+
+.text-warning {
+    color: $couleur-main !important;
+}
+
+.image-container {
+    position: relative;
+    transition: transform 0.3s ease-in-out;
+    background-color: $couleur-fond-2;
+    border-radius: 20px;
+    overflow: hidden;
+
+    &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.25);
+    }
+
+    .hover-content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        cursor: pointer;
+    }
+
+    &:hover .hover-content {
+        opacity: 1;
+    }
+
+    .file-name {
+        font-family: 'ethnocentric', sans-serif;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        color: $couleur-main;
+    }
+
+    .card-img-top {
+        transition: opacity 0.3s ease;
+        border-radius: 15px;
+    }
+
+    &:hover .card-img-top {
+        opacity: 0.7;
+    }
+
+    .btn-danger {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        border-radius: 50%;
+    }
 }

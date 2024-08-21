@@ -14,6 +14,7 @@ import { ConditionsUtilisationComponent } from './components/conditions-utilisat
 const routes: Routes = [
     {path: 'auth', loadChildren: () => import('./modules/auth/auth-routing.module').then(m => m.AuthRoutingModule)},
     {path: 'utilisateur', loadChildren: () => import('./modules/utilisateur/utilisateur-routing.module').then(m => m.UtilisateurRoutingModule)},
+    {path: 'projet', loadChildren: () => import('./modules/projet/projet-routing.module').then(m => m.ProjetRoutingModule)},
     { path: 'home', component: HomeComponent },
     { path: 'modele', children : [
         {path: 'categories', component : CategorieComponent},
