@@ -38,6 +38,21 @@ export class ImageProjetService extends BaseApiService {
     }
 
     /**
+     * Mettre à jour les images d'un projet
+     * @param projetId Identifiant du projet
+     * @param files Liste des nouveaux fichiers à ajouter
+     * @param imagesToRemove Liste des identifiants des images à supprimer
+     * @returns Observable contenant la liste des images mises à jour
+     */
+    updateImages(projetId: number, files: File[], imagesToDelete: number[]): Observable<ImageProjet[]> {
+        const formData = new FormData();
+        console.log(files);
+        files.forEach(file => formData.append('images', file, file.name));
+        formData.append('imagesToDelete', JSON.stringify(imagesToDelete));  // Ajout des IDs des images à supprimer
+        return this.httpClient.put<ImageProjet[]>(`${this.baseUrl}/imageProjet/${projetId}/projet`, formData);
+    }
+
+    /**
      * Supprimer une image par ID
      * @param imageId Identifiant de l'image à supprimer
      * @returns Observable indiquant le résultat de l'opération

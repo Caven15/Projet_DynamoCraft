@@ -1,6 +1,6 @@
 const express = require("express");
-const fs = require('fs');
-const { resizeImage } = require('./tools/imageResize.tools');
+const fs = require("fs");
+const { resizeImage } = require("./tools/imageResize.tools");
 const app = express();
 const path = require("path");
 const port = process.env.PORT || 3000;
@@ -28,7 +28,8 @@ const corsOptions = {
     origin: "http://localhost:4200",
     optionsSuccessStatus: 200,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Authorization",
+    allowedHeaders:
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization",
 };
 
 // Activation du middleware CORS
@@ -37,45 +38,83 @@ app.use(cors(corsOptions));
 // Middleware permettant la définition des en-têtes CORS
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "http://localhost:4200");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    );
+    res.header(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, DELETE, OPTIONS"
+    );
     next();
 });
 
 // Route pour gérer les images avec redimensionnement
-app.get('/uploads/:filename', async (req, res) => {
+const allowedImageExtensions = [".png", ".jpg", ".jpeg", ".gif"]; // Extensions d'image autorisées
+
+app.get("/uploads/:filename", async (req, res) => {
     const fileName = req.params.filename;
-    const originalImagePath = path.join(__dirname, 'uploads', fileName);
-    const resizedImagePath = path.join(__dirname, 'uploads', 'resized', fileName);
+    const fileExtension = path.extname(fileName).toLowerCase();
+    const originalFilePath = path.join(__dirname, "uploads", fileName);
+    const resizedImagePath = path.join(
+        __dirname,
+        "uploads",
+        "resized",
+        fileName
+    );
 
-    console.log(`Tentative d'accès à l'image originale : ${originalImagePath}`);
+    console.log(`Tentative d'accès au fichier : ${originalFilePath}`);
 
-    // Vérifiez si l'image d'origine existe
-    if (!fs.existsSync(originalImagePath)) {
-        console.error('Image non trouvée:', originalImagePath);
-        return res.status(404).send('Image non trouvée');
+    // Vérifiez si le fichier existe
+    if (!fs.existsSync(originalFilePath)) {
+        console.error("Fichier non trouvé :", originalFilePath);
+        return res.status(404).send("Fichier non trouvé");
     }
 
-    // Si l'image redimensionnée existe déjà, renvoyez-la
-    if (fs.existsSync(resizedImagePath)) {
-        console.log('Image redimensionnée trouvée :', resizedImagePath);
-        return res.sendFile(resizedImagePath);
-    }
+    // Vérifier si le fichier est une image
+    if (allowedImageExtensions.includes(fileExtension)) {
+        // Si l'image redimensionnée existe déjà, renvoyez-la
+        if (fs.existsSync(resizedImagePath)) {
+            console.log("Image redimensionnée trouvée :", resizedImagePath);
+            return res.sendFile(resizedImagePath);
+        }
 
-    try {
-        console.log('Redimensionnement en cours pour :', originalImagePath);
-        // Utiliser l'outil de redimensionnement
-        const resizedImage = await resizeImage(originalImagePath, resizedImagePath);
-        console.log('Redimensionnement réussi, envoi de l\'image :', resizedImage);
-        return res.sendFile(resizedImage);
-    } catch (error) {
-        console.error('Erreur lors du redimensionnement de l\'image :', error);
-        return res.status(500).send('Erreur lors du traitement de l\'image.');
+        try {
+            console.log("Redimensionnement en cours pour :", originalFilePath);
+            // Utiliser l'outil de redimensionnement
+            const resizedImage = await resizeImage(
+                originalFilePath,
+                resizedImagePath
+            );
+            console.log(
+                "Redimensionnement réussi, envoi de l'image :",
+                resizedImage
+            );
+            return res.sendFile(resizedImage);
+        } catch (error) {
+            console.error(
+                "Erreur lors du redimensionnement de l'image :",
+                error
+            );
+            return res
+                .status(500)
+                .send("Erreur lors du traitement de l'image.");
+        }
+    } else {
+        // Si ce n'est pas une image, renvoyez simplement le fichier d'origine
+        console.log(
+            "Fichier non image, envoi du fichier d'origine :",
+            originalFilePath
+        );
+        return res.sendFile(originalFilePath);
     }
 });
 
 // Servir les fichiers statiques du répertoire 'uploads' (les images redimensionnées)
-app.use('/uploads/resized', express.static(path.join(__dirname, 'uploads', 'resized')));
+app.use(
+    "/uploads/resized",
+    express.static(path.join(__dirname, "uploads", "resized"))
+);
 
 // Import des différents routeurs avec leurs endpoints...
 const routers = [

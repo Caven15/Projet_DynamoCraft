@@ -38,6 +38,20 @@ export class Modele3dService extends BaseApiService {
     }
 
     /**
+     * Mettre à jour les modèles 3D d'un projet
+     * @param projetId Identifiant du projet
+     * @param files Fichiers des nouveaux modèles 3D à remplacer
+     * @param modelesToDelete Liste des IDs des modèles 3D à supprimer
+     * @returns Observable contenant les modèles 3D mis à jour
+     */
+    updateModeles3DByProjetId(projetId: number, files: File[], modelesToDelete: number[]): Observable<Modele3D[]> {
+        const formData = new FormData();
+        files.forEach(file => formData.append('files', file, file.name));
+        formData.append('modelesToDelete', JSON.stringify(modelesToDelete));
+        return this.httpClient.put<Modele3D[]>(`${this.baseUrl}/modele3d/${projetId}/projet`, formData);
+    }
+
+    /**
      * Supprimer un modèle 3D par ID
      * @param modele3DId Identifiant du modèle 3D
      * @returns Observable indiquant le résultat de l'opération

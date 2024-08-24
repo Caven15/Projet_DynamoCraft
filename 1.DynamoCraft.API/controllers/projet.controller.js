@@ -179,40 +179,40 @@ exports.getById = async (req, res, next) => {
     );
     try {
         const projectId = req.params.id;
-        const project = await dbConnector.Projet.findByPk(projectId, {
+        const projet = await dbConnector.Projet.findByPk(projectId, {
             include: [
-                { model: dbConnector.Statut },
+                { model: dbConnector.Statut, as: "statut" },
                 { model: dbConnector.Statistique },
-                { model: dbConnector.Categorie },
                 {
                     model: dbConnector.Utilisateur,
-                    attributes: { exclude: ["roleId"] },
-                },
-                {
-                    model: dbConnector.Utilisateur,
-                    attributes: { exclude: ["password"] },
+                    attributes: { exclude: ["roleId", "password"] }, // Exclure roleId et password dans un seul include
                 },
             ],
             attributes: {
                 exclude: [
                     "statutId",
                     "statistiqueId",
-                    "categorieId",
-                    "utilisateurId",
+                    "utilisateurId", // Exclure utilisateurId car vous incluez l'utilisateur
                 ],
             },
         });
 
-        if (!project) {
+        if (!projet) {
             logMessage("Projet non trouvé", COLOR_RED);
             return res.status(404).json({ message: "Projet non trouvé" });
         }
+
+        // Ajoutez categorieId directement dans l'objet projet
+        const projetWithCategoryId = {
+            ...projet.toJSON(),
+            categorieId: projet.categorieId,
+        };
 
         logMessage(
             `Projet avec ID: ${req.params.id} récupéré avec succès`,
             COLOR_GREEN
         );
-        return res.status(200).json({ project });
+        return res.status(200).json(projetWithCategoryId);
     } catch (error) {
         logMessage("Erreur lors de la récupération du projet", COLOR_RED);
         console.error("Erreur lors de la récupération du projet :", error);
@@ -221,6 +221,7 @@ exports.getById = async (req, res, next) => {
             .json({ message: "Erreur lors de la récupération du projet" });
     }
 };
+
 
 // Récupérer les projets par utilisateurId
 exports.getByUserId = async (req, res, next) => {
@@ -880,7 +881,7 @@ exports.getLast = async (req, res, next) => {
                 },
                 {
                     model: dbConnector.Utilisateur,
-                    as: "utilisateur", 
+                    as: "utilisateur",
                     attributes: { exclude: ["roleId", "password"] },
                 },
                 {

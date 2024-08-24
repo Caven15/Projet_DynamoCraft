@@ -124,6 +124,91 @@ exports.getByProjetId = async (req, res, next) => {
     }
 };
 
+exports.updateByProjetId = async (req, res, next) => {
+    logMessage("Début de la mise à jour des fichiers 3D pour un projet", COLOR_YELLOW);
+
+    try {
+        const { files } = req;
+        const { id } = req.params; // ID du projet
+        console.log(req.body);
+        const modelesToRemove = req.body.modelesToDelete ? JSON.parse(req.body.modelesToDelete) : [];
+
+        logMessage(`ID du projet : ${id}`, COLOR_YELLOW);
+        logMessage(`Modèles 3D à supprimer : ${JSON.stringify(modelesToRemove)}`, COLOR_YELLOW);
+
+        // Vérifier si le projet existe
+        logMessage("Vérification de l'existence du projet", COLOR_YELLOW);
+        const projet = await dbConnector.Projet.findByPk(id);
+        if (!projet) {
+            logMessage("Projet non trouvé", COLOR_RED);
+            if (files && files.length > 0) {
+                files.forEach((file) => fs.unlink(file.path, (err) => err && console.log(err)));
+            }
+            return res.status(404).json({ message: "Projet non trouvé" });
+        }
+
+        // Supprimer les anciens modèles 3D spécifiés
+        if (Array.isArray(modelesToRemove) && modelesToRemove.length > 0) {
+            logMessage("Suppression des anciens modèles 3D sélectionnés", COLOR_YELLOW);
+            for (const modeleId of modelesToRemove) {
+                const modele3D = await dbConnector.Modele3D.findByPk(modeleId);
+                if (modele3D && modele3D.projetId === parseInt(id)) {
+                    logMessage(`Suppression du modèle 3D ID: ${modeleId}`, COLOR_YELLOW);
+
+                    // Supprimer le fichier du modèle 3D du système de fichiers
+                    const filePath = path.join(__dirname, "../uploads/", modele3D.nom);
+                    fs.unlink(filePath, (err) => {
+                        if (err) {
+                            logMessage(`Erreur lors de la suppression du fichier du modèle 3D ${modeleId}`, COLOR_RED);
+                            console.error(err);
+                        } else {
+                            logMessage(`Fichier du modèle 3D ${modele3D.nom} supprimé du système de fichiers`, COLOR_GREEN);
+                        }
+                    });
+
+                    // Supprimer l'enregistrement du modèle 3D de la base de données
+                    await modele3D.destroy();
+                    logMessage(`Modèle 3D ID: ${modeleId} supprimé de la base de données`, COLOR_GREEN);
+                } else {
+                    logMessage(`Modèle 3D ID: ${modeleId} non trouvé ou ne correspond pas au projet`, COLOR_RED);
+                }
+            }
+        }
+
+        // Ajouter les nouveaux fichiers 3D
+        if (files && files.length > 0) {
+            logMessage("Ajout des nouveaux fichiers 3D", COLOR_YELLOW);
+            const modeles3D = [];
+            for (const file of files) {
+                const newModele3D = await dbConnector.Modele3D.create({
+                    nom: file.filename,
+                    dateCreation: new Date(),
+                    dateModif: new Date(),
+                    projetId: id,
+                });
+                modeles3D.push(newModele3D);
+            }
+
+            logMessage("Fichiers 3D mis à jour avec succès", COLOR_GREEN);
+            return res.status(200).json({
+                message: "Fichiers 3D mis à jour avec succès",
+                modeles3D,
+            });
+        }
+
+        // Si aucune nouvelle fichier 3D n'est ajouté, retourner un message approprié
+        logMessage("Opération terminée, seules les suppressions ont été effectuées", COLOR_GREEN);
+        res.status(200).json({
+            message: "Opération terminée avec succès, aucun nouveau modèle 3D ajouté",
+        });
+
+    } catch (error) {
+        logMessage("Erreur lors de la mise à jour des fichiers 3D", COLOR_RED);
+        console.error("Erreur lors de la mise à jour des fichiers 3D :", error);
+        return res.status(500).json({ message: "Erreur lors de la mise à jour des fichiers 3D" });
+    }
+};
+
 // Supprimer un modèle 3D par ID
 exports.delete = async (req, res, next) => {
     logMessage("Début de la suppression du modèle 3D", COLOR_YELLOW);
@@ -144,14 +229,26 @@ exports.delete = async (req, res, next) => {
         const filePath = path.join(__dirname, "../uploads/", modele3D.nom);
         fs.unlink(filePath, (err) => {
             if (err) {
-                logMessage("Erreur lors de la suppression du fichier du modèle 3D", COLOR_RED);
-                console.error("Erreur lors de la suppression du fichier du modèle 3D :", err);
+                logMessage(
+                    "Erreur lors de la suppression du fichier du modèle 3D",
+                    COLOR_RED
+                );
+                console.error(
+                    "Erreur lors de la suppression du fichier du modèle 3D :",
+                    err
+                );
             } else {
-                logMessage("Fichier du modèle 3D supprimé avec succès", COLOR_GREEN);
+                logMessage(
+                    "Fichier du modèle 3D supprimé avec succès",
+                    COLOR_GREEN
+                );
             }
         });
 
-        logMessage("Suppression du modèle 3D de la base de données", COLOR_YELLOW);
+        logMessage(
+            "Suppression du modèle 3D de la base de données",
+            COLOR_YELLOW
+        );
         await modele3D.destroy();
 
         logMessage("Modèle 3D supprimé avec succès", COLOR_GREEN);

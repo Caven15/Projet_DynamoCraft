@@ -87,7 +87,7 @@ exports.register = async (req, res, next) => {
             const newImageUtilisateur =
                 await dbConnector.ImageUtilisateur.create({
                     nom: file.filename,
-                    UtilisateurId: newUtilisateur.id,
+                    utilisateurId: newUtilisateur.id,
                 });
 
             await dbConnector.Utilisateur.update(

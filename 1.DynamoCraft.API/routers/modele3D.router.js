@@ -4,6 +4,7 @@ const modele3DController = require('../controllers/modele3D.controller');
 const multerConfig3D = require('../tools/multerConfig3D.tools');
 
 router.post('/modeles3d', multerConfig3D.array('files', 25), modele3DController.create);
+router.put('/modele3d/:id/projet', multerConfig3D.array('files', 25), modele3DController.updateByProjetId);
 router.get('/modeles3d/:id/projet', modele3DController.getByProjetId);
 router.delete('/modeles3d/:id', modele3DController.delete);
 

@@ -172,7 +172,7 @@ export class AjoutComponent {
                     console.log('Projet créé avec succès');
                     // Appeler le service pour créer les fichiers 3D après la création du projet
                     this.create3DFilesForProject(data.projet.id); // Assurez-vous que l'ID du projet est renvoyé dans la réponse
-                    this.router.navigate(['/profil.']);
+                    this.router.navigate(['/home']);
                 },
                 error: (err) => console.error('Erreur lors de la création du projet :', err)
             });

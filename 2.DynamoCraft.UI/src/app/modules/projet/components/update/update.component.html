@@ -1,6 +1,6 @@
 <div class="container d-flex justify-content-center align-items-center min-vh-75">
     <div class="col-md-8">
-        <h2 class="text-center text-warning mt-5 mb-5 font-dc">Nouveau projet</h2>
+        <h2 class="text-center text-warning mt-5 mb-5 font-dc">Mise à jour du projet</h2>
         <div class="card p-4 shadow-lg bg-dc-2">
 
             <form [formGroup]="projetForm" (ngSubmit)="onSubmit()" novalidate>
@@ -51,8 +51,7 @@
                             class="btn btn-warning text-dark bg-warning ms-3 d-flex align-items-center justify-content-center"
                             style="width: 40px; height: 40px; border-radius: 50%;">
                             <i class="bi bi-plus-lg"></i>
-                            <input #imageInput type="file" (change)="onImageSelected($event)" multiple accept="image/*"
-                                hidden>
+                            <input type="file" (change)="onImageSelected($event)" multiple accept="image/*" hidden>
                         </label>
                     </div>
                     <p *ngIf="errorMessage" class="text-danger mt-2">{{ errorMessage }}</p>
@@ -66,19 +65,15 @@
                         <!-- Images ajoutées -->
                         <div *ngIf="selectedImages.length > 0" class="row">
                             <div *ngFor="let image of selectedImages; let i = index" class="col-4 p-2">
-                                <div class="position-relative image-container rounded">
+                                <div class="position-relative image-container rounded" style="overflow: hidden;">
                                     <img [src]="imagePreviewUrls[i]" alt="Image ajoutée" class="card-img-top"
                                         (click)="openImageModal(i)"
                                         style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;">
-
-
                                     <div class="hover-content d-flex justify-content-center align-items-center position-absolute top-0 start-0 w-100 h-100"
                                         (click)="openImageModal(i)">
                                         <i class="bi bi-arrows-fullscreen text-white" style="font-size: 2rem;"></i>
-                                        <p class="file-name text-white text-center mt-2">{{ image.name }}</p>
+                                        <p class="file-name text-white text-center mt-2">{{ getFileName(image) }}</p>
                                     </div>
-
-                                    
                                     <button type="button"
                                         class="btn btn-danger position-absolute top-0 end-0 rounded-circle"
                                         (click)="removeImage(i)">
@@ -111,19 +106,15 @@
                         <!-- Fichiers 3D ajoutés -->
                         <div *ngIf="selected3DFiles.length > 0" class="row">
                             <div *ngFor="let file of selected3DFiles; let i = index" class="col-4 p-2">
-                                <div
-                                    class="position-relative image-container rounded bg-dc-2 d-flex justify-content-center">
+                                <div class="position-relative image-container rounded bg-dc-2 d-flex justify-content-center"
+                                    style="overflow: hidden;">
                                     <i class="bi bi-box text-center" style="font-size: 8rem; color: white;"
                                         (click)="open3DModal(i)"></i>
-
-
                                     <div class="hover-content d-flex justify-content-center align-items-center position-absolute top-0 start-0 w-100 h-100"
                                         (click)="open3DModal(i)">
                                         <i class="bi bi-arrows-fullscreen text-white" style="font-size: 2rem;"></i>
-                                        <p class="file-name text-white text-center mt-2">{{ file.name }}</p>
+                                        <p class="file-name text-white text-center mt-2">{{ getFileName(file) }}</p>
                                     </div>
-
-
                                     <button type="button"
                                         class="btn btn-danger position-absolute top-0 end-0 rounded-circle"
                                         (click)="remove3DFile(i)">
@@ -138,11 +129,11 @@
                 <!-- Boutons -->
                 <div class="row mt-5">
                     <div class="col-md-6 text-center mb-4">
-                        <button type="reset" class="btn btn-danger w-100">Reset</button>
+                        <button type="reset" class="btn btn-danger w-100">Annuler</button>
                     </div>
                     <div class="col-md-6 text-center mb-4">
-                        <button type="submit" class="btn btn-success w-100" [disabled]="projetForm.invalid">Confirmer
-                            ajout</button>
+                        <button type="submit" class="btn btn-success w-100" [disabled]="projetForm.invalid">Mettre à
+                            jour</button>
                     </div>
                 </div>
             </form>
@@ -152,7 +143,7 @@
 
 <!-- Modal d'agrandissement pour les images -->
 <div *ngIf="showModal" class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.8);">
-    <div class="modal-dialog modal-lg modal-dialog-centered"> <!-- Réduit la taille de 10% -->
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content bg-dc rounded">
             <div class="modal-header">
                 <h5 class="modal-title text-warning">Image {{ modalImageIndex + 1 }}</h5>
@@ -160,7 +151,7 @@
             </div>
             <div class="modal-body">
                 <img [src]="imagePreviewUrls[modalImageIndex]" class="img-fluid rounded shadow-sm" alt="Image"
-                    style="width: 100%; height: 75vh; object-fit: contain;"> <!-- Hauteur réduite -->
+                    style="width: 100%; height: 75vh; object-fit: contain;">
             </div>
             <div class="modal-footer d-flex justify-content-end">
                 <button class="btn btn-secondary" (click)="closeModal()">Fermer</button>
@@ -171,7 +162,7 @@
 
 <!-- Modal d'agrandissement pour les fichiers 3D -->
 <div *ngIf="show3DModal" class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.8);">
-    <div class="modal-dialog modal-lg modal-dialog-centered"> <!-- Réduit la taille de 10% -->
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content bg-dc rounded">
             <div class="modal-header">
                 <h5 class="modal-title text-warning">Modèle 3D {{ modal3DIndex + 1 }}</h5>
@@ -180,7 +171,6 @@
             </div>
             <div class="modal-body">
                 <div #threeContainer class="three-container" style="width: 100%; height: 75vh;"></div>
-                <!-- Hauteur réduite -->
             </div>
             <div class="modal-footer d-flex justify-content-between">
                 <div class="d-grid gap-2">
@@ -210,12 +200,8 @@
                         <i class="bi bi-eye text-black"></i> Réinitialiser vue
                     </button>
                 </div>
-                <button class="btn btn-danger" (click)="remove3DFile(modal3DIndex)">
-                    Supprimer
-                </button>
-                <button class="btn btn-secondary" (click)="close3DModal()">
-                    Fermer
-                </button>
+            <div class="modal-footer d-flex justify-content-end">
+                <button class="btn btn-secondary" (click)="close3DModal()">Fermer</button>
             </div>
         </div>
     </div>
