@@ -4,61 +4,76 @@
         @for (projet of top10LikedProjects; track projet.id; let i = $index;) {
         <div class="col-12">
             <a routerLink='/home' class="text-decoration-none">
-                <div class="card p-4 shadow-sm couleur-main card-hover">
+                <div class="card p-4 shadow-lg card-hover bg-dark rounded-custom position-relative" [ngClass]="{
+                        'gold': i === 0,
+                        'silver': i === 1,
+                        'bronze': i === 2,
+                        'bg-dc-2': i > 2
+                     }">
                     <div class="row g-0 align-items-center">
-                        <!-- Numéro de classement -->
+
+                        <!-- Numéro de classement avec icône trophée -->
                         <div class="col-1 d-flex justify-content-center">
-                            <div class="number-circle d-flex justify-content-center align-items-center bg-dark text-white rounded-circle"
-                                style="width: 60px; height: 60px;">
-                                <h4 class="m-0">{{ i + 1 }}</h4>
+                            <div class="d-flex flex-column align-items-center">
+                                <div class="number-circle d-flex justify-content-center align-items-center text-white rounded-circle"
+                                    style="width: 60px; height: 60px;">
+                                    <h4 class="m-0">{{ i + 1 }}</h4>
+                                </div>
+                                <i *ngIf="i < 3" class="bi" [ngClass]="{
+                                       'bi-trophy-fill': i === 0,
+                                       'bi-trophy': i === 1,
+                                       'bi-award': i === 2
+                                   }" style="font-size: 2rem; color: white; margin-top: 10px;"></i>
                             </div>
                         </div>
 
                         <!-- Image du projet -->
                         <div class="col-2 text-center">
                             @if (projet.imageProjet && projet.imageProjet.length > 0) {
-                            <img [src]="url + projet.imageProjet[0].nom" class="img-fluid rounded" alt="Image du projet"
-                                style="width: 160px; height: 160px; object-fit: cover;">
+                            <img [src]="url + projet.imageProjet[0].nom" class="img-fluid rounded shadow-sm"
+                                alt="Image du projet" style="width: 160px; height: 160px; object-fit: cover;">
                             } @else {
-                            <p class="text-muted">Pas d'image disponible</p>
+                            <div class="img-placeholder d-flex justify-content-center align-items-center rounded"
+                                style="width: 160px; height: 160px;">
+                                <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                                <p class="text-muted mt-2">Pas d'image</p>
+                            </div>
                             }
                         </div>
 
                         <!-- Détails du projet -->
                         <div class="col-6">
-                            <div class="ms-3 ">
-                                <h5 class="mb-2 font-dc">{{ projet.nom | slice: 0: 20 }}...</h5>
-                                <p class="text-white p-3 couleur-fond-2">
+                            <div class="ms-3">
+                                <h5 class="mb-2 font-dc text-warning">{{ projet.nom | slice: 0: 20 }}...</h5>
+                                <p class="text-white p-3 bg-dc-2 rounded shadow-sm">
                                     {{ projet.description | slice: 0: 255 }}...
                                 </p>
                             </div>
                         </div>
 
-                        <!-- Profil de l'utilisateur (Cercle) -->
+                        <!-- Profil de l'utilisateur -->
                         <div class="col-3 text-end">
-                            <!-- Envelopper l'ensemble du profil utilisateur dans un lien -->
                             <a [routerLink]="['/profil', projet.utilisateur.id]" class="text-decoration-none">
                                 <div class="d-flex flex-column align-items-center">
-                                    <!-- Vérification de la présence d'une image utilisateur -->
                                     @if (projet.utilisateur && projet.utilisateur.imageUtilisateur) {
-                                    <!-- Cercle contenant l'image de l'utilisateur -->
-                                    <div class="profile-circle d-flex justify-content-center align-items-center text-dark rounded-circle mb-2"
+                                    <div class="profile-circle d-flex justify-content-center align-items-center text-dark rounded-circle shadow-sm"
                                         style="width: 110px; height: 110px;">
                                         <img [src]="url + projet.utilisateur.imageUtilisateur.nom"
                                             alt="Image de l'utilisateur" class="rounded-circle"
-                                            style="width: 100px; height: 100px;">
+                                            style="width: 100px; height: 100px; object-fit: cover;">
                                     </div>
                                     } @else {
-                                    <!-- Placeholder si l'utilisateur n'a pas d'image -->
-                                    <div class="profile-circle d-flex justify-content-center align-items-center bg-light text-dark rounded-circle mb-2"
+                                    <div class="profile-circle d-flex justify-content-center align-items-center bg-light text-dark rounded-circle shadow-sm"
                                         style="width: 110px; height: 110px;">
-                                        <span class="initials">Image non disponible...</span>
+                                        <i class="bi bi-person-circle" style="font-size: 3rem;"></i>
                                     </div>
                                     }
-                                    <span class="text-center font-dc">{{ projet.utilisateur.pseudo }}</span>
+                                    <span class="text-center font-dc text-warning mt-2">{{ projet.utilisateur.pseudo
+                                        }}</span>
                                 </div>
                             </a>
                         </div>
+
                     </div>
                 </div>
             </a>

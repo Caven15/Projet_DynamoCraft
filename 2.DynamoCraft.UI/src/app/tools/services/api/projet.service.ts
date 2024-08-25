@@ -175,6 +175,24 @@ export class ProjetService extends BaseApiService {
 
     getProjectsByUserId(Id: number): Observable<Projet[]> {
         return this.getAll<Projet>(`projet/${Id}/utilisateur`).pipe(
+            map(realisations => {
+                return realisations.map((projet: any) => {
+                    // Vérification que imageProjet est un tableau
+                    if (projet.imageProjet && !Array.isArray(projet.imageProjet)) {
+                        projet.imageProjet = [projet.imageProjet];
+                    }
+
+                    // Si imageProjet contient au moins une image, ne garder que la première
+                    if (projet.imageProjet && projet.imageProjet.length > 0) {
+                        projet.imageProjet = [projet.imageProjet[0]];
+                    } else {
+                        // Si pas d'image, on peut ajouter une valeur par défaut (facultatif)
+                        projet.imageProjet = [];
+                    }
+
+                    return projet;
+                });
+            }),
             tap({
                 next: () => console.log(`Récupération des projets de l'utilisateur Id=${Id}`),
                 error: (error) => console.error(`Erreur lors de la récupération des projets de l'utilisateur Id=${Id} :`, error)

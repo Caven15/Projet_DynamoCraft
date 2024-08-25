@@ -57,12 +57,23 @@ module.exports = {
             dbConnector.ImageUtilisateur.belongsTo(dbConnector.Utilisateur);
 
             // Relation entre Projet et Utilisateur
-            dbConnector.Utilisateur.hasMany(dbConnector.Projet, { as: 'projet' });
-            dbConnector.Projet.belongsTo(dbConnector.Utilisateur, { as: 'utilisateur', foreignKey: 'utilisateurId' });
+            dbConnector.Utilisateur.hasMany(dbConnector.Projet, {
+                as: "projet",
+            });
+            dbConnector.Projet.belongsTo(dbConnector.Utilisateur, {
+                as: "utilisateur",
+                foreignKey: "utilisateurId",
+            });
 
             // Relation entre Projet et Statut avec alias et clé étrangère explicite
-            dbConnector.Projet.belongsTo(dbConnector.Statut, { as: 'statut', foreignKey: 'statutId' });
-            dbConnector.Statut.hasMany(dbConnector.Projet, { as: 'projet', foreignKey: 'statutId' });
+            dbConnector.Projet.belongsTo(dbConnector.Statut, {
+                as: "statut",
+                foreignKey: "statutId",
+            });
+            dbConnector.Statut.hasMany(dbConnector.Projet, {
+                as: "projet",
+                foreignKey: "statutId",
+            });
 
             // Relation entre Projet et Statistique
             dbConnector.Projet.belongsTo(dbConnector.Statistique);
@@ -88,9 +99,25 @@ module.exports = {
             dbConnector.Projet.hasMany(dbConnector.Modele3D);
             dbConnector.Modele3D.belongsTo(dbConnector.Projet);
 
-            // Relation entre Projet et ImageProjet
-            dbConnector.Projet.hasOne(dbConnector.ImageProjet);
-            dbConnector.ImageProjet.belongsTo(dbConnector.Projet);
+            // Changement ici : Relation entre Projet et ImageProjet (hasMany)
+            dbConnector.Projet.hasMany(dbConnector.ImageProjet, {
+                as: "imageProjet",
+                foreignKey: "projetId",
+            });
+            dbConnector.ImageProjet.belongsTo(dbConnector.Projet, {
+                as: "projet",
+                foreignKey: "projetId",
+            });
+
+            // Relation entre utilisateur et commentaire
+            dbConnector.Utilisateur.hasMany(dbConnector.Commentaire, {
+                as: "commentaires",
+                foreignKey: "utilisateurId",
+            });
+            dbConnector.Commentaire.belongsTo(dbConnector.Utilisateur, {
+                as: "utilisateur",
+                foreignKey: "utilisateurId",
+            });
 
             // Synchronisation avec la base de données
             // dbConnector.sequelize.sync({ force: true });

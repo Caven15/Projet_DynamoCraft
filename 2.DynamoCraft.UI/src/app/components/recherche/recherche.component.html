@@ -15,17 +15,20 @@
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
         @for (projet of projects; track projet.id) {
         <div class="col d-flex align-items-stretch">
-            <div class="card h-100 text-center shadow-sm border-0 couleur-fond-2 card-hover rounded m-3">
-                <a routerLink="/projet/{{ projet.id }}" class="text-decoration-none w-100">
+            <a routerLink="/projet/{{ projet.id }}" class="text-decoration-none w-100">
+                <div class="card-hover image-container rounded h-100 text-center shadow-sm border-0">
                     @if (projet.imageProjet && projet.imageProjet.length > 0) {
-                    <img [src]="url + projet.imageProjet[0].nom" class="card-img-top rounded" alt="Image du projet"
-                        style="width: 100%; height: 200px; object-fit: cover;">
+                    <img [src]="url + projet.imageProjet[0].nom" class="card-img-top rounded" alt="Image du projet">
                     } @else {
                     <p class="text-muted">Pas d'image disponible</p>
                     }
-                    <h5 class="card-title text-white text-center font-dc mt-3">{{ projet.nom | slice: 0: 20 }}...</h5>
-                </a>
-            </div>
+                    <div
+                        class="hover-content d-flex justify-content-center align-items-center position-absolute top-0 start-0 w-100 h-100">
+                        <i class="bi bi-eye text-white" style="font-size: 2rem;"></i>
+                        <p class="file-name text-white text-center mt-2">{{ projet.nom }}</p>
+                    </div>
+                </div>
+            </a>
         </div>
         }
     </div>

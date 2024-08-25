@@ -13,7 +13,8 @@ export class RechercheComponent {
     searchQuery: string = 'projet';  // Définir la valeur par défaut
     page: number = 1;
     totalPages: number = 1;
-    limit: number = 12;  // Nombre de résultats par page
+    limit: number = 16;  // Nombre de résultats par page
+    totalItems: number = 0;  // Nombre total de projets
     url: string = `${environment.apiUrl}/uploads/`;
 
     constructor(private projetService: ProjetService) { }
@@ -26,10 +27,10 @@ export class RechercheComponent {
         if (this.searchQuery.trim() !== '') {
             this.projetService.searchProjects(this.searchQuery, this.page, this.limit).subscribe({
                 next: (response) => {
+                    console.log(response);
                     this.projects = response.projects;  // Récupérer les projets
                     this.totalPages = response.totalPages;  // Nombre total de pages
-                    console.log("Projets trouvés :", this.projects);
-                    console.log(this.projects[0].imageProjet);
+                    this.totalItems = response.totalItems;  // Nombre total d'éléments
                 },
                 error: (error) => {
                     console.log('Erreur lors de la recherche des projets', error);
@@ -52,5 +53,14 @@ export class RechercheComponent {
             this.page++;
             this.onSearch();
         }
+    }
+
+    // Désactivation des boutons de pagination
+    canGoToNextPage(): boolean {
+        return this.page < this.totalPages;
+    }
+
+    canGoToPrevPage(): boolean {
+        return this.page > 1;
     }
 }

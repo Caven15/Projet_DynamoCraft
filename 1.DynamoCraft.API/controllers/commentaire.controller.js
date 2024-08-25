@@ -93,14 +93,21 @@ exports.getByProjectId = async (req, res, next) => {
             return res.status(404).json({ message: "Projet non trouvé" });
         }
 
-        // Récupérer les commentaires associés au projet
+        // Récupérer les commentaires associés au projet avec les utilisateurs (sans l'image)
         logMessage(
-            "Récupération des commentaires associés au projet",
+            "Récupération des commentaires associés au projet avec les utilisateurs",
             COLOR_YELLOW
         );
         const commentaires = await dbConnector.Commentaire.findAll({
             where: { projetId: id },
-            include: [{ model: dbConnector.Projet }],
+            include: [
+                { model: dbConnector.Projet, as : 'projet' },
+                {
+                    model: dbConnector.Utilisateur,
+                    as : 'utilisateur',
+                    attributes: ["id", "pseudo"],
+                }, 
+            ],
         });
 
         logMessage("Commentaires récupérés avec succès", COLOR_GREEN);

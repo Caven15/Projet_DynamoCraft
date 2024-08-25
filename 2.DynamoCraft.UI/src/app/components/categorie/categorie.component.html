@@ -1,15 +1,17 @@
 <div class="container d-flex justify-content-center">
     <div class="col-12">
         <h1 class="font-dc d-flex justify-content-center mb-5">Catégories</h1>
-        <div class="row d-flex justify-content-center">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
             @for (categorie of categories; track $index) {
-            <div class="col-sm-6 col-md-4 col-lg-3 mb-5 d-flex align-items-center justify-content-center">
-                <a routerLink="/home">
-                    <div class="card-hover">
-                        <img src="assets/png/Categories/{{categorie.nom}}.png" class="card-img-top"
+            <div class="col d-flex align-items-stretch">
+                <a routerLink="/home" class="text-decoration-none w-100">
+                    <div class="card-hover image-container rounded h-100 text-center shadow-sm border-0">
+                        <img src="assets/png/Categories/{{categorie.nom}}.png" class="card-img-top rounded"
                             alt="{{categorie.nom}}">
-                        <div>
-                            <h5 class="card-title text-white text-center font-dc mt-3">{{categorie.nom }}</h5>
+                        <div
+                            class="hover-content d-flex justify-content-center align-items-center position-absolute top-0 start-0 w-100 h-100">
+                            <i class="bi bi-eye text-white" style="font-size: 2rem;"></i>
+                            <p class="file-name text-white text-center mt-2">{{ categorie.nom }}</p>
                         </div>
                     </div>
                 </a>

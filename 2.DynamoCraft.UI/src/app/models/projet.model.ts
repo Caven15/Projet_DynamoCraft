@@ -1,4 +1,5 @@
 import { ImageProjet } from "./imageProjet.model";
+import { Statistique } from "./statistique.model";
 import { Utilisateur } from "./utilisateur.model";
 
 export class Projet {
@@ -13,6 +14,9 @@ export class Projet {
     id: number;
     imageProjet?: ImageProjet[];
     utilisateur!: Utilisateur;
+    statistique?: Statistique;
+    nombreApreciation: number;
+    nbTelechargements: number;
 
     constructor(
         nom: string,
@@ -24,8 +28,11 @@ export class Projet {
         utilisateurId: number,
         id: number,
         imageProjet: ImageProjet[] = [],
-        utilisateur : Utilisateur,
-        statistiqueId?: number
+        utilisateur: Utilisateur,
+        statistique: Statistique,
+        statistiqueId?: number,
+        nombreApreciation: number = 0,
+        nbTelechargements: number = 0
     ) {
         this.nom = nom;
         this.description = description;
@@ -37,6 +44,9 @@ export class Projet {
         this.utilisateurId = utilisateurId;
         this.imageProjet = imageProjet;
         this.utilisateur = utilisateur;
+        this.statistique = statistique;
         this.id = id;
+        this.nombreApreciation = nombreApreciation;
+        this.nbTelechargements = nbTelechargements;
     }
 }

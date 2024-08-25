@@ -169,11 +169,57 @@ ul.nav .nav-link {
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     border-radius: 20px;
     background-color: $couleur-fond-2;
+    position: relative;
+    overflow: hidden;
 
     &:hover {
         transform: scale(1.05);
         box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.25);
     }
+}
+
+.card-img-top {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 15px;
+    transition: opacity 0.3s ease;
+}
+
+.card-hover:hover .card-img-top {
+    opacity: 0.7;
+}
+
+.hover-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+.card-hover:hover .hover-content {
+    opacity: 1;
+}
+
+.hover-content i {
+    font-size: 2rem;
+    color: white;
+}
+
+.hover-content p {
+    margin-top: 10px;
+    font-family: 'ethnocentric', sans-serif;
+    font-size: 1rem;
+    color: $couleur-main;
 }
 
 .file-name {
@@ -267,7 +313,7 @@ ul.nav .nav-link {
 }
 
 .min-vh-75 {
-    min-height: 85vh;
+    min-height: 75vh;
 }
 
 .min-vh-90 {
@@ -296,58 +342,101 @@ ul.nav .nav-link {
     color: $couleur-main !important;
 }
 
-.image-container {
-    position: relative;
-    transition: transform 0.3s ease-in-out;
-    background-color: $couleur-fond-2;
-    border-radius: 20px;
-    overflow: hidden;
+.pagination .page-link {
+    color: $couleur-main;
+    background-color: $couleur-fond;
+    border: none;
 
     &:hover {
+        color: darken($couleur-main, 10%);
+        background-color: lighten($couleur-fond, 5%);
+    }
+}
+
+.pagination .disabled .page-link {
+    color: #ccc;
+}
+
+.number-circle {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.gold {
+    background: linear-gradient(45deg, #FFD700, #FFC107);
+}
+
+.silver {
+    background: linear-gradient(45deg, #C0C0C0, #B0B0B0);
+}
+
+.bronze {
+    background: linear-gradient(45deg, #CD7F32, #D2691E);
+}
+
+.bg-dc-2 {
+    background-color: rgb(25, 25, 25);
+}
+
+.card-hover {
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    background-color: rgba(45, 45, 45, 0.8);
+    position: relative;
+    overflow: hidden;
+    border-radius: 25px;
+}
+
+.card-hover:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.rounded-custom {
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.shadow-lg {
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.5) !important;
+}
+
+.profile-circle img {
+    transition: transform 0.3s ease;
+}
+
+.profile-circle:hover img {
+    transform: scale(1.1);
+}
+
+.badge.bg-gold {
+    background-color: #FFD700;
+    color: #000;
+    font-size: 1.5rem;
+    padding: 0.5rem 1rem;
+}
+
+.bg-dc-2 {
+    background-color: rgb(25, 25, 25);
+}
+
+.shadow-lg {
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.5) !important;
+}
+
+.rounded-custom {
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-warning {
+    background-color: $couleur-main;
+    border: none;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background-color: darken($couleur-main, 10%);
         transform: scale(1.05);
-        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.25);
-    }
-
-    .hover-content {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        cursor: pointer;
-    }
-
-    &:hover .hover-content {
-        opacity: 1;
-    }
-
-    .file-name {
-        font-family: 'ethnocentric', sans-serif;
-        font-size: 0.9rem;
-        margin-top: 0.5rem;
-        color: $couleur-main;
-    }
-
-    .card-img-top {
-        transition: opacity 0.3s ease;
-        border-radius: 15px;
-    }
-
-    &:hover .card-img-top {
-        opacity: 0.7;
-    }
-
-    .btn-danger {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        border-radius: 50%;
     }
 }

@@ -179,21 +179,39 @@ exports.getById = async (req, res, next) => {
     );
     try {
         const projectId = req.params.id;
+
         const projet = await dbConnector.Projet.findByPk(projectId, {
             include: [
                 { model: dbConnector.Statut, as: "statut" },
-                { model: dbConnector.Statistique },
+                {
+                    model: dbConnector.Statistique,
+                    attributes: [
+                        "nombreApreciation",
+                        "nombreTelechargement",
+                        "datePublication",
+                        "dateModification",
+                    ],
+                },
                 {
                     model: dbConnector.Utilisateur,
-                    attributes: { exclude: ["roleId", "password"] }, // Exclure roleId et password dans un seul include
+                    as: "utilisateur",
+                    attributes: { exclude: ["roleId", "password"] },
+                    include: [
+                        {
+                            model: dbConnector.ImageUtilisateur,
+                            as: "imageUtilisateur", // Assurez-vous d'utiliser l'alias correct
+                            attributes: ["nom"], // Inclure uniquement le champ nécessaire
+                        },
+                    ],
+                },
+                {
+                    model: dbConnector.ImageProjet,
+                    as: "imageProjet", // Assurez-vous d'utiliser l'alias correct
+                    attributes: ["nom"], // Inclure uniquement le champ nécessaire
                 },
             ],
             attributes: {
-                exclude: [
-                    "statutId",
-                    "statistiqueId",
-                    "utilisateurId", // Exclure utilisateurId car vous incluez l'utilisateur
-                ],
+                exclude: ["statutId", "statistiqueId", "utilisateurId"],
             },
         });
 
@@ -202,17 +220,18 @@ exports.getById = async (req, res, next) => {
             return res.status(404).json({ message: "Projet non trouvé" });
         }
 
-        // Ajoutez categorieId directement dans l'objet projet
-        const projetWithCategoryId = {
+        const projetWithDetails = {
             ...projet.toJSON(),
             categorieId: projet.categorieId,
         };
 
+        // Log les détails du projet, y compris l'utilisateur et les images
         logMessage(
-            `Projet avec ID: ${req.params.id} récupéré avec succès`,
+            `Détails du projet: ${JSON.stringify(projetWithDetails)}`,
             COLOR_GREEN
         );
-        return res.status(200).json(projetWithCategoryId);
+
+        return res.status(200).json(projetWithDetails);
     } catch (error) {
         logMessage("Erreur lors de la récupération du projet", COLOR_RED);
         console.error("Erreur lors de la récupération du projet :", error);
@@ -221,7 +240,6 @@ exports.getById = async (req, res, next) => {
             .json({ message: "Erreur lors de la récupération du projet" });
     }
 };
-
 
 // Récupérer les projets par utilisateurId
 exports.getByUserId = async (req, res, next) => {
@@ -236,7 +254,7 @@ exports.getByUserId = async (req, res, next) => {
                 utilisateurId: userId,
             },
             include: [
-                { model: dbConnector.Statut },
+                { model: dbConnector.Statut, as: "statut" },
                 { model: dbConnector.Statistique },
                 { model: dbConnector.Categorie },
                 {
@@ -246,6 +264,10 @@ exports.getByUserId = async (req, res, next) => {
                 {
                     model: dbConnector.Utilisateur,
                     attributes: { exclude: ["password"] },
+                },
+                {
+                    model: dbConnector.ImageProjet,
+                    attributes: ["nom", "dateCreation"],
                 },
             ],
             attributes: {
@@ -262,7 +284,7 @@ exports.getByUserId = async (req, res, next) => {
             `Projets pour l'utilisateur avec ID: ${req.params.id} récupérés avec succès`,
             COLOR_GREEN
         );
-        return res.status(200).json({ projects });
+        return res.status(200).json(projects);
     } catch (error) {
         logMessage(
             "Erreur lors de la récupération des projets par utilisateurId",
@@ -794,6 +816,9 @@ exports.getTop10Liked = async (req, res, next) => {
                     model: dbConnector.Statut,
                     as: "statut", // Utilisation de l'alias défini pour la relation
                     attributes: ["nom"],
+                    where: {
+                        nom: "Valide", // Filtre basé sur le statut "Valide"
+                    },
                 },
                 {
                     model: dbConnector.Categorie,
@@ -812,12 +837,10 @@ exports.getTop10Liked = async (req, res, next) => {
                 },
                 {
                     model: dbConnector.ImageProjet,
+                    as: "imageProjet", // Utilisation de l'alias défini pour la relation
                     attributes: ["nom", "dateCreation"], // Inclure l'image du projet
                 },
             ],
-            where: {
-                "$statut.nom$": "Valide", // Filtre basé sur le statut "Valide"
-            },
             attributes: {
                 exclude: [
                     "statutId",
@@ -886,6 +909,7 @@ exports.getLast = async (req, res, next) => {
                 },
                 {
                     model: dbConnector.ImageProjet,
+                    as: "imageProjet",
                     attributes: { exclude: ["projetId"] }, // Exclude foreign key if not needed
                 },
             ],
@@ -923,6 +947,7 @@ exports.getLast = async (req, res, next) => {
     }
 };
 
+// Recherche de projet(s) par mot clé incluant la pagination
 exports.search = async (req, res, next) => {
     logMessage(
         `Début de la recherche de projets avec le mot-clé : ${req.params.keyword}`,
@@ -940,33 +965,29 @@ exports.search = async (req, res, next) => {
 
         const offset = (page - 1) * limit;
 
+        // Filtre principal basé sur les propriétés du projet
+        const projectFilter = {
+            [Op.and]: [
+                {
+                    [Op.or]: [
+                        { nom: { [Op.like]: `%${keyword}%` } },
+                        { description: { [Op.like]: `%${keyword}%` } },
+                    ],
+                },
+                { categorieId: 1 },
+            ],
+        };
+
         const { count, rows } = await dbConnector.Projet.findAndCountAll({
-            where: {
-                [Op.and]: [
-                    {
-                        [Op.or]: [
-                            { nom: { [Op.like]: `%${keyword}%` } },
-                            { description: { [Op.like]: `%${keyword}%` } },
-                            {
-                                "$Categorie.nom$": {
-                                    [Op.like]: `%${keyword}%`,
-                                },
-                            },
-                            {
-                                "$Utilisateur.pseudo$": {
-                                    [Op.like]: `%${keyword}%`,
-                                },
-                            },
-                        ],
-                    },
-                    { "$statut.nom$": "Validé" }, // Utilisation correcte de l'alias
-                ],
-            },
+            where: projectFilter,
             include: [
                 {
                     model: dbConnector.Statut,
-                    as: "statut", // Utilisation correcte de l'alias
+                    as: "statut",
                     attributes: { exclude: ["id"] },
+                    where: {
+                        nom: "Valide",
+                    },
                 },
                 {
                     model: dbConnector.Statistique,
@@ -975,14 +996,15 @@ exports.search = async (req, res, next) => {
                 {
                     model: dbConnector.Categorie,
                     attributes: { exclude: ["id"] },
+                    required: false,
                 },
                 {
                     model: dbConnector.Utilisateur,
-                    as: "utilisateur", // Utilisation correcte de l'alias
-                    attributes: { exclude: ["roleId", "password"] },
+                    as: "utilisateur",
                 },
                 {
                     model: dbConnector.ImageProjet,
+                    as: "imageProjet",
                     attributes: ["nom", "dateCreation"],
                 },
             ],
@@ -998,15 +1020,20 @@ exports.search = async (req, res, next) => {
             offset: parseInt(offset),
         });
 
-        logMessage(
-            `Projets avec le mot-clé : ${keyword} récupérés avec succès`,
-            COLOR_GREEN
-        );
+        const remainingItems = count - offset; // Combien d'éléments sont encore disponibles
+
+        let adjustedLimit = limit;
+        if (remainingItems < limit) {
+            adjustedLimit = remainingItems; // Ajuste la limite pour la dernière page
+        }
+
+        logMessage(`Offset: ${offset}, Limit: ${adjustedLimit}`, COLOR_YELLOW);
+
         return res.status(200).json({
             totalItems: count,
             totalPages: Math.ceil(count / limit),
             currentPage: parseInt(page),
-            projects: rows,
+            projects: rows.slice(0, adjustedLimit),
         });
     } catch (error) {
         logMessage("Erreur lors de la recherche des projets", COLOR_RED);
