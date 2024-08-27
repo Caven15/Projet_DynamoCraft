@@ -84,6 +84,7 @@ exports.getById = async (req, res, next) => {
                         },
                         {
                             model: dbConnector.ImageProjet,
+                            as : 'imageProjet',
                             attributes: ["nom"], // Inclure l'image du projet
                             limit: 1, // Récupère uniquement la première image par projet
                             separate: false, // Assurez-vous de ne pas utiliser `separate` ici

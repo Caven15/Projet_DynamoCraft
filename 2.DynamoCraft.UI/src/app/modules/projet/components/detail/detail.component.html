@@ -1,122 +1,189 @@
-<div class="container min-vh-75 py-5">
+<div class="container min-vh-75 py-5 bg-dc-2">
     <!-- Titre du projet -->
     <h2 class="text-center text-warning mb-4 display-4">{{ projet.nom }}</h2>
 
-    <!-- Contenu principal -->
-    <div class="row">
-        <!-- Colonne de gauche : Image principale et détails -->
-        <div class="col-lg-8 mb-4">
-            <!-- Carrousel principal -->
-            <div id="mainImageCarousel" class="carousel slide shadow-lg rounded-custom" data-bs-ride="carousel">
+    <!-- Flexbox container for equal height columns -->
+    <div class="row d-flex align-items-stretch">
+        <div class="col-lg-8 mb-4 d-flex flex-column">
+            <!-- Carrousel principal (image principale ou modèle 3D) -->
+            <div class="carousel slide shadow-lg rounded-custom bg-dc" data-bs-ride="carousel">
                 <div class="carousel-inner">
-                    <!-- Affichage de l'image principale dynamique -->
-                    <div *ngFor="let image of projet.imageProjet; let i = index" class="carousel-item" [class.active]="i === 0">
-                        <img [src]="url + image.nom" alt="{{ projet.nom }}" class="d-block w-100 img-fluid rounded-custom">
+                    <!-- Afficher une image ou un modèle 3D selon l'élément sélectionné -->
+                    <div class="carousel-item active">
+                        <ng-container *ngIf="!is3DModelActive">
+                            <!-- Affichage de l'image -->
+                            <img [src]="url + projet.imageProjet![activeIndex].nom" alt="{{ projet.nom }}"
+                                class="d-block w-100 img-fluid rounded-custom"
+                                style="max-height: 500px; object-fit: cover;">
+                        </ng-container>
+                        <ng-container *ngIf="is3DModelActive">
+                            <!-- Affichage du modèle 3D -->
+                            <div #threeContainer class="three-container" style="width: 100%; height: 500px;"></div>
+                        </ng-container>
                     </div>
                 </div>
-                <!-- Boutons de navigation gauche/droite -->
-                <button class="carousel-control-prev" type="button" data-bs-target="#mainImageCarousel" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Précédent</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#mainImageCarousel" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Suivant</span>
-                </button>
-            </div>
 
-            <!-- Miniatures en dessous du carrousel -->
-            <div class="row mt-4">
-                <div class="col-2" *ngFor="let image of projet.imageProjet; let i = index">
-                    <img [src]="url + image.nom" class="img-fluid rounded shadow thumbnail-img" (click)="selectImage(i)" alt="Miniature {{ i + 1 }}">
+                <!-- Affichage du nom du fichier image ou du modèle 3D -->
+                <div class="text-center mt-3 d-flex justify-content-center">
+                    <ng-container *ngIf="!is3DModelActive">
+                        <h3 class="text-warning">{{ formatFileName(projet.imageProjet![activeIndex].nom) }}</h3>
+                    </ng-container>
+                    <ng-container *ngIf="is3DModelActive">
+                        <h3 class="text-warning" *ngIf="selected3DFiles[active3DModelIndex]">
+                            {{ formatFileName(selected3DFiles[active3DModelIndex].nom) }}
+                        </h3>
+                    </ng-container>
                 </div>
-            </div>
 
-            <!-- Détails du projet -->
-            <div class="project-details bg-dc-2 p-4 rounded-custom mt-4 text-light shadow-lg">
-                <h5 class="text-warning">Description :</h5>
-                <p>{{ projet.description }}</p>
+                <!-- Conteneur des miniatures avec les flèches -->
+                <div class="row mt-1 mb-1 align-items-center justify-content-between">
+                    <!-- Flèche gauche -->
+                    <div class="col-lg-1 d-flex justify-content-center align-items-center">
+                        <button class="btn btn-dark btn-lg" (click)="scrollLeft()"
+                            [disabled]="thumbnailStartIndex === 0">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                    </div>
 
-                <h5 class="text-warning">Statistiques :</h5>
-                <ul class="list-unstyled">
-                    <li>Date de publication : {{ projet.statistique?.datePublication | date }}</li>
-                    <li *ngIf="projet.statistique?.dateModification !== projet.statistique?.datePublication">
-                        Dernière mise à jour : {{ projet.statistique?.dateModification | date }}
-                    </li>
-                    <li>Nombre de téléchargements : {{ projet.statistique?.nombreTelechargement }}</li>
-                    <li>Nombre de likes : {{ projet.statistique?.nombreApreciation }}</li>
-                </ul>
+                    <!-- Miniatures -->
+                    <div class="col-lg-10 d-flex justify-content-center">
+                        <div class="d-flex justify-content-between overflow-hidden" style="max-width: 100%; gap: 8px;">
+                            <div *ngFor="let item of visibleThumbnails; let i = index" class="thumbnail-wrapper">
+                                <ng-container *ngIf="item.nom.endsWith('.jpg') || item.nom.endsWith('.png')">
+                                    <img [src]="url + item.nom" class="img-fluid rounded shadow thumbnail-img"
+                                        alt="Miniature {{ thumbnailStartIndex + i + 1 }}"
+                                        style="cursor: pointer; max-width: 80px; max-height: 80px;"
+                                        (click)="setActiveImage(thumbnailStartIndex + i)">
+                                </ng-container>
+                                <ng-container *ngIf="item.nom.endsWith('.stl')">
+                                    <div class="thumbnail-3d d-flex align-items-center justify-content-center"
+                                        (click)="setActive3DModel(i)">
+                                        <img src="assets/png/logo.png" alt="3D Model"
+                                            style="width: 60px; height: 60px;">
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="d-flex justify-content-around">
-                    <!-- Bouton like -->
-                    <button class="btn btn-warning btn-lg shadow" (click)="incrementLike()">
-                        <i class="bi bi-heart"></i> Liker
-                    </button>
-                    <!-- Bouton téléchargement -->
-                    <button class="btn btn-warning btn-lg shadow" (click)="incrementDownload()">
-                        <i class="bi bi-download"></i> Télécharger
-                    </button>
+                    <!-- Flèche droite -->
+                    <div class="col-lg-1 d-flex justify-content-center align-items-center">
+                        <button class="btn btn-dark btn-lg" (click)="scrollRight()"
+                            [disabled]="thumbnailStartIndex + visibleThumbnails.length >= combinedThumbnails.length">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Colonne de droite : Informations utilisateur -->
-        <div class="col-lg-4">
-            <div class="user-info bg-dc-2 p-4 rounded-custom shadow-lg text-center text-light">
-                <h5 class="text-warning">Publié par :</h5>
-                @if (projet.utilisateur) {
-                <div class="profile-image-wrapper mx-auto mb-3 profile-circle">
-                    <img [src]="url + projet.utilisateur.imageUtilisateur?.nom" class="rounded-circle shadow-lg" alt="Utilisateur" style="width: 150px; height: 150px;">
+        <div class="col-lg-4 d-flex flex-column">
+            <div class="user-info bg-dc p-1 rounded-custom shadow-lg text-center text-light">
+                <h5 class="text-warning mb-4">Publié par</h5>
+                <div class="profile-image-wrapper mx-auto profile-circle">
+                    <img [src]="url + projet.utilisateur.imageUtilisateur?.nom" class="rounded-circle shadow-lg"
+                        alt="Utilisateur" style="width: 150px; height: 150px; object-fit: cover;">
                 </div>
                 <h5>{{ projet.utilisateur.pseudo }}</h5>
-                } @else {
-                <p class="text-muted">Utilisateur inconnu</p>
-                }
+            </div>
+
+            <!-- Détails du projet -->
+            <div class="project-details bg-dc p-4 rounded-custom mt-3 text-light shadow-lg">
+                <h5 class="text-warning d-flex justify-content-center">Statistiques</h5>
+                <ul class="list-unstyled">
+                    <li class="mt-4">Date de publication : {{ projet.statistique?.datePublication | date }}</li>
+                    <li class="mt-4"
+                        *ngIf="projet.statistique?.dateModification !== projet.statistique?.datePublication">
+                        Dernière mise à jour : {{ projet.statistique?.dateModification | date }}
+                    </li>
+                    <li class="mt-4">Nombre de téléchargements : {{ projet.statistique?.nombreTelechargement }}</li>
+                    <li class="mt-4">Nombre de likes : {{ projet.statistique?.nombreApreciation }}</li>
+                </ul>
+
+                <div class="d-flex justify-content-around mt-5">
+                    <button class="btn btn-warning btn-lg shadow" (click)="incrementLike()" style="min-width: 120px;">
+                        <i class="bi bi-heart text-white"></i> Liker
+                    </button>
+                    <button class="btn btn-warning btn-lg shadow" (click)="incrementDownload()">
+                        <i class="bi bi-download text-white"></i> Télécharger
+                    </button>
+                    <!-- Bouton de mise à jour visible seulement pour le propriétaire -->
+                    <div *ngIf="currentUser && currentUser.id === projet.utilisateur?.id">
+                        <button class="btn btn-warning btn-lg shadow" (click)="navigateToUpdatePage(projet.id)">
+                            <i class="bi bi-pencil text-white"></i> Modifier
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Description du projet -->
+    <div class="row">
+        <div class="col-lg-12 mx-auto">
+            <div class="project-details bg-dc p-4 rounded-custom mt-4 text-light shadow-lg">
+                <h5 class="text-warning">Description :</h5>
+                <p>{{ projet.description }}</p>
             </div>
         </div>
     </div>
 
     <!-- Section des commentaires -->
     <div class="row mt-5">
-        <div class="col-lg-8 mx-auto">
-            <h4 class="text-warning">Commentaires :</h4>
+        <div class="col-lg-12 mx-auto">
+
 
             <!-- Formulaire pour ajouter un commentaire -->
-            <div class="add-comment bg-dc-2 p-4 rounded-custom shadow-lg mb-4 text-light">
+            <div class="add-comment bg-dc p-4 rounded-custom shadow-lg mb-4 text-light">
                 <h5 class="text-warning">Ajouter un commentaire :</h5>
-                <textarea [(ngModel)]="newCommentaire" class="form-control mb-3" rows="4" placeholder="Votre commentaire..."></textarea>
+                <textarea [(ngModel)]="newCommentaire" class="form-control mb-3" rows="4"
+                    placeholder="Votre commentaire..."></textarea>
                 <button class="btn btn-warning shadow" (click)="addComment()">Commenter</button>
             </div>
-
+            <h3 class="text-warning d-flex justify-content-center">Commentaires</h3>
             <!-- Liste des commentaires -->
             <div class="comments-section">
-                @for (commentaire of commentaires; track commentaire.id) {
-                <div class="comment bg-dc-2 p-4 rounded-custom shadow-lg mb-3 text-light">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <strong>{{ commentaire.utilisateur?.pseudo }}</strong>
-                            <p *ngIf="editingCommentId !== commentaire.id">{{ commentaire.description }}</p>
-                            <!-- Formulaire d'édition -->
-                            <textarea [(ngModel)]="editingCommentContent" *ngIf="editingCommentId === commentaire.id" class="form-control mb-3"></textarea>
-                        </div>
-                        <!-- Actions de modification/suppression si utilisateur est propriétaire -->
-                        @if (commentaire.utilisateur && commentaire.utilisateur.id === currentUser?.id) {
-                        <div>
-                            <button class="btn btn-sm btn-light" *ngIf="editingCommentId !== commentaire.id" (click)="editComment(commentaire)">
-                                Modifier
-                            </button>
-                            <button class="btn btn-sm btn-success" *ngIf="editingCommentId === commentaire.id" (click)="saveComment()">
-                                Sauvegarder
-                            </button>
-                            <button class="btn btn-sm btn-danger" (click)="deleteComment(commentaire.id)">Supprimer</button>
-                            <button class="btn btn-sm btn-secondary" *ngIf="editingCommentId === commentaire.id" (click)="cancelEdit()">
-                                Annuler
-                            </button>
-                        </div>
-                        }
+                <!-- Vérification s'il y a des commentaires -->
+                <ng-container *ngIf="commentaires.length > 0; else noCommentsTemplate">
+                    <div class="no-comments p-5 text-center border border-warning rounded-custom">
+                        <ng-container *ngFor="let commentaire of commentaires;">
+                            <div class="comment bg-dc p-4 rounded-custom shadow-lg mb-3 text-light">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>{{ commentaire.utilisateur?.pseudo }}</strong>
+                                        <p *ngIf="editingCommentId !== commentaire.id">{{ commentaire.description }}</p>
+                                        <!-- Formulaire d'édition -->
+                                        <textarea [(ngModel)]="editingCommentContent"
+                                            *ngIf="editingCommentId === commentaire.id"
+                                            class="form-control mb-3"></textarea>
+                                    </div>
+                                    <!-- Actions de modification/suppression si utilisateur est propriétaire -->
+                                    <div *ngIf="commentaire.utilisateur?.id === currentUser?.id" class="text-end">
+                                        <button class="btn btn-sm btn-light" *ngIf="editingCommentId !== commentaire.id"
+                                            (click)="editComment(commentaire)">Modifier</button>
+                                        <button class="btn btn-sm btn-success"
+                                            *ngIf="editingCommentId === commentaire.id"
+                                            (click)="saveComment()">Sauvegarder</button>
+                                        <button class="btn btn-sm btn-danger"
+                                            (click)="deleteComment(commentaire.id)">Supprimer</button>
+                                        <button class="btn btn-sm btn-secondary"
+                                            *ngIf="editingCommentId === commentaire.id"
+                                            (click)="cancelEdit()">Annuler</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </ng-container>
                     </div>
-                </div>
-                }
+                </ng-container>
+
+                <!-- Template affiché lorsqu'aucun commentaire n'est présent -->
+                <ng-template #noCommentsTemplate>
+                    <div class="no-comments p-5 text-center border border-warning rounded-custom">
+                        <i class="bi bi-chat-dots-fill text-warning display-3"></i>
+                        <h5 class="text-warning mt-4">Aucun commentaire existant actuellement sur ce projet.</h5>
+                    </div>
+                </ng-template>
             </div>
         </div>
     </div>

@@ -2,10 +2,10 @@
     <div class="container bg-custom-dark py-5 px-4 rounded-custom position-relative">
         <div class="row">
             <div class="col-md-4 d-flex justify-content-center align-items-center mb-4">
-                <div class="position-relative">
+                <div class="position-relative profile-image-wrapper">
                     <img [src]="getProfileImageUrl()" alt="Image de profil" class="profile-image shadow-lg">
-                    <div class="overlay">
-                        <i class="bi bi-pencil-fill"></i>
+                    <div class="overlay d-flex justify-content-center align-items-center">
+                        <i class="bi bi-pencil-fill text-white" style="font-size: 2rem;"></i>
                     </div>
                 </div>
             </div>
@@ -18,10 +18,12 @@
         </div>
 
         <!-- Bouton engrenage en haut à droite -->
-        <button *ngIf="isCurrentUser()" class="btn btn-dark settings-btn position-absolute">
+        <button *ngIf="isCurrentUser()" class="btn btn-dark settings-btn position-absolute"
+            (click)="navigateToUserProfile()">
             <i class="bi bi-gear-fill"></i>
         </button>
 
+        <!-- Statistiques de l'utilisateur -->
         <div class="row mt-5">
             <div class="col-md-4 text-center mb-4">
                 <div class="card shadow-lg bg-dark text-white p-4 rounded">
@@ -43,23 +45,28 @@
             </div>
         </div>
 
+        <!-- Projets récents -->
         <div class="row mt-5">
             <h3 class="text-warning text-uppercase font-dc mb-4">Projets Récents</h3>
             <div class="row g-4">
                 @for (projet of utilisateur?.projet | slice: 0: 3; track projet.id) {
                 <div class="col-12 col-md-6 col-lg-4">
-                    <div class="card h-100 text-center shadow-sm border-0 couleur-fond-2 rounded m-3">
-                        <a [routerLink]="['/projet', projet.id]" class="text-decoration-none">
+                    <a [routerLink]="['/projet', projet.id]" class="text-decoration-none">
+                        <div
+                            class="card-hover image-container card h-100 text-center shadow-sm border-0 couleur-fond-2 rounded">
                             @if (projet.imageProjet && projet.imageProjet.length > 0) {
-                            <img [src]="url + projet.imageProjet[0].nom" class="card-img-top rounded-img"
-                                alt="Image du projet" style="width: 100%; height: 200px; object-fit: cover;">
+                            <img [src]="url + projet.imageProjet[0].nom" class="card-img-top rounded"
+                                alt="Image du projet" style="width: 100%; height: 350px; object-fit: cover;">
                             } @else {
                             <p class="text-muted">Pas d'image disponible</p>
                             }
-                            <h5 class="card-title text-white text-center font-dc mt-3">{{ projet.nom | slice: 0: 20
-                                }}...</h5>
-                        </a>
-                    </div>
+                            <div
+                                class="hover-content d-flex justify-content-center align-items-center position-absolute top-0 start-0 w-100 h-100">
+                                <i class="bi bi-eye text-white" style="font-size: 2rem;"></i>
+                                <p class="file-name text-white text-center mt-2">{{ projet.nom | slice: 0: 20 }}...</p>
+                            </div>
+                        </div>
+                    </a>
                 </div>
                 }
             </div>

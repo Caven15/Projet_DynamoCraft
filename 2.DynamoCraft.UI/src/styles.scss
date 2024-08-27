@@ -55,6 +55,7 @@ p {
 .header-gradient,
 .footer-gradient {
     position: relative;
+    padding-bottom: 100px;
 }
 
 .header-gradient::before,
@@ -66,6 +67,11 @@ p {
     height: 10px;
     background: linear-gradient(to bottom, black, transparent);
 }
+
+.mt-fixed {
+    padding-top: 5rem;
+}
+
 
 .footer-gradient::before {
     top: -10px;
@@ -439,4 +445,84 @@ ul.nav .nav-link {
         background-color: darken($couleur-main, 10%);
         transform: scale(1.05);
     }
+}
+
+.no-comments {
+    background-color: rgba(35, 35, 35, 0.9);
+    font-family: 'ethnocentric', sans-serif;
+    border: 2px solid $couleur-main;
+    border-radius: 25px;
+    padding: 40px;
+    color: $couleur-main;
+    text-align: center;
+}
+
+h5 {
+    font-size: 1.5rem;
+    color: $couleur-main;
+    margin-top: 20px;
+}
+
+i {
+    color: $couleur-main;
+}
+
+.thumbnail-wrapper {
+    display: inline-block;
+    padding: 5px;
+    transition: transform 0.3s ease;
+}
+
+.thumbnail-wrapper:hover {
+    transform: scale(1.1);
+}
+
+.overflow-hidden {
+    white-space: nowrap;
+    overflow-x: hidden;
+}
+
+.thumbnail-3d {
+    width: 80px;
+    height: 80px;
+    background-color: $couleur-fond-2;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.thumbnail-3d i {
+    font-size: 3rem;
+    color: white;
+}
+
+.row.align-items-center {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.col-auto {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-lg {
+    font-size: 3rem;
+    /* Augmente la taille des icônes */
+    color: black;
+    /* Icônes noires */
+}
+
+.icon-container {
+    cursor: pointer;
+    padding: 10px;
+}
+
+.active-tab {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
 }

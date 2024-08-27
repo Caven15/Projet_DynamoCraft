@@ -42,6 +42,10 @@ export class ProfilComponent implements OnInit {
         });
     }
 
+    navigateToUserProfile() {
+        this.router.navigate(['utilisateur/profil-user']);
+    }
+
     loadUserProfile(id: number): void {
         this.utilisateurService.getUtilisateurById(id).subscribe({
             next: (user) => {
@@ -49,7 +53,6 @@ export class ProfilComponent implements OnInit {
                 console.log(this.utilisateur);
             },
             error: () => {
-                // Gestion de l'erreur si l'utilisateur n'existe pas
                 this.router.navigate(['/404']);
             }
         });

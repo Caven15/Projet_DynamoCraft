@@ -3,13 +3,13 @@
     <div class="row g-4">
         @for (projet of top10LikedProjects; track projet.id; let i = $index;) {
         <div class="col-12">
-            <a routerLink='/home' class="text-decoration-none">
+            <a routerLink='/projet/detail/{{projet.id}}' class="text-decoration-none">
                 <div class="card p-4 shadow-lg card-hover bg-dark rounded-custom position-relative" [ngClass]="{
                         'gold': i === 0,
                         'silver': i === 1,
                         'bronze': i === 2,
                         'bg-dc-2': i > 2
-                     }">
+                    }">
                     <div class="row g-0 align-items-center">
 
                         <!-- Numéro de classement avec icône trophée -->
@@ -20,10 +20,10 @@
                                     <h4 class="m-0">{{ i + 1 }}</h4>
                                 </div>
                                 <i *ngIf="i < 3" class="bi" [ngClass]="{
-                                       'bi-trophy-fill': i === 0,
-                                       'bi-trophy': i === 1,
-                                       'bi-award': i === 2
-                                   }" style="font-size: 2rem; color: white; margin-top: 10px;"></i>
+                                    'bi-trophy-fill': i === 0,
+                                    'bi-trophy': i === 1,
+                                    'bi-award': i === 2
+                                }" style="font-size: 2rem; color: white; margin-top: 10px;"></i>
                             </div>
                         </div>
 

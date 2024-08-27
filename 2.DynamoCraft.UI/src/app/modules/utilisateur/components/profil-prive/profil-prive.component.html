@@ -1,0 +1,30 @@
+<div class="container bg-dc-2">
+    <!-- Barre de navigation avec icônes -->
+    <div class="row justify-content-center align-items-center py-3 bg-warning text-center">
+        <div class="col-4 icon-container" (click)="setActiveTab('details')"
+            [class.active-tab]="activeTab === 'details'">
+            <i class="bi bi-person-circle icon-lg"></i>
+        </div>
+        <div class="col-4 icon-container" (click)="setActiveTab('statistics')"
+            [class.active-tab]="activeTab === 'statistics'">
+            <i class="bi bi-bar-chart-line icon-lg"></i>
+        </div>
+        <div class="col-4 icon-container" (click)="setActiveTab('library')"
+            [class.active-tab]="activeTab === 'library'">
+            <i class="bi bi-collection icon-lg"></i>
+        </div>
+    </div>
+
+    <!-- Contenu dynamique en fonction de l'onglet actif -->
+    <div class="tab-content py-4">
+        <ng-container *ngIf="activeTab === 'details'">
+            <app-user-details></app-user-details>
+        </ng-container>
+        <ng-container *ngIf="activeTab === 'statistics'">
+            <app-user-statistiques></app-user-statistiques>
+        </ng-container>
+        <ng-container *ngIf="activeTab === 'library'">
+            <app-user-bibliotheques></app-user-bibliotheques>
+        </ng-container>
+    </div>
+</div>

@@ -1,0 +1,60 @@
+<div class="container bg-custom-dark py-5 px-4 rounded-custom">
+    <div class="row">
+        <div class="col-md-4 d-flex justify-content-center align-items-center mb-4">
+            <div class="card-hover position-relative profile-image-wrapper">
+                <img [src]="getProfileImageUrl()" alt="Image de profil" class="profile-image shadow-lg">
+                <div class="overlay" (click)="openImageUpload()">
+
+                    <div class="hover-content d-flex flex-column justify-content-center align-items-center w-100 h-100">
+                        <i class="bi bi-pencil-fill text-white" style="font-size: 5rem;"></i>
+                        <!-- Assurez-vous que l'image a bien un nom ou affiche "Aucune image" -->
+                        <p class="file-name text-white text-center mt-2">
+                            {{ utilisateur?.imageUtilisateur?.nom ? utilisateur!.imageUtilisateur!.nom : 'Aucune image' }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="form-group mb-3">
+                <label for="pseudo" class="text-white"><strong>Pseudo:</strong></label>
+                <input type="text" [(ngModel)]="utilisateur!.pseudo" class="form-control bg-dark text-white">
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="email" class="text-white"><strong>Email:</strong></label>
+                <input type="email" [(ngModel)]="utilisateur!.email" class="form-control bg-dark text-white">
+            </div>
+
+            <button class="btn btn-warning mb-3" (click)="resetPassword()">Réinitialisation mot de passe</button>
+        </div>
+    </div>
+
+    <!-- Nouvelle ligne pour biographie et centres d'intérêts -->
+    <div class="row mt-4">
+        <div class="col-12 mb-3">
+            <div class="form-group">
+                <label for="biographie" class="text-white"><strong>Biographie:</strong></label>
+                <textarea [(ngModel)]="utilisateur!.biographie" class="form-control bg-dark text-white"
+                    rows="4"></textarea>
+            </div>
+        </div>
+
+        <div class="col-12 mb-3">
+            <div class="form-group">
+                <label for="centreInterets" class="text-white"><strong>Centres d'intérêt:</strong></label>
+                <textarea [(ngModel)]="utilisateur!.centreInterets" class="form-control bg-dark text-white"
+                    rows="4"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 text-center">
+            <button class="btn btn-warning mt-4" (click)="confirmChanges()">Confirmer changements</button>
+        </div>
+    </div>
+
+    <input type="file" (change)="onFileSelected($event)" hidden #fileInput>
+</div>

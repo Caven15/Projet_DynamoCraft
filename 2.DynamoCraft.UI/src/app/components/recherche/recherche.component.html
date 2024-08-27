@@ -15,7 +15,7 @@
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
         @for (projet of projects; track projet.id) {
         <div class="col d-flex align-items-stretch">
-            <a routerLink="/projet/{{ projet.id }}" class="text-decoration-none w-100">
+            <a routerLink="/projet/detail/{{ projet.id }}" class="text-decoration-none w-100">
                 <div class="card-hover image-container rounded h-100 text-center shadow-sm border-0">
                     @if (projet.imageProjet && projet.imageProjet.length > 0) {
                     <img [src]="url + projet.imageProjet[0].nom" class="card-img-top rounded" alt="Image du projet">

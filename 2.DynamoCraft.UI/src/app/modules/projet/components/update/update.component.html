@@ -65,7 +65,7 @@
                         <!-- Images ajoutées -->
                         <div *ngIf="selectedImages.length > 0" class="row">
                             <div *ngFor="let image of selectedImages; let i = index" class="col-4 p-2">
-                                <div class="position-relative image-container rounded" style="overflow: hidden;">
+                                <div class="card-hover position-relative image-container rounded" style="overflow: hidden;">
                                     <img [src]="imagePreviewUrls[i]" alt="Image ajoutée" class="card-img-top"
                                         (click)="openImageModal(i)"
                                         style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;">
@@ -106,7 +106,7 @@
                         <!-- Fichiers 3D ajoutés -->
                         <div *ngIf="selected3DFiles.length > 0" class="row">
                             <div *ngFor="let file of selected3DFiles; let i = index" class="col-4 p-2">
-                                <div class="position-relative image-container rounded bg-dc-2 d-flex justify-content-center"
+                                <div class="card-hover position-relative image-container rounded bg-dc-2 d-flex justify-content-center"
                                     style="overflow: hidden;">
                                     <i class="bi bi-box text-center" style="font-size: 8rem; color: white;"
                                         (click)="open3DModal(i)"></i>
@@ -129,7 +129,7 @@
                 <!-- Boutons -->
                 <div class="row mt-5">
                     <div class="col-md-6 text-center mb-4">
-                        <button type="reset" class="btn btn-danger w-100">Annuler</button>
+                        <button type="reset" class="btn btn-danger w-100">Reset</button>
                     </div>
                     <div class="col-md-6 text-center mb-4">
                         <button type="submit" class="btn btn-success w-100" [disabled]="projetForm.invalid">Mettre à

@@ -208,7 +208,7 @@ export class UpdateComponent implements OnInit {
 
                     // Navigation après mise à jour
                     console.log('Navigation vers la page des projets');
-                    this.router.navigate(['/projets']);
+                    this.router.navigate(['/projet/detail/', this.projetId]);
                 },
                 error: err => console.error('Erreur lors de la mise à jour du projet', err)
             });
