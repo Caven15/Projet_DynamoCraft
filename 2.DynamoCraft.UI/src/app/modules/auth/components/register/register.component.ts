@@ -15,6 +15,7 @@ export class RegisterComponent implements OnInit {
     selectedFile!: File | null;
     isPasswordVisible: boolean = false;  // Pour basculer la visibilité du mot de passe
     defaultImage: string = 'assets/png/logo.png';  // Image par défaut
+    passwordMismatch: boolean = false;  // Pour indiquer si les mots de passe correspondent
 
     constructor(
         private fb: FormBuilder,
@@ -30,9 +31,22 @@ export class RegisterComponent implements OnInit {
             dateNaissance: ['', Validators.required],
             biographie: ['', Validators.maxLength(500)],
             password: ['', [Validators.required, Validators.minLength(6)]],
+            confirmPassword: ['', Validators.required],
             centreInterets: [''],
             image: ['']
-        });
+        }, { validators: this.passwordMatchValidator });
+    }
+
+    // Validator personnalisé pour vérifier que les mots de passe correspondent
+    passwordMatchValidator(formGroup: FormGroup): any {
+        const password = formGroup.get('password')?.value;
+        const confirmPassword = formGroup.get('confirmPassword')?.value;
+        if (password && confirmPassword && password !== confirmPassword) {
+            formGroup.get('confirmPassword')?.setErrors({ mismatch: true });
+        } else {
+            formGroup.get('confirmPassword')?.setErrors(null);
+        }
+        return null;
     }
 
     // Méthode pour basculer la visibilité du mot de passe
@@ -62,6 +76,12 @@ export class RegisterComponent implements OnInit {
 
     onSubmit(): void {
         if (this.registerForm.invalid) {
+            return;
+        }
+
+        // Vérifier si les mots de passe correspondent
+        if (this.registerForm.get('password')?.value !== this.registerForm.get('confirmPassword')?.value) {
+            this.passwordMismatch = true;
             return;
         }
 

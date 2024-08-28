@@ -4,7 +4,7 @@
 
     <!-- Flexbox container for equal height columns -->
     <div class="row d-flex align-items-stretch">
-        <div class="col-lg-8 mb-4 d-flex flex-column">
+        <div class="col-lg-7 mb-4 d-flex flex-column">
             <!-- Carrousel principal (image principale ou modèle 3D) -->
             <div class="carousel slide shadow-lg rounded-custom bg-dc" data-bs-ride="carousel">
                 <div class="carousel-inner">
@@ -26,11 +26,12 @@
                 <!-- Affichage du nom du fichier image ou du modèle 3D -->
                 <div class="text-center mt-3 d-flex justify-content-center">
                     <ng-container *ngIf="!is3DModelActive">
-                        <h3 class="text-warning">{{ formatFileName(projet.imageProjet![activeIndex].nom) }}</h3>
+                        <h3 class="text-warning">{{ formatFileName(projet.imageProjet![activeIndex].nom) | slice: 0: 15
+                            }}...</h3>
                     </ng-container>
                     <ng-container *ngIf="is3DModelActive">
                         <h3 class="text-warning" *ngIf="selected3DFiles[active3DModelIndex]">
-                            {{ formatFileName(selected3DFiles[active3DModelIndex].nom) }}
+                            {{ formatFileName(selected3DFiles[active3DModelIndex].nom) | slice: 0: 15 }}...
                         </h3>
                     </ng-container>
                 </div>
@@ -78,14 +79,15 @@
         </div>
 
         <!-- Colonne de droite : Informations utilisateur -->
-        <div class="col-lg-4 d-flex flex-column">
+        <div class="col-lg-5 d-flex flex-column">
             <div class="user-info bg-dc p-1 rounded-custom shadow-lg text-center text-light">
                 <h5 class="text-warning mb-4">Publié par</h5>
                 <div class="profile-image-wrapper mx-auto profile-circle">
                     <img [src]="url + projet.utilisateur.imageUtilisateur?.nom" class="rounded-circle shadow-lg"
-                        alt="Utilisateur" style="width: 150px; height: 150px; object-fit: cover;">
+                        alt="Utilisateur" style="width: 150px; height: 150px; object-fit: cover; cursor: pointer;"
+                        (click)="navigateToUserProfile(projet.utilisateur.id)">
                 </div>
-                <h5>{{ projet.utilisateur.pseudo }}</h5>
+                <h5>{{ projet.utilisateur.pseudo | slice: 0: 15 }}...</h5>
             </div>
 
             <!-- Détails du projet -->
@@ -102,11 +104,15 @@
                 </ul>
 
                 <div class="d-flex justify-content-around mt-5">
-                    <button class="btn btn-warning btn-lg shadow" (click)="incrementLike()" style="min-width: 120px;">
-                        <i class="bi bi-heart text-white"></i> Liker
+                    <button class="btn btn-warning btn-lg shadow" (click)="incrementLike()" style="min-width: 120px;"
+                        [disabled]="hasLiked">
+                        <i class="bi bi-heart text-white"></i>
+                        {{ hasLiked ? 'Déjà Liké' : 'Liker' }}
                     </button>
-                    <button class="btn btn-warning btn-lg shadow" (click)="incrementDownload()">
-                        <i class="bi bi-download text-white"></i> Télécharger
+
+                    <button class="btn btn-warning btn-lg shadow" (click)="download()" [disabled]="isDownloading">
+                        <i class="bi bi-download text-white"></i>
+                        {{ isDownloading ? 'Téléchargement dans ' + downloadCountdown + 's' : 'Télécharger' }}
                     </button>
                     <!-- Bouton de mise à jour visible seulement pour le propriétaire -->
                     <div *ngIf="currentUser && currentUser.id === projet.utilisateur?.id">
@@ -132,8 +138,6 @@
     <!-- Section des commentaires -->
     <div class="row mt-5">
         <div class="col-lg-12 mx-auto">
-
-
             <!-- Formulaire pour ajouter un commentaire -->
             <div class="add-comment bg-dc p-4 rounded-custom shadow-lg mb-4 text-light">
                 <h5 class="text-warning">Ajouter un commentaire :</h5>
@@ -143,37 +147,51 @@
             </div>
             <h3 class="text-warning d-flex justify-content-center">Commentaires</h3>
             <!-- Liste des commentaires -->
-            <div class="comments-section">
+            <div class="comments-section mt-5">
                 <!-- Vérification s'il y a des commentaires -->
                 <ng-container *ngIf="commentaires.length > 0; else noCommentsTemplate">
-                    <div class="no-comments p-5 text-center border border-warning rounded-custom">
-                        <ng-container *ngFor="let commentaire of commentaires;">
-                            <div class="comment bg-dc p-4 rounded-custom shadow-lg mb-3 text-light">
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <strong>{{ commentaire.utilisateur?.pseudo }}</strong>
-                                        <p *ngIf="editingCommentId !== commentaire.id">{{ commentaire.description }}</p>
-                                        <!-- Formulaire d'édition -->
-                                        <textarea [(ngModel)]="editingCommentContent"
-                                            *ngIf="editingCommentId === commentaire.id"
-                                            class="form-control mb-3"></textarea>
-                                    </div>
-                                    <!-- Actions de modification/suppression si utilisateur est propriétaire -->
-                                    <div *ngIf="commentaire.utilisateur?.id === currentUser?.id" class="text-end">
-                                        <button class="btn btn-sm btn-light" *ngIf="editingCommentId !== commentaire.id"
-                                            (click)="editComment(commentaire)">Modifier</button>
-                                        <button class="btn btn-sm btn-success"
-                                            *ngIf="editingCommentId === commentaire.id"
-                                            (click)="saveComment()">Sauvegarder</button>
-                                        <button class="btn btn-sm btn-danger"
-                                            (click)="deleteComment(commentaire.id)">Supprimer</button>
-                                        <button class="btn btn-sm btn-secondary"
-                                            *ngIf="editingCommentId === commentaire.id"
-                                            (click)="cancelEdit()">Annuler</button>
-                                    </div>
-                                </div>
+                    <div class="comment bg-dc p-4 rounded-custom shadow-lg mb-3 text-light"
+                        *ngFor="let commentaire of commentaires;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <h5 class="mb-1 text-warning">{{ commentaire.utilisateur?.pseudo }}</h5>
+                                <span class="small text-secondary">
+                                    <!-- Afficher la date de création si le commentaire n'a pas été modifié -->
+                                    <ng-container
+                                        *ngIf="commentaire.dateCreation === commentaire.dateModif; else modifDate">
+                                        Publié le {{ commentaire.dateCreation | date:'medium' }}
+                                    </ng-container>
+                                    <!-- Afficher la date de modification si le commentaire a été modifié -->
+                                    <ng-template #modifDate>
+                                        Modifié le {{ commentaire.dateModif | date:'medium' }}
+                                    </ng-template>
+                                </span>
                             </div>
-                        </ng-container>
+                            <!-- Actions de modification/suppression si utilisateur est propriétaire -->
+                            <div *ngIf="commentaire.utilisateur?.id === currentUser?.id" class="text-end">
+                                <button class="btn btn-sm btn-outline-light me-1"
+                                    *ngIf="editingCommentId !== commentaire.id" (click)="editComment(commentaire)">
+                                    <i class="bi bi-pencil"></i> Modifier
+                                </button>
+                                <button class="btn btn-sm btn-outline-success me-1"
+                                    *ngIf="editingCommentId === commentaire.id" (click)="saveComment()">
+                                    <i class="bi bi-check-circle"></i> Sauvegarder
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger me-1"
+                                    (click)="deleteComment(commentaire.id)">
+                                    <i class="bi bi-trash"></i> Supprimer
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary"
+                                    *ngIf="editingCommentId === commentaire.id" (click)="cancelEdit()">
+                                    <i class="bi bi-x-circle"></i> Annuler
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Contenu du commentaire -->
+                        <p *ngIf="editingCommentId !== commentaire.id" class="mb-0">{{ commentaire.description }}</p>
+                        <!-- Formulaire d'édition -->
+                        <textarea [(ngModel)]="editingCommentContent" *ngIf="editingCommentId === commentaire.id"
+                            class="form-control"></textarea>
                     </div>
                 </ng-container>
 
@@ -185,6 +203,8 @@
                     </div>
                 </ng-template>
             </div>
+
+
         </div>
     </div>
 </div>

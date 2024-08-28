@@ -78,15 +78,15 @@ const createZip = async (outputDir, projectName, files, ownerName) => {
 
 // Fonction pour récupérer les noms de fichiers associés à un projet
 const getProjectFileNames = (project) => {
-    const imageFileNames = project.ImageProjet
-        ? Array.isArray(project.ImageProjet)
-            ? project.ImageProjet.map((file) => file.nom)
-            : [project.ImageProjet.nom]
+    const imageFileNames = project.imageProjet
+        ? Array.isArray(project.imageProjet)
+            ? project.imageProjet.map((file) => file.nom)
+            : [project.imageProjet.nom]
         : [];
-    const modele3DFileNames = project.Modele3Ds
-        ? Array.isArray(project.Modele3Ds)
-            ? project.Modele3Ds.map((file) => file.nom)
-            : [project.Modele3Ds.nom]
+    const modele3DFileNames = project.Modele3D
+        ? Array.isArray(project.Modele3D)
+            ? project.Modele3D.map((file) => file.nom)
+            : [project.Modele3D.nom]
         : [];
     return [...imageFileNames, ...modele3DFileNames];
 };

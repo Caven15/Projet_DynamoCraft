@@ -24,13 +24,13 @@
                 <ul class="dropdown-menu text-small dropdown-menu-end">
                     <!-- Liens dépendants de l'état de connexion -->
                     <ng-container *ngIf="isConnected(); else guestLinks">
+                        <li><a class="dropdown-item" routerLink="/projet/ajout">Ajouter projet</a></li>
                         <li><a class="dropdown-item" routerLink="/utilisateur/profil">Mon Profil</a></li>
                         <li><a class="dropdown-item" (click)="logout()">Déconnexion</a></li>
                     </ng-container>
                     <ng-template #guestLinks>
                         <li><a class="dropdown-item" routerLink="/auth/login">Login</a></li>
                         <li><a class="dropdown-item" routerLink="/auth/register">Register</a></li>
-                        <li><a class="dropdown-item" routerLink="/projet/ajout">Ajouter projet</a></li>
                     </ng-template>
                 </ul>
             </div>

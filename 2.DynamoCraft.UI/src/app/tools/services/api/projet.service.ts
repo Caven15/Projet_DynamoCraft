@@ -1,15 +1,19 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError, map, tap } from 'rxjs';
+import { Observable, catchError, map, switchMap, tap } from 'rxjs';
 import { BaseApiService } from './base-api.service';
 import { Projet } from '../../../models/projet.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ProjetService extends BaseApiService {
 
-    constructor(protected override httpClient: HttpClient) {
+    constructor(
+        protected override httpClient: HttpClient,
+        private authService: AuthService // Injecter AuthService
+    ) {
         super(httpClient);
     }
 
@@ -201,13 +205,24 @@ export class ProjetService extends BaseApiService {
         );
     }
 
-    incrementLike(Id: number): Observable<any> {
-        return this.put<any>(`projet/${Id}/incrementLike`, {}).pipe(
-            tap({
-                next: () => console.log(`Nombre de likes incrémenté pour le projet Id=${Id}`),
-                error: (error) => console.error(`Erreur lors de l'incrémentation des likes pour le projet Id=${Id} :`, error)
-            }),
-            catchError(this.handleError<any>('incrementLike'))
+    incrementLike(projetId: number): Observable<any> {
+        return this.authService.currentUser$.pipe(
+            switchMap((currentUser) => {
+                if (!currentUser) {
+                    throw new Error('Utilisateur non connecté');
+                }
+
+                // Envoyer l'ID de l'utilisateur connecté dans le body de la requête
+                const body = { utilisateurId: currentUser.id, projetId };
+
+                return this.put<any>(`projet/${projetId}/incrementLike`, body).pipe(
+                    tap({
+                        next: () => console.log(`Nombre de likes incrémenté pour le projet Id=${projetId}`),
+                        error: (error) => console.error(`Erreur lors de l'incrémentation des likes pour le projet Id=${projetId} :`, error)
+                    }),
+                    catchError(this.handleError<any>('incrementLike'))
+                );
+            })
         );
     }
 

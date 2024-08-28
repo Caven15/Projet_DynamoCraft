@@ -17,6 +17,7 @@ export class DetailsComponent {
     @ViewChild('fileInput') fileInput!: ElementRef;
     isSaving: boolean = false;
     selectedImage: File | null = null; // Image sélectionnée
+    imagePreviewUrl: string | null = null; // URL pour l'aperçu de l'image
 
     constructor(
         private authService: AuthService,
@@ -32,9 +33,9 @@ export class DetailsComponent {
     }
 
     getProfileImageUrl(): string {
-        return this.utilisateur?.imageUtilisateur
+        return this.imagePreviewUrl || (this.utilisateur?.imageUtilisateur
             ? `${this.url}${this.utilisateur.imageUtilisateur.nom}`
-            : 'assets/png/logo.png';
+            : 'assets/png/logo.png');
     }
 
     openImageUpload(): void {
@@ -45,6 +46,11 @@ export class DetailsComponent {
         const file: File = event.target.files[0];
         if (file) {
             this.selectedImage = file; // Stocker l'image sélectionnée
+            const reader = new FileReader();
+            reader.onload = () => {
+                this.imagePreviewUrl = reader.result as string; // Mettre à jour l'URL d'aperçu de l'image
+            };
+            reader.readAsDataURL(file); // Lire le fichier pour obtenir l'URL de l'aperçu
         }
     }
 
@@ -70,12 +76,13 @@ export class DetailsComponent {
                 console.log('Profil mis à jour');
                 this.isSaving = false; // Réinitialiser l'état de sauvegarde
                 // Rediriger vers le profil public après mise à jour
-                this.router.navigate(['/utilisateur', this.utilisateur?.id]);
+                this.router.navigate(['/utilisateur/profil/', this.utilisateur?.id]);
+
             });
         }
     }
 
     resetPassword(): void {
-        console.log('Réinitialisation du mot de passe demandée');
+        this.router.navigate(['/auth/reset-password']);
     }
 }

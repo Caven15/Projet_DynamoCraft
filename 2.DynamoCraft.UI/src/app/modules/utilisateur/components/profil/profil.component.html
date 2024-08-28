@@ -1,45 +1,60 @@
 <div class="container-fluid min-vh-75 py-5">
     <div class="container bg-custom-dark py-5 px-4 rounded-custom position-relative">
         <div class="row">
-            <div class="col-md-4 d-flex justify-content-center align-items-center mb-4">
+            <div class="col-md-3 d-flex justify-content-center align-items-center mb-4">
                 <div class="position-relative profile-image-wrapper">
                     <img [src]="getProfileImageUrl()" alt="Image de profil" class="profile-image shadow-lg">
-                    <div class="overlay d-flex justify-content-center align-items-center">
-                        <i class="bi bi-pencil-fill text-white" style="font-size: 2rem;"></i>
-                    </div>
                 </div>
             </div>
 
-            <div class="col-md-6">
-                <h2 class="text-warning font-dc mb-4">{{ utilisateur?.pseudo }}</h2>
-                <p class="text-white"><strong>Bio:</strong> {{ utilisateur?.biographie }}</p>
-                <p class="text-white"><strong>Intérêts :</strong> {{ utilisateur?.centreInterets }}</p>
+            <div class="col-md-8 d-flex justify-content-between align-items-center">
+                <h2 class="text-warning font-dc mb-4">{{ utilisateur?.pseudo | slice: 0: 15 }}...</h2>
+            </div>
+
+            <div class="col-md-1 d-flex justify-content-end">
+                <button *ngIf="isCurrentUser()" class="btn btn-dark settings-btn position-absolute"
+                    (click)="navigateToUserProfile()">
+                    <i class="bi bi-gear-fill"></i>
+                </button>
             </div>
         </div>
 
-        <!-- Bouton engrenage en haut à droite -->
-        <button *ngIf="isCurrentUser()" class="btn btn-dark settings-btn position-absolute"
-            (click)="navigateToUserProfile()">
-            <i class="bi bi-gear-fill"></i>
-        </button>
+        <div class="row bg-dc-2 mt-3">
+            <div class="col-lg-12">
+                <div class="card shadow-lg bg-dark text-white p-4 rounded">
+                    <h5 class="font-dc text-warning">Biographie</h5>
+                    <p class="text-white">{{ utilisateur?.biographie }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row bg-dc-2 mt-3">
+            <div class="col-lg-12">
+                <div class="card shadow-lg bg-dark text-white p-4 rounded">
+                    <h5 class="font-dc text-warning">Intérêts</h5>
+                    <p class="text-white"> {{ utilisateur?.centreInterets }}</p>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Statistiques de l'utilisateur -->
-        <div class="row mt-5">
-            <div class="col-md-4 text-center mb-4">
+        <div class="row mt-3">
+            <div class="col-md-4 text-center mb-3">
                 <div class="card shadow-lg bg-dark text-white p-4 rounded">
-                    <h5 class="font-dc">Projets Partagés</h5>
+                    <h5 class="font-dc text-warning">Projets Partagés</h5>
                     <p class="display-4">{{ utilisateur?.projet?.length }}</p>
                 </div>
             </div>
-            <div class="col-md-4 text-center mb-4">
+            <div class="col-md-4 text-center mb-3">
                 <div class="card shadow-lg bg-dark text-white p-4 rounded">
-                    <h5 class="font-dc">Appréciations</h5>
+                    <h5 class="font-dc text-warning">Appréciations</h5>
                     <p class="display-4">{{ utilisateur?.totalLikes }}</p>
                 </div>
             </div>
             <div class="col-md-4 text-center mb-4">
                 <div class="card shadow-lg bg-dark text-white p-4 rounded">
-                    <h5 class="font-dc">Téléchargements</h5>
+                    <h5 class="font-dc text-warning">Téléchargements</h5>
                     <p class="display-4">{{ utilisateur?.totalDownloads }}</p>
                 </div>
             </div>
@@ -51,7 +66,7 @@
             <div class="row g-4">
                 @for (projet of utilisateur?.projet | slice: 0: 3; track projet.id) {
                 <div class="col-12 col-md-6 col-lg-4">
-                    <a [routerLink]="['/projet', projet.id]" class="text-decoration-none">
+                    <a [routerLink]="['/projet/detail/', projet.id]" class="text-decoration-none">
                         <div
                             class="card-hover image-container card h-100 text-center shadow-sm border-0 couleur-fond-2 rounded">
                             @if (projet.imageProjet && projet.imageProjet.length > 0) {
@@ -70,6 +85,10 @@
                 </div>
                 }
             </div>
+            <div class="text-center mt-4">
+                <button class="btn btn-warning" (click)="navigateToAllProjects()">Voir tous les projets</button>
+            </div>
         </div>
+
     </div>
 </div>

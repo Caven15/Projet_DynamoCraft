@@ -267,6 +267,7 @@ exports.getByUserId = async (req, res, next) => {
                 },
                 {
                     model: dbConnector.ImageProjet,
+                    as : 'imageProjet',
                     attributes: ["nom", "dateCreation"],
                 },
             ],
@@ -715,44 +716,63 @@ exports.setPendingProjet = async (req, res, next) => {
 
 // Incrémenter le nombre de likes pour un projet spécifique
 exports.incrementLike = async (req, res, next) => {
-    logMessage(
-        `Début de l'incrémentation du nombre de likes pour le projet avec ID: ${req.params.id}`,
-        COLOR_YELLOW
-    );
     try {
-        const projectId = req.params.id;
-        const project = await dbConnector.Projet.findByPk(projectId);
-        if (!project) {
-            logMessage("Projet non trouvé", COLOR_RED);
-            return res.status(404).json({ message: "Projet non trouvé" });
+        const { id } = req.params;
+        const { utilisateurId } = req.body;
+        console.log(req.params);
+        console.log(req.params);
+
+        // Log des valeurs reçues
+        logMessage(`ID utilisateur reçu: ${utilisateurId}`, COLOR_YELLOW);
+        logMessage(`ID projet reçu: ${id}`, COLOR_YELLOW);
+
+        // Vérifier la validité des ID
+        if (!utilisateurId || !id) {
+            logMessage("L'ID utilisateur ou l'ID projet est manquant.", COLOR_RED);
+            return res.status(400).json({ message: "ID utilisateur ou ID projet manquant." });
         }
 
-        await dbConnector.Statistique.increment("nombreApreciation", {
-            where: { id: project.statistiqueId },
+        // Vérifier si l'utilisateur a déjà liké ce projet
+        logMessage("Vérification si l'utilisateur a déjà liké ce projet...", COLOR_YELLOW);
+        const existingLike = await dbConnector.UtilisateurProjetLike.findOne({
+            where: {
+                utilisateurId: utilisateurId,
+                projetId: id,
+            },
         });
 
-        logMessage(
-            `Nombre de likes incrémenté avec succès pour le projet avec ID: ${req.params.id}`,
-            COLOR_GREEN
-        );
+        if (existingLike) {
+            logMessage(`L'utilisateur ${utilisateurId} a déjà liké le projet ${id}`, COLOR_RED);
+            return res.status(400).json({ message: "Vous avez déjà liké ce projet." });
+        }
+
+        // Incrémenter le nombre de likes
+        logMessage(`Incrémentation du nombre de likes pour le projet Id=${id}`, COLOR_YELLOW);
+        const [updated] = await dbConnector.Statistique.increment("nombreApreciation", {
+            where: { id: id },
+        });
+
+        if (updated) {
+            logMessage(`Le nombre de likes pour le projet Id=${id} a été incrémenté avec succès.`, COLOR_GREEN);
+        } else {
+            logMessage(`Échec de l'incrémentation des likes pour le projet Id=${id}`, COLOR_RED);
+            return res.status(500).json({ message: "Échec de l'incrémentation des likes." });
+        }
+
+        // Ajouter un nouveau like
+        logMessage(`Ajout du like pour utilisateurId=${utilisateurId} et projetId=${id}`, COLOR_YELLOW);
+        await dbConnector.UtilisateurProjetLike.create({
+            utilisateurId: utilisateurId,
+            projetId: id,
+        });
+
+        logMessage(`Like ajouté avec succès pour utilisateurId=${utilisateurId} et projetId=${id}`, COLOR_GREEN);
         return res.status(200).json({
-            message:
-                "Nombre de likes incrémenté avec succès pour le projet " +
-                projectId,
+            message: "Like ajouté avec succès.",
         });
     } catch (error) {
-        logMessage(
-            "Erreur lors de l'incrémentation du nombre de likes pour le projet",
-            COLOR_RED
-        );
-        console.error(
-            "Erreur lors de l'incrémentation du nombre de likes pour le projet :",
-            error
-        );
-        return res.status(500).json({
-            message:
-                "Erreur lors de l'incrémentation du nombre de likes pour le projet",
-        });
+        logMessage(`Erreur lors de l'ajout du like : ${error.message}`, COLOR_RED);
+        return res.status(500).json({ message: "Erreur lors de l'ajout du like." });
     }
 };
 

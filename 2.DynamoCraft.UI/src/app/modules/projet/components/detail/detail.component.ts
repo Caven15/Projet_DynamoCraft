@@ -10,6 +10,8 @@ import { environment } from '../../../../../environments/environment.dev';
 import { Display3dService } from '../../../../tools/services/other/display-3d.service';
 import { Modele3dService } from '../../../../tools/services/api/modele-3d.service';
 import { Modele3D } from '../../../../models/modele-3d.model';
+import { UtilisateurProjetService } from '../../../../tools/services/api/utilisateur-projet.service';
+import { UtilisateurProjetLikeService } from '../../../../tools/services/api/utilisateur-projet-like.service';
 
 @Component({
     selector: 'app-detail',
@@ -36,6 +38,10 @@ export class DetailComponent implements OnInit, AfterViewChecked {
     is3DModelActive: boolean = false;
     private isThreeJSInitialized = false;
 
+    hasLiked: boolean = false;  // Variable pour vérifier si l'utilisateur a liké
+    isDownloading: boolean = false;  // Variable pour contrôler l'état de téléchargement
+    downloadCountdown: number = 5;  // Compte à rebours pour le téléchargement
+
     constructor(
         private projetService: ProjetService,
         private commentaireService: CommentaireService,
@@ -44,7 +50,9 @@ export class DetailComponent implements OnInit, AfterViewChecked {
         private router: Router,
         private display3dService: Display3dService,
         private modele3dService: Modele3dService,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private utilisateurProjetService: UtilisateurProjetService,
+        private utilisateurProjetLikeService: UtilisateurProjetLikeService
     ) { }
 
     ngOnInit(): void {
@@ -53,7 +61,12 @@ export class DetailComponent implements OnInit, AfterViewChecked {
         this.loadCommentaires(projetId);
         this.loadModeles3D(projetId);
 
-        this.authService.currentUser$.subscribe(user => this.currentUser = user);
+        this.authService.currentUser$.subscribe(user => {
+            this.currentUser = user;
+            if (user) {
+                this.checkIfUserHasLiked(projetId);
+            }
+        });
     }
 
     ngAfterViewChecked(): void {
@@ -186,13 +199,72 @@ export class DetailComponent implements OnInit, AfterViewChecked {
             });
     }
 
-    incrementLike(): void {
-        this.projetService.incrementLike(this.projet.id).subscribe(() => this.projet.statistique!.nombreApreciation++);
+    checkIfUserHasLiked(projetId: number): void {
+        this.utilisateurProjetLikeService.hasLiked(projetId).subscribe(response => {
+            this.hasLiked = response.hasLiked;
+        });
     }
 
-    incrementDownload(): void {
-        this.projetService.incrementDownload(this.projet.id).subscribe(() => this.projet.statistique!.nombreTelechargement++);
+    incrementLike(): void {
+        if (!this.currentUser || !this.currentUser.id) {
+            // Redirection vers la page de login si l'utilisateur n'est pas connecté
+            this.router.navigate(['/auth/login']);
+            return;
+        }
+
+        if (this.hasLiked) return;  // Ne rien faire si l'utilisateur a déjà liké
+
+        this.projetService.incrementLike(this.projet.id).subscribe(() => {
+            this.projet.statistique!.nombreApreciation++;
+            this.hasLiked = true;  // Désactiver le bouton après like
+        });
     }
+
+
+    download(): void {
+        if (!this.currentUser || !this.currentUser.id) {
+            // Redirection vers la page de login si l'utilisateur n'est pas connecté
+            this.router.navigate(['/auth/login']);
+            return;
+        }
+
+        if (this.isDownloading) return;
+
+        this.isDownloading = true;
+        const interval = setInterval(() => {
+            this.downloadCountdown--;
+
+            if (this.downloadCountdown === 0) {
+                clearInterval(interval);
+
+                this.utilisateurProjetService.downloadProjet(this.projet.id).subscribe(
+                    (blob) => {
+                        const a = document.createElement('a');
+                        const objectUrl = URL.createObjectURL(blob);
+                        a.href = objectUrl;
+                        a.download = `${this.projet.nom}.zip`;
+                        a.click();
+                        URL.revokeObjectURL(objectUrl);
+
+                        // Réinitialiser l'état après téléchargement
+                        this.isDownloading = false;
+                        this.downloadCountdown = 5;
+                    },
+                    (error) => {
+                        console.error('Erreur lors du téléchargement du projet:', error);
+                        this.isDownloading = false;
+                        this.downloadCountdown = 5;
+                    }
+                );
+            }
+        }, 1000);
+    }
+
+    navigateToUserProfile(userId: number | undefined): void {
+        this.router.navigate([`/profil/${userId}`]);
+    }
+
+
 
     editComment(comment: Commentaire): void {
         this.editingCommentId = comment.id || null;

@@ -2,14 +2,15 @@
     <div class="row">
         <div class="col-md-4 d-flex justify-content-center align-items-center mb-4">
             <div class="card-hover position-relative profile-image-wrapper">
-                <img [src]="getProfileImageUrl()" alt="Image de profil" class="profile-image shadow-lg">
+                <img [src]="selectedImage ? imagePreviewUrl : getProfileImageUrl()" alt="Image de profil"
+                    class="profile-image shadow-lg">
                 <div class="overlay" (click)="openImageUpload()">
 
                     <div class="hover-content d-flex flex-column justify-content-center align-items-center w-100 h-100">
-                        <i class="bi bi-pencil-fill text-white" style="font-size: 5rem;"></i>
-                        <!-- Assurez-vous que l'image a bien un nom ou affiche "Aucune image" -->
+                        <i class="bi bi-pencil-fill text-white" style="font-size: 2rem;"></i>
                         <p class="file-name text-white text-center mt-2">
-                            {{ utilisateur?.imageUtilisateur?.nom ? utilisateur!.imageUtilisateur!.nom : 'Aucune image' }}
+                            {{ utilisateur?.imageUtilisateur?.nom ? utilisateur!.imageUtilisateur!.nom : 'Aucune image'
+                            }}
                         </p>
                     </div>
                 </div>
@@ -27,7 +28,9 @@
                 <input type="email" [(ngModel)]="utilisateur!.email" class="form-control bg-dark text-white">
             </div>
 
-            <button class="btn btn-warning mb-3" (click)="resetPassword()">Réinitialisation mot de passe</button>
+            <div class="d-grid gap-2 mt-4">
+                <button class="btn btn-warning mb-3" (click)="resetPassword()">Réinitialisation mot de passe</button>
+            </div>
         </div>
     </div>
 

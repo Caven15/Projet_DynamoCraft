@@ -14,6 +14,7 @@ const commentaireModel = require("../models/commentaire");
 const modele3dModel = require("../models/modele3d");
 const imageProjetModel = require("../models/imageprojet");
 const utilisateurProjetModel = require("../models/utilisateurprojet");
+const utilisateurprojetlikes = require("../models/utilisateurprojetlikes");
 
 let dbConnector;
 
@@ -46,6 +47,10 @@ module.exports = {
                 Modele3D: modele3dModel(sequelize, DataTypes),
                 Commentaire: commentaireModel(sequelize, DataTypes),
                 UtilisateurProjet: utilisateurProjetModel(sequelize, DataTypes),
+                UtilisateurProjetLike: utilisateurprojetlikes(
+                    sequelize,
+                    DataTypes
+                ),
             };
 
             // Relation entre Utilisateur et Role
@@ -117,6 +122,16 @@ module.exports = {
             dbConnector.Commentaire.belongsTo(dbConnector.Utilisateur, {
                 as: "utilisateur",
                 foreignKey: "utilisateurId",
+            });
+
+            // Relation entre Utilisateur et Projet via UtilisateurProjetLike
+            dbConnector.Utilisateur.belongsToMany(dbConnector.Projet, {
+                through: dbConnector.UtilisateurProjetLike,
+                foreignKey: "utilisateurId",
+            });
+            dbConnector.Projet.belongsToMany(dbConnector.Utilisateur, {
+                through: dbConnector.UtilisateurProjetLike, 
+                foreignKey: "projetId",
             });
 
             // Synchronisation avec la base de données

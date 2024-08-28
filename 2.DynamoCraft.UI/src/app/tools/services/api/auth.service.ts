@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, Observable, tap } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, tap, throwError } from 'rxjs';
 import { Utilisateur } from '../../../models/utilisateur.model';
 import { HttpClient } from '@angular/common/http';
 import { BaseApiService } from './base-api.service';
@@ -12,7 +12,7 @@ export class AuthService extends BaseApiService {
     private readonly tokenKey = 'authToken';
     private currentUserSubject: BehaviorSubject<Utilisateur | null>;
 
-    constructor(protected override httpClient: HttpClient, private utilisateurService : UtilisateurService) {
+    constructor(protected override httpClient: HttpClient, private utilisateurService: UtilisateurService) {
         super(httpClient);
         this.currentUserSubject = new BehaviorSubject<Utilisateur | null>(null);
     }
@@ -31,25 +31,23 @@ export class AuthService extends BaseApiService {
      * @param password Mot de passe de l'utilisateur
      * @returns Observable contenant l'access token
      */
-    login(email: string, password: string): Observable<{ accessToken: string, id: string, roleId : string }> {
+    login(email: string, password: string): Observable<{ accessToken: string, id: string, roleId: string }> {
         const utilisateur = new Utilisateur(email, password);
-        return this.post<{ accessToken: string, id: string, roleId : string  }>('auth/login', utilisateur).pipe(
+        return this.post<{ accessToken: string, id: string, roleId: string }>('auth/login', utilisateur).pipe(
             tap(response => {
                 // Mettre à jour le BehaviorSubject avec les nouvelles données utilisateur
                 this.utilisateurService.getUtilisateurById(parseInt(response.id)).subscribe({
-                    next : (datas) => {
+                    next: (datas) => {
                         this.currentUserSubject.next(datas);
                     }
                 })
-
-                // Stocker le token JWT et les informations utilisateur dans le sessionStorage
-                sessionStorage.setItem('token', response.accessToken);
-                sessionStorage.setItem('idUser', JSON.stringify(response.id));
-                sessionStorage.setItem('roleId', JSON.stringify(response.roleId));
-                console.log(this.currentUserSubject);
+                // // Stocker le token JWT et les informations utilisateur dans le sessionStorage
+                // sessionStorage.setItem('token', response.accessToken);
+                // sessionStorage.setItem('idUser', JSON.stringify(response.id));
+                // sessionStorage.setItem('roleId', JSON.stringify(response.roleId));
                 console.log('Utilisateur connecté avec succès');
             }),
-            catchError(this.handleError<{ accessToken: string, id: string, roleId : string  }>('login'))
+            catchError(this.handleError<{ accessToken: string, id: string, roleId: string }>('login'))
         );
     }
 
@@ -62,6 +60,33 @@ export class AuthService extends BaseApiService {
         return this.post<{ utilisateurId: number }>('auth/register', formData).pipe(
             tap(() => console.log('Utilisateur enregistré avec succès')),
             catchError(this.handleError<{ utilisateurId: number }>('register'))
+        );
+    }
+
+    /**
+ * Réinitialisation du mot de passe de l'utilisateur
+ * @param oldPassword Ancien mot de passe
+ * @param newPassword Nouveau mot de passe
+ * @returns Observable indiquant le succès ou l'échec de l'opération
+ */
+    resetPassword(oldPassword: string, newPassword: string): Observable<any> {
+        const currentUser = this.getCurrentUser();
+        if (!currentUser) {
+            return throwError(() => new Error('Utilisateur non connecté'));
+        }
+
+        const body = {
+            oldPassword,
+            newPassword,
+            userId: currentUser.id
+        };
+
+        return this.post<any>('auth/resetPassword', body).pipe(
+            tap(() => {
+                console.log('Mot de passe réinitialisé avec succès');
+                this.logout();
+            }),
+            catchError(this.handleError<any>('resetPassword'))
         );
     }
 

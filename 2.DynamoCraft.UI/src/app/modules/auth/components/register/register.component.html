@@ -9,7 +9,7 @@
                 <div class="profile-image-wrapper position-relative mb-4">
                     <img [src]="imagePreview || defaultImage" class="profile-image" alt="Prévisualisation">
                     <div class="overlay d-flex justify-content-center align-items-center" (click)="triggerFileInput()">
-                        <i [class]="selectedFile ? 'bi bi-arrow-clockwise' : 'bi bi-plus'"></i>
+                        <i [class]="selectedFile ? 'bi bi-arrow-clockwise' : 'bi bi-plus'" style="font-size: 5rem;"></i>
                     </div>
                     <!-- Input de fichier caché -->
                     <input type="file" id="image" (change)="onFileSelected($event)" class="d-none" #fileInput>
@@ -64,8 +64,8 @@
 
                 <!-- Centre d'intérêts (Textarea) -->
                 <div class="form-floating mb-3">
-                    <textarea id="centreInterets" formControlName="centreInterets" class="form-control" style="height: 100px"
-                        placeholder="Vos centres d'intérêts"></textarea>
+                    <textarea id="centreInterets" formControlName="centreInterets" class="form-control"
+                        style="height: 100px" placeholder="Vos centres d'intérêts"></textarea>
                     <label for="centreInterets">Centres d'intérêts</label>
                 </div>
 
@@ -81,6 +81,19 @@
                     <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid"
                         class="invalid-feedback">
                         Le mot de passe doit comporter au moins 6 caractères.
+                    </div>
+                </div>
+
+                <!-- Confirmation du mot de passe -->
+                <div class="form-floating mb-3 position-relative">
+                    <input [type]="isPasswordVisible ? 'text' : 'password'" id="confirmPassword"
+                        formControlName="confirmPassword" class="form-control"
+                        placeholder="Confirmez votre mot de passe"
+                        [class.is-invalid]="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.invalid || passwordMismatch">
+                    <label for="confirmPassword">Confirmez le mot de passe</label>
+                    <div *ngIf="registerForm.get('confirmPassword')?.touched && (registerForm.get('confirmPassword')?.invalid || passwordMismatch)"
+                        class="invalid-feedback">
+                        Les mots de passe doivent correspondre.
                     </div>
                 </div>
 

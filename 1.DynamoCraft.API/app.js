@@ -129,6 +129,7 @@ const routers = [
     require("./routers/modele3D.router"),
     require("./routers/utilisateurProjet.router"),
     require("./routers/email.router"),
+    require("./routers/utilisateurProjetLike.router")
 ];
 
 // Utilisation des routeurs

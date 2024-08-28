@@ -64,8 +64,11 @@ export class ProfilComponent implements OnInit {
             : 'assets/png/logo.png';
     }
 
-    // Vérifie si l'utilisateur connecté est le propriétaire du profil
     isCurrentUser(): boolean {
         return this.currentUser?.id === this.utilisateur?.id;
+    }
+
+    navigateToAllProjects(): void {
+        this.router.navigate(['/realisations', this.utilisateur?.id]);
     }
 }

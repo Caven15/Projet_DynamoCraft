@@ -14,13 +14,20 @@ exports.downloadProjet = async (req, res, next) => {
 
     try {
         const { projetId } = req.params;
+        const utilisateurId = req.query.utilisateurId;
+
+        // Vérification de l'existence de l'utilisateurId
+        if (!utilisateurId) {
+            logMessage("ID utilisateur non fourni", COLOR_RED);
+            return res.status(400).json({ message: "ID utilisateur non fourni" });
+        }
 
         // Récupérer le projet depuis la base de données avec l'utilisateur associé
         logMessage(`Récupération du projet avec ID: ${projetId}`, COLOR_YELLOW);
         const projet = await dbConnector.Projet.findByPk(projetId, {
             include: [
-                { model: dbConnector.Utilisateur, attributes: ["pseudo"] },
-                { model: dbConnector.ImageProjet, attributes: ["nom"] },
+                { model: dbConnector.Utilisateur, as: 'utilisateur', attributes: ["pseudo"] },
+                { model: dbConnector.ImageProjet, as: 'imageProjet', attributes: ["nom"] },
                 { model: dbConnector.Modele3D, attributes: ["nom"] },
             ],
         });
@@ -30,14 +37,8 @@ exports.downloadProjet = async (req, res, next) => {
             return res.status(404).json({ message: "Projet non trouvé" });
         }
 
-        // Récupérer l'ID de la statistique associée au projet
-        const statistiqueId = projet.StatistiqueId;
-
         // Récupérer les noms des fichiers associés au projet
-        logMessage(
-            "Récupération des noms des fichiers associés au projet",
-            COLOR_YELLOW
-        );
+        logMessage("Récupération des noms des fichiers associés au projet", COLOR_YELLOW);
         const allFileNames = getProjectFileNames(projet);
 
         // Chemin du dossier temporaire pour stocker le fichier ZIP
@@ -67,13 +68,21 @@ exports.downloadProjet = async (req, res, next) => {
             tempDir,
             projet.nom,
             filePaths,
-            projet.Utilisateur.pseudo
+            projet.utilisateur.pseudo
         );
 
         // Incrémenter le nombre de téléchargements dans la table des statistiques
         logMessage("Incrémentation du nombre de téléchargements", COLOR_YELLOW);
         await dbConnector.Statistique.increment("nombreTelechargement", {
-            where: { id: statistiqueId },
+            where: { id: projet.statistiqueId },
+        });
+
+        // Ajouter une entrée dans la table UtilisateurProjet
+        logMessage("Ajout d'une entrée dans la table utilisateurProjet", COLOR_YELLOW);
+        await dbConnector.UtilisateurProjet.create({
+            dateTelechargement: new Date(),
+            utilisateurId: utilisateurId, // Utilisez l'ID de l'utilisateur connecté
+            projetId: projetId,
         });
 
         // Envoyer le fichier ZIP en réponse
