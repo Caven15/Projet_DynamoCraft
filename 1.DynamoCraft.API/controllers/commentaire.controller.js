@@ -223,3 +223,58 @@ exports.delete = async (req, res, next) => {
         });
     }
 };
+
+// Récupérer tous les commentaires postés par un utilisateur
+exports.getByUserId = async (req, res, next) => {
+    logMessage(
+        "Début de la récupération des commentaires par utilisateur ID",
+        COLOR_YELLOW
+    );
+
+    try {
+        const userId = req.params.id;
+
+        // Vérifier si l'utilisateur existe
+        logMessage(
+            `Vérification de l'existence de l'utilisateur avec ID: ${userId}`,
+            COLOR_YELLOW
+        );
+        const utilisateur = await dbConnector.Utilisateur.findByPk(userId);
+        if (!utilisateur) {
+            logMessage("Utilisateur non trouvé", COLOR_RED);
+            return res.status(404).json({ message: "Utilisateur non trouvé" });
+        }
+
+        // Récupérer les commentaires associés à l'utilisateur
+        logMessage(
+            "Récupération des commentaires associés à l'utilisateur",
+            COLOR_YELLOW
+        );
+        const commentaires = await dbConnector.Commentaire.findAll({
+            where: { utilisateurId: userId },
+            include: [
+                {
+                    model: dbConnector.Projet,
+                    as: 'projet',
+                    attributes: ["id", "nom"], // Inclure seulement les champs nécessaires
+                },
+            ],
+        });
+
+        logMessage("Commentaires récupérés avec succès", COLOR_GREEN);
+        res.status(200).json({ commentaires });
+    } catch (error) {
+        logMessage(
+            "Erreur lors de la récupération des commentaires par utilisateur ID",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de la récupération des commentaires par utilisateur ID :",
+            error
+        );
+        res.status(500).json({
+            message:
+                "Erreur lors de la récupération des commentaires par utilisateur ID",
+        });
+    }
+};

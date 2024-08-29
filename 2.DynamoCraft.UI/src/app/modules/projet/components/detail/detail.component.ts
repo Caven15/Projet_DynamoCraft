@@ -38,9 +38,9 @@ export class DetailComponent implements OnInit, AfterViewChecked {
     is3DModelActive: boolean = false;
     private isThreeJSInitialized = false;
 
-    hasLiked: boolean = false;  // Variable pour vérifier si l'utilisateur a liké
-    isDownloading: boolean = false;  // Variable pour contrôler l'état de téléchargement
-    downloadCountdown: number = 5;  // Compte à rebours pour le téléchargement
+    hasLiked: boolean = false;
+    isDownloading: boolean = false;
+    downloadCountdown: number = 5;
 
     constructor(
         private projetService: ProjetService,
@@ -52,7 +52,7 @@ export class DetailComponent implements OnInit, AfterViewChecked {
         private modele3dService: Modele3dService,
         private cdr: ChangeDetectorRef,
         private utilisateurProjetService: UtilisateurProjetService,
-        private utilisateurProjetLikeService: UtilisateurProjetLikeService
+        private utilisateurProjetLikeService: UtilisateurProjetLikeService,
     ) { }
 
     ngOnInit(): void {
@@ -67,16 +67,22 @@ export class DetailComponent implements OnInit, AfterViewChecked {
                 this.checkIfUserHasLiked(projetId);
             }
         });
+
+        // Gérer le commentaire spécifié par l'ID (query param)
+        this.route.queryParams.subscribe(params => {
+            const commentId = params['commentId'];
+            if (commentId) {
+                this.scrollToComment(commentId);
+            }
+        });
     }
 
     ngAfterViewChecked(): void {
-        // Attendre que le conteneur soit prêt
         if (this.is3DModelActive && this.threeContainer?.nativeElement && !this.isThreeJSInitialized) {
-            console.log('Initialisation de ThreeJS pour le modèle 3D.');
-            this.isThreeJSInitialized = true; // Empêche les initialisations multiples
+            this.isThreeJSInitialized = true;
             setTimeout(() => {
                 this.load3DModel(this.selected3DFiles[this.active3DModelIndex].nom);
-            }, 50); // Utilisation de setTimeout pour s'assurer que le DOM est prêt
+            }, 50);
         }
     }
 
@@ -116,16 +122,12 @@ export class DetailComponent implements OnInit, AfterViewChecked {
 
     setActive3DModel(index: number): void {
         const item = this.combinedThumbnails[index];
-        console.log(item);
-
         if (item && item.nom.endsWith('.stl')) {
             const filteredIndex = this.selected3DFiles.findIndex(file => file.nom === item.nom);
-
             if (filteredIndex < 0 || filteredIndex >= this.selected3DFiles.length) {
                 console.error('Index de modèle 3D invalide :', filteredIndex);
                 return;
             }
-
             this.is3DModelActive = true;
             this.active3DModelIndex = filteredIndex;
             this.isThreeJSInitialized = false;
@@ -137,12 +139,10 @@ export class DetailComponent implements OnInit, AfterViewChecked {
 
     load3DModel(fileName: string): void {
         const url = `${this.url}${fileName}`;
-
         if (!this.threeContainer || !this.threeContainer.nativeElement) {
             console.error('Conteneur Three.js introuvable.');
             return;
         }
-
         setTimeout(() => {
             this.display3dService.initThree([this.threeContainer]);
             this.display3dService.chargerModele(url, 0);
@@ -151,11 +151,9 @@ export class DetailComponent implements OnInit, AfterViewChecked {
 
     toggleView(): void {
         if (this.is3DModelActive) {
-            // Passer aux images
             this.is3DModelActive = false;
             this.activeIndex = 0;
         } else {
-            // Passer aux modèles 3D
             this.is3DModelActive = true;
             this.active3DModelIndex = 0;
             this.isThreeJSInitialized = false;
@@ -207,23 +205,20 @@ export class DetailComponent implements OnInit, AfterViewChecked {
 
     incrementLike(): void {
         if (!this.currentUser || !this.currentUser.id) {
-            // Redirection vers la page de login si l'utilisateur n'est pas connecté
             this.router.navigate(['/auth/login']);
             return;
         }
 
-        if (this.hasLiked) return;  // Ne rien faire si l'utilisateur a déjà liké
+        if (this.hasLiked) return;
 
         this.projetService.incrementLike(this.projet.id).subscribe(() => {
             this.projet.statistique!.nombreApreciation++;
-            this.hasLiked = true;  // Désactiver le bouton après like
+            this.hasLiked = true;
         });
     }
 
-
     download(): void {
         if (!this.currentUser || !this.currentUser.id) {
-            // Redirection vers la page de login si l'utilisateur n'est pas connecté
             this.router.navigate(['/auth/login']);
             return;
         }
@@ -246,7 +241,6 @@ export class DetailComponent implements OnInit, AfterViewChecked {
                         a.click();
                         URL.revokeObjectURL(objectUrl);
 
-                        // Réinitialiser l'état après téléchargement
                         this.isDownloading = false;
                         this.downloadCountdown = 5;
                     },
@@ -263,8 +257,6 @@ export class DetailComponent implements OnInit, AfterViewChecked {
     navigateToUserProfile(userId: number | undefined): void {
         this.router.navigate([`/profil/${userId}`]);
     }
-
-
 
     editComment(comment: Commentaire): void {
         this.editingCommentId = comment.id || null;
@@ -308,5 +300,16 @@ export class DetailComponent implements OnInit, AfterViewChecked {
 
         const parts = fileName.split('-');
         return parts.length > 1 ? parts[1].split('.')[0] : parts[0].split('.')[0];
+    }
+
+    scrollToComment(commentId: number): void {
+        setTimeout(() => {
+            const element = document.getElementById(`comment-${commentId}`);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                element.classList.add('highlight-comment');
+                setTimeout(() => element.classList.remove('highlight-comment'), 3000);
+            }
+        }, 500);
     }
 }

@@ -52,4 +52,15 @@ export class CommentaireService extends BaseApiService {
     deleteCommentaire(commentaireId: number): Observable<void> {
         return this.delete<void>(`comentaire/${commentaireId}`);
     }
+
+    /**
+ * Récupérer tous les commentaires postés par un utilisateur donné
+ * @param utilisateurId Identifiant de l'utilisateur
+ * @returns Observable contenant la liste des commentaires
+ */
+    getCommentairesByUtilisateurId(utilisateurId: number): Observable<Commentaire[]> {
+        return this.get<{ commentaires: Commentaire[] }>(`comentaires/${utilisateurId}/utilisateur`).pipe(
+            map(response => response.commentaires)
+        );
+    }
 }

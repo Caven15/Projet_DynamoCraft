@@ -1,1 +1,116 @@
-<p>statistiques works!</p>
+<div class="container mt-5">
+    <!-- Statistiques générales -->
+    <div class="bg-dc rounded-custom shadow-lg p-4 mb-4">
+        <h5 class="text-warning mb-4 text-center">Statistiques générales :</h5>
+        <p>Nombre total de modèles ajoutés : {{ totalModelsAdded }}</p>
+        <p>Nombre total de modèles téléchargés : {{ totalModelsDownloaded }}</p>
+        <p>Nombre de modèles téléchargés au cours des 7 derniers jours : {{ modelsDownloadedLast7Days }}</p>
+        <p>Total des commentaires laissés sur les modèles : {{ totalComments }}</p>
+        <p>Total appréciations reçues : {{ totalLikesReceived }}</p>
+        <p>Total appréciations données : {{ totalLikesGiven }}</p>
+    </div>
+
+    <!-- Activités récentes -->
+    <div class="bg-dc rounded-custom shadow-lg p-4 mb-4">
+        <h5 class="text-warning mb-4 text-center">Activités récentes :</h5>
+
+        <!-- Liste des modèles récemment téléchargés -->
+        <div class="bg-dc rounded-custom shadow-lg mb-4">
+            <div class="bg-warning p-3 rounded-top-custom">
+                <h5 class="mb-0 text-dark text-center">Liste des modèles récemment téléchargés</h5>
+            </div>
+            <div class="table-wrapper">
+                <ng-container *ngIf="recentDownloadedProjects.length > 0; else noDownloadedProjectsTemplate">
+                    <table class="table table-fixed-header custom-table table-striped table-dark">
+                        <thead>
+                            <tr class="text-gold text-center">
+                                <th scope="col"
+                                    (click)="sortData('statistique.datePublication', 'recentDownloadedProjects')">
+                                    Date
+                                    <i [class]="getSortIcon('statistique.datePublication', 'recentDownloadedProjects')"
+                                        class="fs-3 ms-2"></i>
+                                </th>
+                                <th scope="col" (click)="sortData('nom', 'recentDownloadedProjects')">
+                                    Nom
+                                    <i [class]="getSortIcon('nom', 'recentDownloadedProjects')" class="fs-3 ms-2"></i>
+                                </th>
+                                <th scope="col">Détails</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let project of recentDownloadedProjects; let i = index"
+                                [ngClass]="{'bg-dc': i % 2 === 0, 'bg-dc-2': i % 2 !== 0}"
+                                class="text-center align-middle">
+                                <td>{{ project.statistique?.datePublication | date: 'dd/MM/yyyy' }}</td>
+                                <td>{{ project.nom }}</td>
+                                <td>
+                                    <button class="btn btn-outline-warning btn-sm" (click)="viewProject(project.id)">
+                                        <i class="bi bi-eye text-white"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </ng-container>
+
+                <!-- Template affiché lorsqu'il n'y a aucun modèle téléchargé -->
+                <ng-template #noDownloadedProjectsTemplate>
+                    <div class="no-projects p-5 text-center border border-warning">
+                        <i class="bi bi-cloud-download-fill text-warning display-3"></i>
+                        <h5 class="text-warning mt-4">Aucun modèle récemment téléchargé pour le moment.</h5>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+
+        <!-- Historique des commentaires récents laissés -->
+        <div class="bg-dc rounded-custom shadow-lg">
+            <div class="bg-warning p-3 rounded-top-custom">
+                <h5 class="mb-0 text-dark text-center">Historique des commentaires récents</h5>
+            </div>
+            <div class="table-wrapper">
+                <ng-container *ngIf="recentComments.length > 0; else noCommentsTemplate">
+                    <table class="table table-fixed-header custom-table table-striped table-dark">
+                        <thead>
+                            <tr class="text-gold text-center">
+                                <th scope="col" (click)="sortData('dateCreation', 'recentComments')">
+                                    Date
+                                    <i [class]="getSortIcon('dateCreation', 'recentComments')" class="fs-3 ms-2"></i>
+                                </th>
+                                <th scope="col" (click)="sortData('projet.nom', 'recentComments')">
+                                    Projet
+                                    <i [class]="getSortIcon('projet.nom', 'recentComments')" class="fs-3 ms-2"></i>
+                                </th>
+                                <th scope="col">Commentaire</th>
+                                <th scope="col">Détails</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let comment of recentComments; let i = index"
+                                [ngClass]="{'bg-dc': i % 2 === 0, 'bg-dc-2': i % 2 !== 0}"
+                                class="text-center align-middle">
+                                <td>{{ comment.dateCreation | date: 'dd/MM/yyyy' }}</td>
+                                <td>{{ comment.projet!.nom }}</td> <!-- Affichage du nom du projet -->
+                                <td>{{ comment.description | slice: 0:50 }}...</td>
+                                <td>
+                                    <button class="btn btn-outline-warning btn-sm"
+                                        (click)="viewComment(comment.projetId, comment.id)">
+                                        <i class="bi bi-chat-left-text-fill text-white"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </ng-container>
+
+                <!-- Template affiché lorsqu'il n'y a aucun commentaire -->
+                <ng-template #noCommentsTemplate>
+                    <div class="no-comments p-5 text-center border border-warning">
+                        <i class="bi bi-chat-left-text-fill text-warning display-3"></i>
+                        <h5 class="text-warning mt-4">Aucun commentaire posté pour le moment.</h5>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+</div>

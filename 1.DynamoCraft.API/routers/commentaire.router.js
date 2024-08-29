@@ -8,5 +8,6 @@ router.post('/comentaire/:id/utilisateur', commentaireController.create);
 router.get('/comentaire/:id/projet', commentaireController.getByProjectId);
 router.put('/comentaire/:id', commentaireController.update);
 router.delete('/comentaire/:id', commentaireController.delete);
+router.get('/comentaires/:id/utilisateur', commentaireController.getByUserId);
 
 module.exports = router;

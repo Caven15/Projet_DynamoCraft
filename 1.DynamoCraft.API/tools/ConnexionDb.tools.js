@@ -91,9 +91,11 @@ module.exports = {
             // Relation entre Projet et UtilisateurProjet
             dbConnector.Projet.belongsToMany(dbConnector.Utilisateur, {
                 through: dbConnector.UtilisateurProjet,
+                as: 'utilisateursTelechargeurs',
             });
             dbConnector.Utilisateur.belongsToMany(dbConnector.Projet, {
                 through: dbConnector.UtilisateurProjet,
+                as: 'projetsTelecharges',
             });
 
             // Relation entre Projet et Commentaire

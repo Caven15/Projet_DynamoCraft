@@ -17,6 +17,7 @@ export class Utilisateur {
     totalLikes?: number;
     totalDownloads?: number;
     projet?: Projet[];
+    totalLikesGiven?: number;
 
     constructor(
         email: string,
@@ -34,6 +35,7 @@ export class Utilisateur {
         totalLikes?: number,
         totalDownloads?: number,
         projets?: Projet[],
+        totalLikeGiven?: number,
 
     ) {
         this.pseudo = pseudo;
@@ -51,5 +53,6 @@ export class Utilisateur {
         this.totalLikes = totalLikes;
         this.totalDownloads = totalDownloads;
         this.projet = projets;
+        this.totalLikesGiven = totalLikeGiven;
     }
 }

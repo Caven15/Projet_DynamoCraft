@@ -54,6 +54,7 @@ exports.getById = async (req, res, next) => {
     );
 
     try {
+        // Récupérer l'utilisateur avec les projets et autres informations
         const user = await dbConnector.Utilisateur.findOne({
             where: {
                 id: req.params.id,
@@ -93,6 +94,7 @@ exports.getById = async (req, res, next) => {
                 },
             ],
         });
+
         console.log(user);
 
         if (user) {
@@ -114,11 +116,19 @@ exports.getById = async (req, res, next) => {
                 return total + downloads;
             }, 0);
 
+            // Calculer le total des appréciations données par l'utilisateur
+            const totalLikesGiven = await dbConnector.UtilisateurProjetLike.count({
+                where: {
+                    utilisateurId: req.params.id,
+                },
+            });
+
             // Ajouter les totaux aux données de l'utilisateur
             const userWithTotals = {
                 ...user.toJSON(), // Convertir l'utilisateur en un objet JSON pour le modifier
                 totalLikes,
                 totalDownloads,
+                totalLikesGiven, // Ajouter les likes donnés
             };
 
             logMessage("Utilisateur récupéré avec succès", COLOR_GREEN);
@@ -138,6 +148,7 @@ exports.getById = async (req, res, next) => {
         });
     }
 };
+
 
 // Mettre à jour un utilisateur par ID
 exports.update = async (req, res, next) => {

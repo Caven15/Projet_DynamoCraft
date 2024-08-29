@@ -29,4 +29,17 @@ export class UtilisateurProjetService extends BaseApiService {
             })
         );
     }
+
+    // Méthode pour supprimer un modèle téléchargé (une entrée dans UtilisateurProjet)
+    deleteDownloadedProjet(projetId: number): Observable<void> {
+        return this.authService.currentUser$.pipe(
+            switchMap((user: Utilisateur | null): Observable<void> => {
+                if (!user) {
+                    throw new Error('Utilisateur non connecté');
+                }
+                const endpoint = `utilisateurProjet/${user.id}/${projetId}`;
+                return this.httpClient.delete<void>(`${this.baseUrl}/${endpoint}`, this.httpOptions);
+            })
+        );
+    }
 }

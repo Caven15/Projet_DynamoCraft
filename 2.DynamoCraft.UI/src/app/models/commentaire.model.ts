@@ -1,3 +1,4 @@
+import { Projet } from "./projet.model";
 import { Utilisateur } from "./utilisateur.model";
 
 export class Commentaire {
@@ -5,6 +6,7 @@ export class Commentaire {
     description: string;
     dateCreation?: Date;
     dateModif?: Date;
+    projet?: Projet;
     projetId: number;
     utilisateurId?: number;
     utilisateur? : Utilisateur;
@@ -16,7 +18,8 @@ export class Commentaire {
         dateModif: Date,
         projetId: number,
         utilisateurId: number,
-        utilisateur: Utilisateur
+        utilisateur: Utilisateur,
+        projet: Projet
     ) {
         this.id = id;
         this.description = description;
@@ -25,5 +28,6 @@ export class Commentaire {
         this.projetId = projetId;
         this.utilisateurId = utilisateurId;
         this.utilisateur = utilisateur;
+        this.projet = projet;
     }
 }

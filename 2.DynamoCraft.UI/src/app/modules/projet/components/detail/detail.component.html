@@ -151,7 +151,7 @@
                 <!-- Vérification s'il y a des commentaires -->
                 <ng-container *ngIf="commentaires.length > 0; else noCommentsTemplate">
                     <div class="comment bg-dc p-4 rounded-custom shadow-lg mb-3 text-light"
-                        *ngFor="let commentaire of commentaires;">
+                        *ngFor="let commentaire of commentaires" [id]="'comment-' + commentaire.id">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <div>
                                 <h5 class="mb-1 text-warning">{{ commentaire.utilisateur?.pseudo }}</h5>
@@ -203,8 +203,6 @@
                     </div>
                 </ng-template>
             </div>
-
-
         </div>
     </div>
 </div>

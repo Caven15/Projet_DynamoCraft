@@ -320,4 +320,26 @@ export class ProjetService extends BaseApiService {
             catchError(this.handleError<any>('searchProjects'))
         );
     }
+
+    /**
+     * Récupérer les projets téléchargés par l'utilisateur connecté
+     * @returns Observable contenant la liste des projets téléchargés
+     */
+    getDownloadedProjects(): Observable<Projet[]> {
+        return this.authService.currentUser$.pipe(
+            switchMap(currentUser => {
+                if (!currentUser) {
+                    throw new Error('Utilisateur non connecté');
+                }
+
+                return this.getAll<Projet>(`projet/downloaded/${currentUser.id}/utilisateur`).pipe(
+                    tap({
+                        next: () => console.log(`Récupération des projets téléchargés par l'utilisateur Id=${currentUser.id}`),
+                        error: (error) => console.error(`Erreur lors de la récupération des projets téléchargés par l'utilisateur Id=${currentUser.id} :`, error)
+                    }),
+                    catchError(this.handleError<Projet[]>('getDownloadedProjects'))
+                );
+            })
+        );
+    }
 }

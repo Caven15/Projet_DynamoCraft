@@ -267,7 +267,7 @@ exports.getByUserId = async (req, res, next) => {
                 },
                 {
                     model: dbConnector.ImageProjet,
-                    as : 'imageProjet',
+                    as: "imageProjet",
                     attributes: ["nom", "dateCreation"],
                 },
             ],
@@ -346,57 +346,51 @@ exports.delete = async (req, res, next) => {
         `Début de la suppression du projet avec ID: ${req.params.id}`,
         COLOR_YELLOW
     );
+
     try {
         const projectId = req.params.id;
 
+        // Vérification de l'existence du projet
         const projet = await dbConnector.Projet.findByPk(projectId);
         if (!projet) {
             logMessage("Projet non trouvé", COLOR_RED);
             return res.status(404).json({ message: "Projet non trouvé" });
         }
 
+        // Supprimer toutes les images associées au projet
         const images = await dbConnector.ImageProjet.findAll({
             where: { projetId: projectId },
         });
-
         for (const image of images) {
             const imagePath = path.join(__dirname, "../uploads/", image.nom);
-            fs.unlink(imagePath, (err) => {
-                if (err) {
-                    logMessage(
-                        `Erreur lors de la suppression de l'image : ${image.nom}`,
-                        COLOR_RED
-                    );
-                    console.error(
-                        "Erreur lors de la suppression de l'image :",
-                        err
-                    );
-                } else {
-                    logMessage(`Image ${image.nom} supprimée`, COLOR_GREEN);
-                }
-            });
+            fs.unlinkSync(imagePath); // Suppression synchrone pour garantir la suppression avant de passer à la suivante
+            logMessage(`Image ${image.nom} supprimée`, COLOR_GREEN);
         }
-
         await dbConnector.ImageProjet.destroy({
             where: { projetId: projectId },
         });
 
+        // Supprimer tous les commentaires associés au projet
         await dbConnector.Commentaire.destroy({
             where: { projetId: projectId },
         });
 
-        await dbConnector.Modele3D.destroy({
-            where: { projetId: projectId },
-        });
+        // Supprimer tous les modèles 3D associés au projet
+        await dbConnector.Modele3D.destroy({ where: { projetId: projectId } });
 
+        // Supprimer tous ligne d'utilisateurProjet
+        await dbConnector.UtilisateurProjet.destroy({ where: { projetId: projectId } });
+
+        // Supprimer le projet lui-même
         await projet.destroy();
 
+        // Supprimer les statistiques associées au projet
         await dbConnector.Statistique.destroy({
             where: { id: projet.statistiqueId },
         });
 
         logMessage(
-            `Projet avec ID: ${req.params.id} supprimé avec succès`,
+            `Projet avec ID: ${projectId} supprimé avec succès`,
             COLOR_GREEN
         );
         return res
@@ -728,12 +722,20 @@ exports.incrementLike = async (req, res, next) => {
 
         // Vérifier la validité des ID
         if (!utilisateurId || !id) {
-            logMessage("L'ID utilisateur ou l'ID projet est manquant.", COLOR_RED);
-            return res.status(400).json({ message: "ID utilisateur ou ID projet manquant." });
+            logMessage(
+                "L'ID utilisateur ou l'ID projet est manquant.",
+                COLOR_RED
+            );
+            return res
+                .status(400)
+                .json({ message: "ID utilisateur ou ID projet manquant." });
         }
 
         // Vérifier si l'utilisateur a déjà liké ce projet
-        logMessage("Vérification si l'utilisateur a déjà liké ce projet...", COLOR_YELLOW);
+        logMessage(
+            "Vérification si l'utilisateur a déjà liké ce projet...",
+            COLOR_YELLOW
+        );
         const existingLike = await dbConnector.UtilisateurProjetLike.findOne({
             where: {
                 utilisateurId: utilisateurId,
@@ -742,37 +744,67 @@ exports.incrementLike = async (req, res, next) => {
         });
 
         if (existingLike) {
-            logMessage(`L'utilisateur ${utilisateurId} a déjà liké le projet ${id}`, COLOR_RED);
-            return res.status(400).json({ message: "Vous avez déjà liké ce projet." });
+            logMessage(
+                `L'utilisateur ${utilisateurId} a déjà liké le projet ${id}`,
+                COLOR_RED
+            );
+            return res
+                .status(400)
+                .json({ message: "Vous avez déjà liké ce projet." });
         }
 
         // Incrémenter le nombre de likes
-        logMessage(`Incrémentation du nombre de likes pour le projet Id=${id}`, COLOR_YELLOW);
-        const [updated] = await dbConnector.Statistique.increment("nombreApreciation", {
-            where: { id: id },
-        });
+        logMessage(
+            `Incrémentation du nombre de likes pour le projet Id=${id}`,
+            COLOR_YELLOW
+        );
+        const [updated] = await dbConnector.Statistique.increment(
+            "nombreApreciation",
+            {
+                where: { id: id },
+            }
+        );
 
         if (updated) {
-            logMessage(`Le nombre de likes pour le projet Id=${id} a été incrémenté avec succès.`, COLOR_GREEN);
+            logMessage(
+                `Le nombre de likes pour le projet Id=${id} a été incrémenté avec succès.`,
+                COLOR_GREEN
+            );
         } else {
-            logMessage(`Échec de l'incrémentation des likes pour le projet Id=${id}`, COLOR_RED);
-            return res.status(500).json({ message: "Échec de l'incrémentation des likes." });
+            logMessage(
+                `Échec de l'incrémentation des likes pour le projet Id=${id}`,
+                COLOR_RED
+            );
+            return res
+                .status(500)
+                .json({ message: "Échec de l'incrémentation des likes." });
         }
 
         // Ajouter un nouveau like
-        logMessage(`Ajout du like pour utilisateurId=${utilisateurId} et projetId=${id}`, COLOR_YELLOW);
+        logMessage(
+            `Ajout du like pour utilisateurId=${utilisateurId} et projetId=${id}`,
+            COLOR_YELLOW
+        );
         await dbConnector.UtilisateurProjetLike.create({
             utilisateurId: utilisateurId,
             projetId: id,
         });
 
-        logMessage(`Like ajouté avec succès pour utilisateurId=${utilisateurId} et projetId=${id}`, COLOR_GREEN);
+        logMessage(
+            `Like ajouté avec succès pour utilisateurId=${utilisateurId} et projetId=${id}`,
+            COLOR_GREEN
+        );
         return res.status(200).json({
             message: "Like ajouté avec succès.",
         });
     } catch (error) {
-        logMessage(`Erreur lors de l'ajout du like : ${error.message}`, COLOR_RED);
-        return res.status(500).json({ message: "Erreur lors de l'ajout du like." });
+        logMessage(
+            `Erreur lors de l'ajout du like : ${error.message}`,
+            COLOR_RED
+        );
+        return res
+            .status(500)
+            .json({ message: "Erreur lors de l'ajout du like." });
     }
 };
 
@@ -1061,5 +1093,89 @@ exports.search = async (req, res, next) => {
         return res
             .status(500)
             .json({ message: "Erreur lors de la recherche des projets" });
+    }
+};
+
+// Récupérer les projets téléchargés par un utilisateur
+exports.getDownloadedByUser = async (req, res, next) => {
+    const userId = req.params.id;
+    logMessage(
+        `Début de la récupération des projets téléchargés pour l'utilisateur avec ID: ${userId}`,
+        COLOR_YELLOW
+    );
+
+    try {
+        // Récupérer tous les projets téléchargés par l'utilisateur via la table UtilisateurProjet
+        const utilisateur = await dbConnector.Utilisateur.findByPk(userId, {
+            include: [
+                {
+                    model: dbConnector.Projet,
+                    as: "projetsTelecharges", // Utiliser l'alias défini dans l'association
+                    include: [
+                        {
+                            model: dbConnector.Statut,
+                            as: "statut",
+                            attributes: { exclude: ["id"] },
+                        },
+                        {
+                            model: dbConnector.Statistique,
+                            attributes: [
+                                "nombreApreciation",
+                                "nombreTelechargement",
+                                "datePublication",
+                                "dateModification",
+                            ],
+                        },
+                        {
+                            model: dbConnector.Categorie,
+                            attributes: ["nom"],
+                        },
+                        {
+                            model: dbConnector.Utilisateur,
+                            as: "utilisateur",
+                            attributes: ["pseudo", "email"],
+                            include: [
+                                {
+                                    model: dbConnector.ImageUtilisateur,
+                                    as: "imageUtilisateur",
+                                    attributes: ["nom"],
+                                },
+                            ],
+                        },
+                        {
+                            model: dbConnector.ImageProjet,
+                            as: "imageProjet",
+                            attributes: ["nom"],
+                        },
+                    ],
+                    attributes: {
+                        exclude: [
+                            "statutId",
+                            "statistiqueId",
+                            "categorieId",
+                            "utilisateurId",
+                        ],
+                    },
+                },
+            ],
+        });
+
+        logMessage(
+            `Projets téléchargés pour l'utilisateur avec ID: ${userId} récupérés avec succès`,
+            COLOR_GREEN
+        );
+        return res.status(200).json(utilisateur.projetsTelecharges);
+    } catch (error) {
+        logMessage(
+            "Erreur lors de la récupération des projets téléchargés par utilisateurId",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de la récupération des projets téléchargés par utilisateurId :",
+            error
+        );
+        return res.status(500).json({
+            message: "Erreur lors de la récupération des projets téléchargés",
+        });
     }
 };

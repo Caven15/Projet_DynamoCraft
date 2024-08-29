@@ -114,3 +114,48 @@ exports.downloadProjet = async (req, res, next) => {
         });
     }
 };
+
+// Supprimer une entrée de la table UtilisateurProjet par utilisateurId et projetId
+exports.deleteUtilisateurProjet = async (req, res, next) => {
+    try {
+        const { utilisateurId, projetId } = req.params;
+
+        // Log pour début de la suppression
+        logMessage(
+            `Début de la suppression de l'entrée UtilisateurProjet pour utilisateurId: ${utilisateurId} et projetId: ${projetId}`,
+            COLOR_YELLOW
+        );
+
+        // Rechercher l'entrée dans la table UtilisateurProjet
+        const utilisateurProjet = await dbConnector.UtilisateurProjet.findOne({
+            where: {
+                utilisateurId: utilisateurId,
+                projetId: projetId,
+            },
+        });
+
+        // Vérification si l'entrée existe
+        if (!utilisateurProjet) {
+            logMessage(
+                `Aucune entrée trouvée pour utilisateurId: ${utilisateurId} et projetId: ${projetId}`,
+                COLOR_RED
+            );
+            return res.status(404).json({ message: "Entrée non trouvée dans UtilisateurProjet" });
+        }
+
+        // Supprimer l'entrée
+        await utilisateurProjet.destroy();
+
+        logMessage(
+            `L'entrée UtilisateurProjet pour utilisateurId: ${utilisateurId} et projetId: ${projetId} a été supprimée avec succès`,
+            COLOR_GREEN
+        );
+        return res.status(200).json({ message: "Entrée supprimée avec succès" });
+    } catch (error) {
+        logMessage(
+            `Erreur lors de la suppression de l'entrée UtilisateurProjet : ${error.message}`,
+            COLOR_RED
+        );
+        return res.status(500).json({ message: "Erreur lors de la suppression de l'entrée UtilisateurProjet." });
+    }
+};
