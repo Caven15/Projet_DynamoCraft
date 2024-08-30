@@ -1,22 +1,23 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Projet } from '../../../../../models/projet.model';
 import { Commentaire } from '../../../../../models/commentaire.model';
 import { CommentaireService } from '../../../../../tools/services/api/commentaire.service';
 import { ProjetService } from '../../../../../tools/services/api/projet.service';
 import { AuthService } from '../../../../../tools/services/api/auth.service';
 import { Router } from '@angular/router';
+import { UtilisateurService } from '../../../../../tools/services/api/utilisateur.service';
 
 @Component({
     selector: 'app-user-statistiques',
     templateUrl: './statistiques.component.html',
     styleUrls: ['./statistiques.component.scss']
 })
-export class StatistiquesComponent {
-    totalModelsAdded: number = 0;
-    totalModelsDownloaded: number = 0;
-    modelsDownloadedLast7Days: number = 0;
-    totalComments: number = 0;
-    totalLikesReceived: number = 0;
+export class StatistiquesComponent implements OnInit {
+    totalModelsAdded: number | undefined = 0;
+    totalModelsDownloaded: number | undefined = 0;
+    modelsDownloadedLast7Days: number | undefined = 0;
+    totalComments: number | undefined = 0;
+    totalLikesReceived: number | undefined = 0;
     totalLikesGiven: number | undefined = 0;
 
     recentDownloadedProjects: Projet[] = [];
@@ -31,6 +32,7 @@ export class StatistiquesComponent {
 
     constructor(
         private projetService: ProjetService,
+        private utilisateurService: UtilisateurService,
         private commentaireService: CommentaireService,
         private authService: AuthService,
         private router: Router
@@ -47,15 +49,21 @@ export class StatistiquesComponent {
     }
 
     loadUserStatistics(userId: number): void {
-        this.projetService.getProjectsByUserId(userId).subscribe(projects => {
-            this.totalModelsAdded = projects.length;
-            this.totalModelsDownloaded = projects.reduce((acc, project) => acc + (project.statistique?.nombreTelechargement || 0), 0);
+        this.utilisateurService.getUtilisateurById(userId).subscribe(user => {
+            this.totalModelsAdded = user.totalUploads;
+            this.totalModelsDownloaded = user.totalDownloads;
+            this.totalLikesReceived = user.totalLikes;
+            this.totalLikesGiven = user.totalLikesGiven;
+            this.totalComments = user.totalComments;
+
             const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-            this.modelsDownloadedLast7Days = projects.filter(project => {
-                const dateModification = new Date(project.statistique?.dateModification ?? '1970-01-01T00:00:00Z');
-                return dateModification > sevenDaysAgo && (project.statistique?.nombreTelechargement || 0) > 0;
-            }).length;
-            this.totalLikesReceived = projects.reduce((acc, project) => acc + (project.statistique?.nombreApreciation || 0), 0);
+            // this.modelsDownloadedLast7Days = user.projet.reduce((acc, project) => {
+            //     const dateModification = new Date(project.statistique?.dateModification ?? '1970-01-01T00:00:00Z');
+            //     if (dateModification > sevenDaysAgo && project.statistique?.nombreTelechargement) {
+            //         return acc + project.statistique.nombreTelechargement;
+            //     }
+            //     return acc;
+            // }, 0);
         });
     }
 

@@ -21,19 +21,31 @@ export class NavBarComponent implements OnInit {
         });
     }
 
+    // Vérifiez si l'utilisateur est connecté
+    isConnected(): boolean {
+        return !!this.currentUser;
+    }
+
+    // Vérifiez si l'utilisateur est un admin
+    isAdmin(): boolean {
+        return this.currentUser?.roleId === 3;
+    }
+
+    // Vérifiez si l'utilisateur est un modérateur
+    isModerator(): boolean {
+        return this.currentUser?.roleId === 2;
+    }
+
+    // Déconnecter l'utilisateur
     logout(): void {
         this.authService.logout();
     }
 
-    isConnected(): boolean {
-        return !!this.currentUser; // Vérifiez si l'utilisateur est connecté
-    }
-
-    // Récupère l'image de profil si l'utilisateur est connecté, sinon retourne l'image par défaut
-    getProfileImage(): string {
+    // Récupère l'image de profil si l'utilisateur est connecté, sinon retourne null
+    getProfileImage(): string | null {
         if (this.currentUser && this.currentUser.imageUtilisateur && this.currentUser.imageUtilisateur.nom) {
             return `${this.url}${this.currentUser.imageUtilisateur.nom}`; // Chemin vers le dossier des uploads
         }
-        return 'assets/png/logo.png'; // Image par défaut depuis le dossier assets
+        return null; // Retourne null si personne n'est connecté
     }
 }

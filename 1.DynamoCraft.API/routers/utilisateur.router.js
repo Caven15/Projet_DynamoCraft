@@ -7,5 +7,6 @@ router.get('/utilisateurs', utilisateurController.getAll);
 router.get('/utilisateur/:id', utilisateurController.getById);
 router.put('/utilisateur/:id', upload.single("image"), utilisateurController.update);
 router.delete('/utilisateur/:id', utilisateurController.delete);
+router.put('/utilisateur/:id/toggle-activation', utilisateurController.toggleActivation);
 
 module.exports = router;

@@ -19,6 +19,7 @@ import { PolitiqueConfidentialiteComponent } from './components/politique-confid
 import { ConditionsUtilisationComponent } from './components/conditions-utilisation/conditions-utilisation.component';
 import { UtilisateurModule } from './modules/utilisateur/utilisateur.module';
 import { ProjetModule } from './modules/projet/projet.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @NgModule({
     declarations: [
@@ -42,7 +43,8 @@ import { ProjetModule } from './modules/projet/projet.module';
         ReactiveFormsModule,
         AuthModule,
         UtilisateurModule,
-        ProjetModule
+        ProjetModule,
+        AdminModule
     ],
     providers: [
         provideClientHydration(),

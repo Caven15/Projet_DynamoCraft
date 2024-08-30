@@ -90,7 +90,7 @@
                                 [ngClass]="{'bg-dc': i % 2 === 0, 'bg-dc-2': i % 2 !== 0}"
                                 class="text-center align-middle">
                                 <td>{{ comment.dateCreation | date: 'dd/MM/yyyy' }}</td>
-                                <td>{{ comment.projet!.nom }}</td> <!-- Affichage du nom du projet -->
+                                <td>{{ comment.projet!.nom }}</td>
                                 <td>{{ comment.description | slice: 0:50 }}...</td>
                                 <td>
                                     <button class="btn btn-outline-warning btn-sm"

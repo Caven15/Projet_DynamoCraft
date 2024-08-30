@@ -84,4 +84,19 @@ export class UtilisateurService extends BaseApiService {
             catchError(this.handleError<any>('deleteUtilisateur'))
         );
     }
+
+    /**
+ * Activer ou désactiver un utilisateur
+ * @param id Identifiant de l'utilisateur
+ * @returns Observable indiquant le résultat de l'opération
+ */
+    toggleActivation(id: number): Observable<any> {
+        return this.put<any>(`utilisateur/${id}/toggle-activation`, {}).pipe(
+            tap({
+                next: () => console.log(`Statut de l'utilisateur id=${id} changé`),
+                error: (error) => console.error(`Erreur lors du changement de statut de l'utilisateur id=${id} :`, error)
+            }),
+            catchError(this.handleError<any>('toggleActivation'))
+        );
+    }
 }

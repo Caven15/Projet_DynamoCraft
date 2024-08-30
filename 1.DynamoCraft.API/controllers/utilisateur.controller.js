@@ -1,3 +1,4 @@
+const { Sequelize, DataTypes } = require("sequelize"); 
 const dbConnector = require("../tools/ConnexionDb.tools").get();
 const fs = require("fs");
 const path = require("path");
@@ -20,6 +21,35 @@ exports.getAll = async (req, res, next) => {
         const allUsers = await dbConnector.Utilisateur.findAll({
             attributes: {
                 exclude: ["password", "imageId", "roleId"],
+                include: [
+                    // Calcul du total de téléchargements pour chaque utilisateur
+                    [
+                        Sequelize.literal(`(
+                            SELECT COUNT(*)
+                            FROM utilisateurprojet AS up
+                            WHERE up.utilisateurId = Utilisateur.id
+                        )`),
+                        'totalDownloads'
+                    ],
+                    // Calcul du total d'uploads (projets créés) pour chaque utilisateur
+                    [
+                        Sequelize.literal(`(
+                            SELECT COUNT(*)
+                            FROM projet AS p
+                            WHERE p.utilisateurId = Utilisateur.id
+                        )`),
+                        'totalUploads'
+                    ],
+                    // Calcul du total de commentaires pour chaque utilisateur
+                    [
+                        Sequelize.literal(`(
+                            SELECT COUNT(*)
+                            FROM commentaire AS c
+                            WHERE c.utilisateurId = Utilisateur.id
+                        )`),
+                        'totalComments'
+                    ]
+                ]
             },
             include: [
                 {
@@ -33,7 +63,10 @@ exports.getAll = async (req, res, next) => {
             ],
         });
 
+        // Log des utilisateurs récupérés
+        console.log("Utilisateurs récupérés : ", JSON.stringify(allUsers, null, 2));
         logMessage("Utilisateurs récupérés avec succès", COLOR_GREEN);
+
         res.status(200).json(allUsers);
     } catch (error) {
         logMessage(
@@ -47,6 +80,8 @@ exports.getAll = async (req, res, next) => {
     }
 };
 
+
+// Récupérer un utilisateur par ID
 exports.getById = async (req, res, next) => {
     logMessage(
         `Début de la récupération de l'utilisateur avec ID: ${req.params.id}`,
@@ -54,7 +89,6 @@ exports.getById = async (req, res, next) => {
     );
 
     try {
-        // Récupérer l'utilisateur avec les projets et autres informations
         const user = await dbConnector.Utilisateur.findOne({
             where: {
                 id: req.params.id,
@@ -85,23 +119,23 @@ exports.getById = async (req, res, next) => {
                         },
                         {
                             model: dbConnector.ImageProjet,
-                            as : 'imageProjet',
-                            attributes: ["nom"], // Inclure l'image du projet
-                            limit: 1, // Récupère uniquement la première image par projet
-                            separate: false, // Assurez-vous de ne pas utiliser `separate` ici
+                            as: 'imageProjet',
+                            attributes: ["nom"],
+                            limit: 1,
+                            separate: false,
                         },
                     ],
                 },
             ],
         });
 
-        console.log(user);
-
         if (user) {
-            // Vérifiez si l'utilisateur a des projets
             const userProjects = user.projet || [];
 
-            // Calculer le total des appréciations et des téléchargements sur tous les projets de l'utilisateur
+            // Calculer le nombre total de projets ajoutés
+            const totalUploads = userProjects.length;
+
+            // Calculer le total des appréciations reçues et des téléchargements sur tous les projets de l'utilisateur
             const totalLikes = userProjects.reduce((total, projet) => {
                 const appreciation = projet.statistique
                     ? projet.statistique.nombreApreciation || 0
@@ -123,12 +157,24 @@ exports.getById = async (req, res, next) => {
                 },
             });
 
+            // Calculer le total des commentaires laissés sur les projets de l'utilisateur
+            const totalComments = await dbConnector.Commentaire.count({
+                include: [
+                    {
+                        model: dbConnector.Projet,
+                        where: { utilisateurId: req.params.id },
+                    },
+                ],
+            });
+
             // Ajouter les totaux aux données de l'utilisateur
             const userWithTotals = {
-                ...user.toJSON(), // Convertir l'utilisateur en un objet JSON pour le modifier
+                ...user.toJSON(),
                 totalLikes,
                 totalDownloads,
-                totalLikesGiven, // Ajouter les likes donnés
+                totalLikesGiven,
+                totalComments,
+                totalUploads, // Ajouter le total des projets ajoutés
             };
 
             logMessage("Utilisateur récupéré avec succès", COLOR_GREEN);
@@ -148,7 +194,6 @@ exports.getById = async (req, res, next) => {
         });
     }
 };
-
 
 // Mettre à jour un utilisateur par ID
 exports.update = async (req, res, next) => {
@@ -294,6 +339,48 @@ exports.delete = async (req, res, next) => {
         console.error("Erreur lors de la suppression de l'utilisateur:", error);
         res.status(500).json({
             message: "Erreur lors de la suppression de l'utilisateur",
+        });
+    }
+};
+
+// Activer ou désactiver un utilisateur par ID
+exports.toggleActivation = async (req, res, next) => {
+    logMessage(
+        `Début du changement de statut de l'utilisateur avec ID: ${req.params.id}`,
+        COLOR_YELLOW
+    );
+
+    try {
+        // Récupérer l'utilisateur par ID
+        const user = await dbConnector.Utilisateur.findByPk(req.params.id);
+        if (!user) {
+            logMessage("Utilisateur non trouvé", COLOR_RED);
+            return res.status(404).json({ message: "Utilisateur non trouvé" });
+        }
+
+        // Inverser le statut du compte (true -> false, false -> true)
+        const newStatut = !user.statutCompte;
+        await user.update({ statutCompte: newStatut });
+
+        // Si l'utilisateur est désactivé, désactiver également tous ses projets
+        if (!newStatut) {
+            await dbConnector.Projet.update(
+                { estValide: false },
+                { where: { utilisateurId: user.id } }
+            );
+            logMessage(`Tous les projets de l'utilisateur ${req.params.id} ont été désactivés`, COLOR_GREEN);
+        }
+
+        logMessage(`Utilisateur ${newStatut ? 'activé' : 'désactivé'} avec succès`, COLOR_GREEN);
+        res.status(200).json({
+            message: `Utilisateur ${req.params.id} ${newStatut ? 'activé' : 'désactivé'} avec succès !`,
+            statutCompte: newStatut
+        });
+    } catch (error) {
+        logMessage("Erreur lors du changement de statut de l'utilisateur", COLOR_RED);
+        console.error("Erreur lors du changement de statut de l'utilisateur:", error);
+        res.status(500).json({
+            message: "Erreur lors du changement de statut de l'utilisateur",
         });
     }
 };

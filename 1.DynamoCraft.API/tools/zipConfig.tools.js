@@ -83,10 +83,10 @@ const getProjectFileNames = (project) => {
             ? project.imageProjet.map((file) => file.nom)
             : [project.imageProjet.nom]
         : [];
-    const modele3DFileNames = project.Modele3D
-        ? Array.isArray(project.Modele3D)
-            ? project.Modele3D.map((file) => file.nom)
-            : [project.Modele3D.nom]
+    const modele3DFileNames = project.modele3D
+        ? Array.isArray(project.modele3D)
+            ? project.modele3D.map((file) => file.nom)
+            : [project.modele3D.nom]
         : [];
     return [...imageFileNames, ...modele3DFileNames];
 };

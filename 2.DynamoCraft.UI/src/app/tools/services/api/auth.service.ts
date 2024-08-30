@@ -35,9 +35,11 @@ export class AuthService extends BaseApiService {
         const utilisateur = new Utilisateur(email, password);
         return this.post<{ accessToken: string, id: string, roleId: string }>('auth/login', utilisateur).pipe(
             tap(response => {
+                console.log(response);
                 // Mettre à jour le BehaviorSubject avec les nouvelles données utilisateur
                 this.utilisateurService.getUtilisateurById(parseInt(response.id)).subscribe({
                     next: (datas) => {
+                        datas.roleId = parseInt(response.roleId);
                         this.currentUserSubject.next(datas);
                     }
                 })

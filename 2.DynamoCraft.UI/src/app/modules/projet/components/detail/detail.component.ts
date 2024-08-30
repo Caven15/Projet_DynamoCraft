@@ -264,6 +264,7 @@ export class DetailComponent implements OnInit, AfterViewChecked {
     }
 
     saveComment(): void {
+        console.log("test");
         if (this.editingCommentId && this.editingCommentContent.trim()) {
             const updatedComment: Commentaire = {
                 ...this.commentaires.find(c => c.id === this.editingCommentId)!,

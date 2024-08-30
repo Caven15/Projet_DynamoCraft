@@ -1,7 +1,6 @@
 <header class="p-3 bg-dc-2 text-white font-dc">
     <div class="container">
-        <div
-            class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-center justify-content-lg-center">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
             <a class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none" routerLink="/home">
                 <img src="assets/png/logo.png" alt="logo" width="60" height="60">
                 <span class="navbar-brand font-dc text-white fs-4 ms-2 me-5">DynamoCraft</span>
@@ -18,16 +17,29 @@
             <div class="dropdown text-end">
                 <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle text-white"
                     data-bs-toggle="dropdown" aria-expanded="false">
-                    <!-- Affichez l'image de profil si l'utilisateur est connecté, sinon utilisez l'image par défaut -->
-                    <img [src]="getProfileImage()" alt="profile image" width="40" height="40" class="rounded-circle">
+                    <!-- Affiche l'image de profil ou une icône utilisateur si personne n'est connecté -->
+                    <img *ngIf="getProfileImage(); else defaultIcon" [src]="getProfileImage()" alt="profile image"
+                        width="40" height="40" class="rounded-circle">
+                    <ng-template #defaultIcon>
+                        <i class="bi bi-person-circle fs-2"></i>
+                    </ng-template>
                 </a>
-                <ul class="dropdown-menu text-small dropdown-menu-end">
-                    <!-- Liens dépendants de l'état de connexion -->
+                <ul class="dropdown-menu text-small dropdown-menu-end p-2" style="min-width: 200px;">
+                    <!-- Vérifiez si l'utilisateur est connecté -->
                     <ng-container *ngIf="isConnected(); else guestLinks">
-                        <li><a class="dropdown-item" routerLink="/projet/ajout">Ajouter projet</a></li>
+                        <!-- Affichez des options spécifiques en fonction du rôle -->
                         <li><a class="dropdown-item" routerLink="/utilisateur/profil">Mon Profil</a></li>
+                        <li *ngIf="isAdmin()"><a class="dropdown-item" routerLink="/admin/panel">Admin Panel</a></li>
+                        <li *ngIf="isModerator()"><a class="dropdown-item"zz
+                                routerLink="/moderator/dashboard">Modérateur</a></li>
+                        <li><a class="dropdown-item" routerLink="/projet/ajout">Ajouter projet</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li><a class="dropdown-item" (click)="logout()">Déconnexion</a></li>
                     </ng-container>
+
+                    <!-- Liens pour les invités (non connectés) -->
                     <ng-template #guestLinks>
                         <li><a class="dropdown-item" routerLink="/auth/login">Login</a></li>
                         <li><a class="dropdown-item" routerLink="/auth/register">Register</a></li>

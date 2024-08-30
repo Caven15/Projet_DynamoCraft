@@ -16,8 +16,12 @@ export class Utilisateur {
     imageUtilisateur?: ImageUtilisateur;
     totalLikes?: number;
     totalDownloads?: number;
+    totalCommentaires?: number;
     projet?: Projet[];
+    totalProjetsCrees?: number;
+    totalUploads? : number;
     totalLikesGiven?: number;
+    totalComments?: number;
 
     constructor(
         email: string,
@@ -34,8 +38,12 @@ export class Utilisateur {
         imageUtilisateur?: ImageUtilisateur,
         totalLikes?: number,
         totalDownloads?: number,
+        totalCommentaires?: number,
         projets?: Projet[],
+        totalProjetsCrees?: number,
         totalLikeGiven?: number,
+        totalUploads? : number,
+        totalComments? : number,
 
     ) {
         this.pseudo = pseudo;
@@ -52,7 +60,11 @@ export class Utilisateur {
         this.imageUtilisateur = imageUtilisateur;
         this.totalLikes = totalLikes;
         this.totalDownloads = totalDownloads;
+        this.totalCommentaires = totalCommentaires,
+        this.totalUploads = totalUploads;
         this.projet = projets;
+        this.totalProjetsCrees = totalProjetsCrees;
         this.totalLikesGiven = totalLikeGiven;
+        this.totalComments = totalComments;
     }
 }

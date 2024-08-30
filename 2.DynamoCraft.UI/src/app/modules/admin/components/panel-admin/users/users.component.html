@@ -1,0 +1,72 @@
+<div class="container mt-5">
+    <div class="bg-dc rounded-custom shadow-lg p-4 mb-4">
+        <h5 class="text-warning mb-4 text-center">Liste des utilisateurs :</h5>
+
+        <!-- Barre de recherche -->
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Rechercher un utilisateur..." [(ngModel)]="searchTerm"
+                (input)="filterUtilisateurs()">
+        </div>
+
+        <div class="table-wrapper">
+            <ng-container *ngIf="filteredUtilisateurs.length > 0; else noUsersTemplate">
+                <table class="table table-fixed-header custom-table table-striped table-dark">
+                    <thead>
+                        <tr class="text-gold text-center">
+                            <th scope="col" (click)="sortData('pseudo')">Pseudo
+                                <i [class]="getSortIcon('pseudo')" class="fs-3 ms-2"></i>
+                            </th>
+                            <th scope="col" (click)="sortData('statutCompte')">Statut compte
+                                <i [class]="getSortIcon('statutCompte')" class="fs-3 ms-2"></i>
+                            </th>
+                            <th scope="col" (click)="sortData('totalDownloads')">Download
+                                <i [class]="getSortIcon('totalDownloads')" class="fs-3 ms-2"></i>
+                            </th>
+                            <th scope="col" (click)="sortData('totalUploads')">Upload
+                                <i [class]="getSortIcon('totalUploads')" class="fs-3 ms-2"></i>
+                            </th>
+                            <th scope="col" (click)="sortData('totalComments')">Commentaires
+                                <i [class]="getSortIcon('totalComments')" class="fs-3 ms-2"></i>
+                            </th>
+                            <th scope="col">Opérations</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let utilisateur of filteredUtilisateurs; let i = index"
+                            [ngClass]="{'bg-dc': i % 2 === 0, 'bg-dc-2': i % 2 !== 0}" class="text-center align-middle">
+                            <td>{{ utilisateur.pseudo }}</td>
+                            <td>{{ utilisateur.statutCompte ? 'Actif' : 'Désactivé' }}</td>
+                            <td>{{ utilisateur.totalDownloads }}</td>
+                            <td>{{ utilisateur.totalUploads }}</td>
+                            <td>{{ utilisateur.totalComments }}</td>
+                            <td>
+                                <!-- Bouton pour basculer l'activation/désactivation -->
+                                <button class="btn btn-outline-info btn-sm"
+                                    (click)="toggleUserActivation(utilisateur.id)">
+                                    <i class="bi"
+                                        [ngClass]="{'bi-toggle-on': utilisateur.statutCompte, 'bi-toggle-off': !utilisateur.statutCompte}"></i>
+                                </button>
+                                <!-- Bouton pour voir les détails -->
+                                <button class="btn btn-outline-warning btn-sm"
+                                    (click)="viewUserDetails(utilisateur.id)">
+                                    <i class="bi bi-eye text-white"></i>
+                                </button>
+                                <!-- Bouton pour supprimer l'utilisateur -->
+                                <button class="btn btn-outline-danger btn-sm" (click)="deleteUser(utilisateur.id)">
+                                    <i class="bi bi-trash text-white"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </ng-container>
+
+            <ng-template #noUsersTemplate>
+                <div class="no-users p-5 text-center border border-warning">
+                    <i class="bi bi-person-x-fill text-warning display-3"></i>
+                    <h5 class="text-warning mt-4">Aucun utilisateur trouvé.</h5>
+                </div>
+            </ng-template>
+        </div>
+    </div>
+</div>
