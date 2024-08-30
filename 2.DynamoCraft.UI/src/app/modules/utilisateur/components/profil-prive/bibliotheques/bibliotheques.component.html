@@ -1,60 +1,4 @@
 <div class="container mt-5">
-    <!-- Liste des modèles téléchargés -->
-    <div class="bg-dc rounded-custom shadow-lg mb-4">
-        <div class="bg-warning p-3 rounded-top-custom">
-            <h5 class="mb-0 text-dark text-center">Liste des modèles téléchargés</h5>
-        </div>
-        <div class="table-wrapper">
-            <!-- Vérification s'il y a des modèles téléchargés -->
-            <ng-container *ngIf="downloadedModels.length > 0; else noDownloadedModelsTemplate">
-                <table class="table table-fixed-header custom-table table-striped table-dark">
-                    <thead>
-                        <tr class="text-gold text-center">
-                            <th scope="col" (click)="sortData('nom', 'downloadedModels')">
-                                Nom
-                                <i [class]="getSortIcon('nom', 'downloadedModels')" class="fs-3 text-warning ms-2"></i>
-                            </th>
-                            <th scope="col" (click)="sortData('statistique.datePublication', 'downloadedModels')">
-                                Date publication
-                                <i [class]="getSortIcon('statistique.datePublication', 'downloadedModels')"
-                                    class="fs-3 text-info ms-2"></i>
-                            </th>
-                            <th scope="col" (click)="sortData('statut.nom', 'downloadedModels')">
-                                Statut
-                                <i [class]="getSortIcon('statut.nom', 'downloadedModels')"
-                                    class="fs-3 text-success ms-2"></i>
-                            </th>
-                            <th scope="col">Détails</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let model of downloadedModels; let i = index" class="text-center align-middle">
-                            <td>{{ model.nom }}</td>
-                            <td>{{ model.statistique?.datePublication | date: 'dd/MM/yyyy' }}</td>
-                            <td>{{ model.statut!.nom }}</td>
-                            <td>
-                                <button class="btn btn-outline-warning btn-sm me-2"
-                                    (click)="viewModelDetails(model.id)">
-                                    <i class="bi bi-eye icon-custom icon-eye text-white"></i>
-                                </button>
-                                <button class="btn btn-outline-danger btn-sm" (click)="deleteDownloadedModel(model)">
-                                    <i class="bi bi-trash icon-custom icon-trash text-white"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </ng-container>
-            <!-- Template affiché lorsqu'aucun modèle téléchargé n'est présent -->
-            <ng-template #noDownloadedModelsTemplate>
-                <div class="no-models p-5 text-center border border-warning">
-                    <i class="bi bi-cloud-download-fill text-warning display-3"></i>
-                    <h5 class="text-warning mt-4">Aucun modèle téléchargé pour le moment.</h5>
-                </div>
-            </ng-template>
-        </div>
-    </div>
-
     <!-- Liste des modèles ajoutés -->
     <div class="bg-dc rounded-custom shadow-lg">
         <div class="bg-warning p-3 rounded-top-custom">
@@ -66,15 +10,14 @@
                 <table class="table table-fixed-header custom-table table-striped table-dark">
                     <thead>
                         <tr class="text-gold text-center">
-                            <th scope="col" (click)="sortData('nom', 'addedModels')">
+                            <!-- Colonne Nom -->
+                            <th scope="col" (click)="sortData('nom', 'addedModels')" colspan="2">
                                 Nom
                                 <i [class]="getSortIcon('nom', 'addedModels')" class="fs-3 text-warning ms-2"></i>
                             </th>
-                            <th scope="col" (click)="sortData('statistique.datePublication', 'addedModels')">
-                                Date publication
-                                <i [class]="getSortIcon('statistique.datePublication', 'addedModels')"
-                                    class="fs-3 text-info ms-2"></i>
-                            </th>
+                            <!-- Colonne Commentaire Admin -->
+                            <th scope="col" colspan="2">Commentaire Admin</th>
+                            <!-- Colonne Statut -->
                             <th scope="col" (click)="sortData('statut.nom', 'addedModels')">
                                 Statut
                                 <i [class]="getSortIcon('statut.nom', 'addedModels')"
@@ -85,9 +28,16 @@
                     </thead>
                     <tbody>
                         <tr *ngFor="let model of addedModels; let i = index" class="text-center align-middle">
-                            <td>{{ model.nom }}</td>
-                            <td>{{ model.statistique?.datePublication | date: 'dd/MM/yyyy' }}</td>
+                            <!-- Colonne Nom -->
+                            <td colspan="2">{{ model.nom }}</td>
+                            <!-- Colonne Commentaire Admin -->
+                            <td colspan="2">
+                                <textarea class="form-control bg-dark text-light" rows="2" readonly
+                                    [ngStyle]="{'resize': 'none'}">{{ model.commentaire_admin || 'Pas de commentaire' }}</textarea>
+                            </td>
+                            <!-- Colonne Statut -->
                             <td>{{ model.statut!.nom }}</td>
+                            <!-- Colonne Détails -->
                             <td>
                                 <button class="btn btn-outline-warning btn-sm me-2"
                                     (click)="viewModelDetails(model.id)">

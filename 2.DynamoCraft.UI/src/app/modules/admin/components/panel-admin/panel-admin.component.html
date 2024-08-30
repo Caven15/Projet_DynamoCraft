@@ -1,29 +1,42 @@
 <div class="container bg-dc-2">
-    <!-- Barre de navigation avec icônes pour l'admin -->
-    <div class="row justify-content-center align-items-center py-3 bg-warning text-center">
+    <div class="row justify-content-center align-items-center py-3 bg-warning text-center mb-0">
         <div class="col-4 icon-container" (click)="setActiveTab('users')" [class.active-tab]="activeTab === 'users'">
-            <i class="bi bi-people-fill icon-lg"></i> <!-- Icône pour les utilisateurs -->
-        </div>
-        <div class="col-4 icon-container" (click)="setActiveTab('statistics')"
-            [class.active-tab]="activeTab === 'statistics'">
-            <i class="bi bi-bar-chart-line icon-lg"></i> <!-- Icône pour les statistiques -->
+            <i class="bi bi-people-fill icon-lg"></i>
         </div>
         <div class="col-4 icon-container" (click)="setActiveTab('projects')"
             [class.active-tab]="activeTab === 'projects'">
-            <i class="bi bi-card-checklist icon-lg"></i> <!-- Icône pour les projets à valider -->
+            <i class="bi bi-card-checklist icon-lg"></i>
+        </div>
+        <div class="col-4 icon-container" (click)="setActiveTab('statistics')"
+            [class.active-tab]="activeTab === 'statistics'">
+            <i class="bi bi-bar-chart-line icon-lg"></i>
         </div>
     </div>
 
-    <!-- Contenu dynamique en fonction de l'onglet actif -->
-    <div class="tab-content py-4">
-        <ng-container *ngIf="activeTab === 'users'">
-            <app-users></app-users>
-        </ng-container>
-        <ng-container *ngIf="activeTab === 'statistics'">
-            <app-stats></app-stats>
-        </ng-container>
-        <ng-container *ngIf="activeTab === 'projects'">
-            <app-projets></app-projets>
-        </ng-container>
+    <div class="row">
+        <!-- Affichage du nom du composant actif -->
+        <div class="bg-warning text-center text-dark">
+            <ng-container *ngIf="activeTab === 'users'">
+                <h5 class="text-black mb-4 text-center">Liste des utilisateurs</h5>
+            </ng-container>
+            <ng-container *ngIf="activeTab === 'projects'">
+                <h5 class="text-black mb-4 text-center">Liste des projets</h5>
+            </ng-container>
+            <ng-container *ngIf="activeTab === 'statistics'">
+                <h5 class="text-black mb-4 text-center">Statistiques</h5>
+            </ng-container>
+        </div>
+
+        <div>
+            <ng-container *ngIf="activeTab === 'users'">
+                <app-users></app-users>
+            </ng-container>
+            <ng-container *ngIf="activeTab === 'projects'">
+                <app-projets></app-projets>
+            </ng-container>
+            <ng-container *ngIf="activeTab === 'statistics'">
+                <app-stats></app-stats>
+            </ng-container>
+        </div>
     </div>
 </div>

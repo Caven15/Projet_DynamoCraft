@@ -1,3 +1,4 @@
+import { Categorie } from "./categorie.model";
 import { ImageProjet } from "./imageProjet.model";
 import { Statistique } from "./statistique.model";
 import { Statut } from "./statut.model";
@@ -17,6 +18,7 @@ export class Projet {
     utilisateur!: Utilisateur;
     statistique?: Statistique;
     statut?: Statut;
+    categorie?: Categorie;
     nombreApreciation: number;
     nbTelechargements: number;
 
@@ -33,6 +35,7 @@ export class Projet {
         utilisateur: Utilisateur,
         statistique: Statistique,
         statut: Statut,
+        categorie: Categorie,
         statistiqueId?: number,
         nombreApreciation: number = 0,
         nbTelechargements: number = 0
@@ -49,6 +52,7 @@ export class Projet {
         this.utilisateur = utilisateur;
         this.statistique = statistique;
         this.statut = statut;
+        this.categorie = categorie;
         this.id = id;
         this.nombreApreciation = nombreApreciation;
         this.nbTelechargements = nbTelechargements;

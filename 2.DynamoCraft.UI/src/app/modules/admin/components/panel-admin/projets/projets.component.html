@@ -1,1 +1,75 @@
-<p>projets works!</p>
+<div class="container-fluid bg-dc-2 px-0">
+    <div class="card shadow-lg bg-dark text-white rounded-custom mb-0">
+        <div class="card-body p-0">
+            <div class="input-group mb-3 p-3">
+                <button class="btn btn-outline-warning dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+                    {{ selectedFilterText }}
+                </button>
+                <ul class="dropdown-menu">
+                    <li><button class="dropdown-item" (click)="setFilter('all')">Tous</button></li>
+                    <li><button class="dropdown-item" (click)="setFilter('valide')">Valides</button></li>
+                    <li><button class="dropdown-item" (click)="setFilter('invalide')">Invalides</button></li>
+                    <li><button class="dropdown-item" (click)="setFilter('attente')">En attente</button></li>
+                </ul>
+                <input type="text" class="form-control bg-dark text-white border-warning"
+                    placeholder="Rechercher un projet..." [(ngModel)]="searchTerm" (input)="filterProjets()">
+                <button class="btn btn-outline-warning" type="button">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+            <div class="table-wrapper p-3">
+                <ng-container *ngIf="filteredProjets.length > 0; else noProjectsTemplate">
+                    <table class="table table-fixed-header custom-table table-striped table-dark mb-0">
+                        <thead>
+                            <tr class="text-gold text-center">
+                                <th scope="col" (click)="sortData('utilisateur.pseudo')">Pseudo
+                                    <i [class]="getSortIcon('utilisateur.pseudo')" class="fs-3 ms-2"></i>
+                                </th>
+                                <th scope="col" (click)="sortData('nom')">Nom projet
+                                    <i [class]="getSortIcon('nom')" class="fs-3 ms-2"></i>
+                                </th>
+                                <th scope="col" (click)="sortData('categorie.nom')">Catégories
+                                    <i [class]="getSortIcon('categorie.nom')" class="fs-3 ms-2"></i>
+                                </th>
+                                <th scope="col" (click)="sortData('statut.nom')">Statut
+                                    <i [class]="getSortIcon('statut.nom')" class="fs-3 ms-2"></i>
+                                </th>
+                                <th scope="col">Opérations</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let projet of filteredProjets; let i = index"
+                                [ngClass]="{'bg-dc': i % 2 === 0, 'bg-dc-2': i % 2 !== 0}"
+                                class="text-center align-middle">
+                                <td>{{ projet.utilisateur.pseudo }}</td>
+                                <td>{{ projet.nom }}</td>
+                                <td>{{ projet.categorie!.nom }}</td>
+                                <td>{{ projet.statut?.nom }}</td>
+                                <td>
+                                    <button class="btn btn-outline-warning btn-sm"
+                                        (click)="viewProjectDetails(projet.id)">
+                                        <i class="bi bi-eye text-white"></i>
+                                    </button>
+                                    <!-- Show validate button only if the project is in 'Invalide' or 'En attente' state -->
+                                    <button *ngIf="projet.statut?.nom === 'Invalide' || projet.statut?.nom === 'En attente'"
+                                            class="btn btn-outline-success btn-sm"
+                                            (click)="validateProject(projet.id)">
+                                        <i class="bi bi-check-circle text-white"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </ng-container>
+
+                <ng-template #noProjectsTemplate>
+                    <div class="no-projects p-5 text-center border border-warning">
+                        <i class="bi bi-folder-x-fill text-warning display-3"></i>
+                        <h5 class="text-warning mt-4">Aucun projet trouvé.</h5>
+                    </div>
+                </ng-template>
+            </div>
+        </div>
+    </div>
+</div>

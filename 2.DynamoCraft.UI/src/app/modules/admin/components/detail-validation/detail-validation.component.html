@@ -1,1 +1,130 @@
-<p>detail-validation works!</p>
+<div class="container min-vh-75 py-5 bg-dc-2">
+    <h2 class="text-center text-warning mb-4 display-4">{{ projet.nom }}</h2>
+
+    <!-- Section Images -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-dc rounded-custom shadow-lg w-100" [ngClass]="getValidationClass(isImageValid)">
+                <div class="card-header text-center text-warning">
+                    Images du projet ({{ activeIndex + 1 }}/{{ projet.imageProjet!.length }}) - {{
+                    projet.imageProjet![activeIndex].nom }}
+                </div>
+                <div id="imageCarousel" class="carousel slide rounded-custom" data-bs-interval="false">
+                    <div class="carousel-inner">
+                        <div class="carousel-item" *ngFor="let image of projet.imageProjet; let i = index"
+                            [class.active]="i === activeIndex">
+                            <div class="position-relative">
+                                <img [src]="url + image.nom" alt="{{ projet.nom }}"
+                                    class="d-block w-100 img-fluid rounded-custom"
+                                    style="max-height: 500px; object-fit: cover;">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" [disabled]="activeIndex === 0"
+                        (click)="navigateImages(-1)">
+                        <span class="carousel-control-prev-icon icon-highlight"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button"
+                        [disabled]="activeIndex === projet.imageProjet!.length - 1" (click)="navigateImages(1)">
+                        <span class="carousel-control-next-icon icon-highlight"></span>
+                    </button>
+                </div>
+                <div class="card-footer bg-dc-2 text-center">
+                    <div class="btn-group">
+                        <button class="btn btn-outline-success"
+                            (click)="toggleValidation('image', true)">Valide</button>
+                        <button class="btn btn-outline-danger"
+                            (click)="toggleValidation('image', false)">Invalide</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Modèles 3D -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-dc rounded-custom shadow-lg w-100" [ngClass]="getValidationClass(isModel3DValid)">
+                <div class="card-header text-center text-warning">
+                    Modèles 3D ({{ active3DModelIndex + 1 }}/{{ selected3DFiles.length }}) - {{
+                    selected3DFiles[active3DModelIndex].nom }}
+                </div>
+                <div id="model3DCarousel" class="carousel slide rounded-custom" data-bs-interval="false">
+                    <div class="carousel-inner">
+                        <div class="carousel-item" *ngFor="let model of selected3DFiles; let i = index"
+                            [class.active]="i === active3DModelIndex">
+                            <div class="position-relative">
+                                <div #threeContainer class="three-container" style="width: 100%; height: 500px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" [disabled]="active3DModelIndex === 0"
+                        (click)="navigate3DModel(-1)">
+                        <span class="carousel-control-prev-icon icon-highlight"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button"
+                        [disabled]="active3DModelIndex === selected3DFiles.length - 1" (click)="navigate3DModel(1)">
+                        <span class="carousel-control-next-icon icon-highlight"></span>
+                    </button>
+                </div>
+                <div class="card-footer bg-dc-2 text-center">
+                    <div class="btn-group">
+                        <button class="btn btn-outline-success"
+                            (click)="toggleValidation('model3D', true)">Valide</button>
+                        <button class="btn btn-outline-danger"
+                            (click)="toggleValidation('model3D', false)">Invalide</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Description -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-dc rounded-custom shadow-lg" [ngClass]="getValidationClass(isDescriptionValid)">
+                <div class="card-body">
+                    <h5 class="text-warning">Description :</h5>
+                    <p>{{ projet.description }}</p>
+                </div>
+                <div class="card-footer bg-dc-2 text-center">
+                    <div class="btn-group">
+                        <button class="btn btn-outline-success"
+                            (click)="toggleValidation('description', true)">Valide</button>
+                        <button class="btn btn-outline-danger"
+                            (click)="toggleValidation('description', false)">Invalide</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section de Validation Finale -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card bg-dc rounded-custom text-light shadow-lg w-100">
+                <div class="card-body text-center">
+                    <h5 class="text-warning mb-4">Statut Actuel du Projet</h5>
+                    <p class="text-warning font-dc">
+                        Statut:
+                        <span [ngClass]="{
+                            'text-success': finalDecision === 1,
+                            'text-danger': finalDecision === 2,
+                            'text-warning': finalDecision === 3
+                        }">
+                            {{ getStatutText() }}
+                        </span>
+                    </p>
+                    <p class="text-warning mt-2">Étapes :{{ validatedCount }}/3</p>
+                    <h5 class="text-warning">Commentaire</h5>
+                    <textarea class="form-control bg-dc-2 text-warning mb-4" [(ngModel)]="commentaireValidation"
+                        placeholder="Entrez un commentaire expliquant votre décision" rows="3"></textarea>
+                    <button class="btn btn-warning btn-lg shadow-lg" [disabled]="!canFinalize()"
+                        (click)="submitFinalDecision()">
+                        Soumettre la décision
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

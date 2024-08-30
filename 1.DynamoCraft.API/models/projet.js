@@ -13,7 +13,7 @@ module.exports = (sequelize) => {
             },
             nom: DataTypes.STRING,
             description: DataTypes.STRING,
-            estvalide: DataTypes.BOOLEAN,
+            estValide: DataTypes.BOOLEAN,
             commentaire_admin: DataTypes.STRING,
             statutId: DataTypes.INTEGER,
             statistiqueId: DataTypes.INTEGER,

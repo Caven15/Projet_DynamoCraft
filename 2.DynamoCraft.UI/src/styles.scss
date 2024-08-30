@@ -687,7 +687,7 @@ i {
     opacity: 1;
 }
 
-.hauteur-30{
+.hauteur-30 {
     min-height: 30vh;
 }
 
@@ -697,4 +697,61 @@ i {
 
 .card-hover:hover .hover-content {
     opacity: 1;
+}
+
+.custom-select-orange {
+    background-image: linear-gradient(45deg, transparent 50%, orange 50%),
+        linear-gradient(135deg, orange 50%, transparent 50%);
+    background-position: calc(100% - 20px) calc(1em + 5px), calc(100% - 15px) calc(1em + 5px);
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    color: #fff;
+    border-color: orange;
+    padding-right: 2.5rem;
+}
+
+.custom-select-orange:focus {
+    border-color: orange;
+    box-shadow: 0 0 0 0.25rem rgba(255, 165, 0, 0.25);
+}
+
+/* Empêche le changement de couleur de fond sur focus ou hover pour les inputs, selects et textareas */
+input.form-control,
+select.form-select,
+textarea.form-control {
+    background-color: var(--bs-dark);
+    /* Ou utilisez une couleur spécifique que vous souhaitez */
+    color: var(--bs-warning);
+    /* Ou utilisez la couleur de texte souhaitée */
+    border-color: var(--bs-dark);
+    /* Assurez-vous que la bordure reste conforme à votre thème */
+}
+
+/* Empêche le changement de couleur de fond sur focus */
+input.form-control:focus,
+select.form-select:focus,
+textarea.form-control:focus {
+    background-color: var(--bs-dark);
+    color: var(--bs-warning);
+    border-color: var(--bs-warning);
+    /* Assurez-vous que la bordure sur focus est cohérente avec votre thème */
+    box-shadow: none;
+    /* Supprime l'ombre par défaut */
+}
+
+/* Empêche le changement de couleur de fond sur hover */
+input.form-control:hover,
+select.form-select:hover,
+textarea.form-control:hover {
+    background-color: var(--bs-dark);
+    color: var(--bs-warning);
+    border-color: var(--bs-warning);
+    /* Assurez-vous que la bordure sur hover est cohérente avec votre thème */
+}
+
+/* Désactive les transitions de couleurs pour éviter les changements brusques */
+input.form-control,
+select.form-select,
+textarea.form-control {
+    transition: background-color 0s, color 0s, border-color 0s;
 }

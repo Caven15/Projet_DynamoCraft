@@ -236,8 +236,8 @@ export class ProjetService extends BaseApiService {
         );
     }
 
-    setValidProjet(Id: number): Observable<any> {
-        return this.put<any>(`projet/${Id}/valide`, {}).pipe(
+    setValidProjet(Id: number, commentaire_admin: string): Observable<any> {
+        return this.put<any>(`/projet/${Id}/valide`, { commentaire_admin }).pipe(
             tap({
                 next: () => console.log(`Le projet Id=${Id} a été mis à jour en "valide"`),
                 error: (error) => console.error(`Erreur lors de la mise à jour du projet en valide Id=${Id} :`, error)
@@ -246,8 +246,8 @@ export class ProjetService extends BaseApiService {
         );
     }
 
-    setInvalidProjet(Id: number): Observable<any> {
-        return this.put<any>(`projet/${Id}/invalide`, {}).pipe(
+    setInvalidProjet(Id: number, commentaire_admin: string): Observable<any> {
+        return this.put<any>(`/projet/${Id}/invalide`, { commentaire_admin }).pipe(
             tap({
                 next: () => console.log(`Le projet Id=${Id} a été mis à jour en "invalide"`),
                 error: (error) => console.error(`Erreur lors de la mise à jour du projet en invalide Id=${Id} :`, error)
@@ -256,8 +256,8 @@ export class ProjetService extends BaseApiService {
         );
     }
 
-    setPendingProjet(Id: number): Observable<any> {
-        return this.put<any>(`projet/${Id}/attente`, {}).pipe(
+    setPendingProjet(Id: number, commentaire_admin: string): Observable<any> {
+        return this.put<any>(`/projet/${Id}/attente`, { commentaire_admin }).pipe(
             tap({
                 next: () => console.log(`Le projet Id=${Id} a été mis à jour en "en attente"`),
                 error: (error) => console.error(`Erreur lors de la mise à jour du projet en attente Id=${Id} :`, error)

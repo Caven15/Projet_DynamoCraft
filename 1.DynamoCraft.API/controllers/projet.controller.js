@@ -133,7 +133,11 @@ exports.getAll = async (req, res, next) => {
     try {
         const projects = await dbConnector.Projet.findAll({
             include: [
-                { model: dbConnector.Statut, attributes: { exclude: ["id"] } },
+                {
+                    model: dbConnector.Statut,
+                    as: "statut",
+                    attributes: { exclude: ["id"] },
+                },
                 {
                     model: dbConnector.Statistique,
                     attributes: { exclude: ["id"] },
@@ -144,11 +148,8 @@ exports.getAll = async (req, res, next) => {
                 },
                 {
                     model: dbConnector.Utilisateur,
+                    as: "utilisateur",
                     attributes: { exclude: ["roleId"] },
-                },
-                {
-                    model: dbConnector.Utilisateur,
-                    attributes: { exclude: ["id", "password"] },
                 },
             ],
             attributes: {
@@ -161,7 +162,7 @@ exports.getAll = async (req, res, next) => {
             },
         });
         logMessage("Tous les projets récupérés avec succès", COLOR_GREEN);
-        return res.status(200).json({ projects });
+        return res.status(200).json(projects);
     } catch (error) {
         logMessage("Erreur lors de la récupération des projets", COLOR_RED);
         console.error("Erreur lors de la récupération des projets :", error);
@@ -379,7 +380,9 @@ exports.delete = async (req, res, next) => {
         await dbConnector.Modele3D.destroy({ where: { projetId: projectId } });
 
         // Supprimer tous ligne d'utilisateurProjet
-        await dbConnector.UtilisateurProjet.destroy({ where: { projetId: projectId } });
+        await dbConnector.UtilisateurProjet.destroy({
+            where: { projetId: projectId },
+        });
 
         // Supprimer le projet lui-même
         await projet.destroy();
@@ -464,9 +467,13 @@ exports.getValidProjet = async (req, res, next) => {
     logMessage("Début de la récupération des projets valides", COLOR_YELLOW);
     try {
         const projects = await dbConnector.Projet.findAll({
-            where: { estvalide: true },
+            where: { statutId: 1 },
             include: [
-                { model: dbConnector.Statut, attributes: { exclude: ["id"] } },
+                {
+                    model: dbConnector.Statut,
+                    as: "statut",
+                    attributes: { exclude: ["id"] },
+                },
                 {
                     model: dbConnector.Statistique,
                     attributes: { exclude: ["id"] },
@@ -477,13 +484,14 @@ exports.getValidProjet = async (req, res, next) => {
                 },
                 {
                     model: dbConnector.Utilisateur,
+                    as: "utilisateur",
                     attributes: { exclude: ["id", "password"] },
                 },
             ],
         });
 
         logMessage("Projets valides récupérés avec succès", COLOR_GREEN);
-        return res.status(200).json({ projects });
+        return res.status(200).json(projects);
     } catch (error) {
         logMessage(
             "Erreur lors de la récupération des projets valides",
@@ -506,7 +514,11 @@ exports.getInvalidProjet = async (req, res, next) => {
         const projects = await dbConnector.Projet.findAll({
             where: { statutId: 2 },
             include: [
-                { model: dbConnector.Statut, attributes: { exclude: ["id"] } },
+                {
+                    model: dbConnector.Statut,
+                    as: "statut",
+                    attributes: { exclude: ["id"] },
+                },
                 {
                     model: dbConnector.Statistique,
                     attributes: { exclude: ["id"] },
@@ -517,13 +529,14 @@ exports.getInvalidProjet = async (req, res, next) => {
                 },
                 {
                     model: dbConnector.Utilisateur,
+                    as: "utilisateur",
                     attributes: { exclude: ["id", "password"] },
                 },
             ],
         });
 
         logMessage("Projets invalides récupérés avec succès", COLOR_GREEN);
-        return res.status(200).json({ projects });
+        return res.status(200).json(projects);
     } catch (error) {
         logMessage(
             "Erreur lors de la récupération des projets invalides",
@@ -546,7 +559,11 @@ exports.getPendingProjet = async (req, res, next) => {
         const projects = await dbConnector.Projet.findAll({
             where: { statutId: 3 },
             include: [
-                { model: dbConnector.Statut, attributes: { exclude: ["id"] } },
+                {
+                    model: dbConnector.Statut,
+                    as: "statut",
+                    attributes: { exclude: ["id"] },
+                },
                 {
                     model: dbConnector.Statistique,
                     attributes: { exclude: ["id"] },
@@ -557,13 +574,14 @@ exports.getPendingProjet = async (req, res, next) => {
                 },
                 {
                     model: dbConnector.Utilisateur,
+                    as: "utilisateur",
                     attributes: { exclude: ["id", "password"] },
                 },
             ],
         });
 
         logMessage("Projets en attente récupérés avec succès", COLOR_GREEN);
-        return res.status(200).json({ projects });
+        return res.status(200).json(projects);
     } catch (error) {
         logMessage(
             "Erreur lors de la récupération des projets en attente",
@@ -581,12 +599,13 @@ exports.getPendingProjet = async (req, res, next) => {
 
 // Mettre à jour l'état d'un projet en "valide"
 exports.setValidProjet = async (req, res, next) => {
-    logMessage(
-        `Début de la mise à jour du projet avec ID: ${req.params.id} en "valide"`,
-        COLOR_YELLOW
-    );
+    logMessage(`Début de la mise à jour du projet avec ID: ${req.params.id} en "valide"`, COLOR_YELLOW);
     try {
         const projectId = req.params.id;
+        const { commentaire_admin } = req.body;  // Utilisation de camelCase
+
+        console.log(commentaire_admin);
+
         const project = await dbConnector.Projet.findByPk(projectId);
 
         if (!project) {
@@ -595,27 +614,18 @@ exports.setValidProjet = async (req, res, next) => {
         }
 
         await project.update({
-            estvalide: true,
+            estValide: 1,
             statutId: 1,
-            commentaire_admin: "Le projet a été validé.",
+            commentaire_admin: commentaire_admin || "Le projet a été validé.",  // Utilisation du commentaire reçu ou par défaut
         });
 
-        logMessage(
-            `Projet avec ID: ${req.params.id} mis à jour en "valide" avec succès`,
-            COLOR_GREEN
-        );
+        logMessage(`Projet avec ID: ${req.params.id} mis à jour en "valide" avec succès`, COLOR_GREEN);
         return res.status(200).json({
             message: `Le projet ${projectId} a été mis à jour en "valide".`,
         });
     } catch (error) {
-        logMessage(
-            "Erreur lors de la mise à jour du projet en valide",
-            COLOR_RED
-        );
-        console.error(
-            "Erreur lors de la mise à jour du projet en valide :",
-            error
-        );
+        logMessage("Erreur lors de la mise à jour du projet en valide", COLOR_RED);
+        console.error("Erreur lors de la mise à jour du projet en valide :", error);
         return res.status(500).json({
             message: "Erreur lors de la mise à jour du projet en valide.",
         });
@@ -624,12 +634,11 @@ exports.setValidProjet = async (req, res, next) => {
 
 // Mettre à jour l'état d'un projet en "invalide"
 exports.setInvalidProjet = async (req, res, next) => {
-    logMessage(
-        `Début de la mise à jour du projet avec ID: ${req.params.id} en "invalide"`,
-        COLOR_YELLOW
-    );
+    logMessage(`Début de la mise à jour du projet avec ID: ${req.params.id} en "invalide"`, COLOR_YELLOW);
     try {
         const projectId = req.params.id;
+        const { commentaire_admin } = req.body;
+
         const project = await dbConnector.Projet.findByPk(projectId);
 
         if (!project) {
@@ -638,27 +647,18 @@ exports.setInvalidProjet = async (req, res, next) => {
         }
 
         await project.update({
-            estvalide: false,
+            estValide: false,
             statutId: 2,
-            commentaire_admin: "Le projet a été invalidé.",
+            commentaire_admin: commentaire_admin || "Le projet a été invalidé.",
         });
 
-        logMessage(
-            `Projet avec ID: ${req.params.id} mis à jour en "invalide" avec succès`,
-            COLOR_GREEN
-        );
+        logMessage(`Projet avec ID: ${req.params.id} mis à jour en "invalide" avec succès`, COLOR_GREEN);
         return res.status(200).json({
             message: `Le projet ${projectId} a été mis à jour en "invalide".`,
         });
     } catch (error) {
-        logMessage(
-            "Erreur lors de la mise à jour du projet en invalide",
-            COLOR_RED
-        );
-        console.error(
-            "Erreur lors de la mise à jour du projet en invalide :",
-            error
-        );
+        logMessage("Erreur lors de la mise à jour du projet en invalide", COLOR_RED);
+        console.error("Erreur lors de la mise à jour du projet en invalide :", error);
         return res.status(500).json({
             message: "Erreur lors de la mise à jour du projet en invalide.",
         });
@@ -667,12 +667,11 @@ exports.setInvalidProjet = async (req, res, next) => {
 
 // Mettre à jour l'état d'un projet en "en attente"
 exports.setPendingProjet = async (req, res, next) => {
-    logMessage(
-        `Début de la mise à jour du projet avec ID: ${req.params.id} en "en attente"`,
-        COLOR_YELLOW
-    );
+    logMessage(`Début de la mise à jour du projet avec ID: ${req.params.id} en "en attente"`, COLOR_YELLOW);
     try {
         const projectId = req.params.id;
+        const { commentaire_admin } = req.body;
+
         const project = await dbConnector.Projet.findByPk(projectId);
 
         if (!project) {
@@ -681,32 +680,24 @@ exports.setPendingProjet = async (req, res, next) => {
         }
 
         await project.update({
-            estvalide: false,
+            estValide: false,
             statutId: 3,
-            commentaire_admin: "Le projet est en attente de validation.",
+            commentaire_admin: commentaire_admin || "Le projet est en attente de validation.",
         });
 
-        logMessage(
-            `Projet avec ID: ${req.params.id} mis à jour en "en attente" avec succès`,
-            COLOR_GREEN
-        );
+        logMessage(`Projet avec ID: ${req.params.id} mis à jour en "en attente" avec succès`, COLOR_GREEN);
         return res.status(200).json({
             message: `Le projet ${projectId} a été mis à jour en "en attente".`,
         });
     } catch (error) {
-        logMessage(
-            "Erreur lors de la mise à jour du projet en attente",
-            COLOR_RED
-        );
-        console.error(
-            "Erreur lors de la mise à jour du projet en attente :",
-            error
-        );
+        logMessage("Erreur lors de la mise à jour du projet en attente", COLOR_RED);
+        console.error("Erreur lors de la mise à jour du projet en attente :", error);
         return res.status(500).json({
             message: "Erreur lors de la mise à jour du projet en attente.",
         });
     }
 };
+
 
 // Incrémenter le nombre de likes pour un projet spécifique
 exports.incrementLike = async (req, res, next) => {
@@ -966,6 +957,7 @@ exports.getLast = async (req, res, next) => {
                 },
             ],
             where: { estvalide: true },
+            '$statut.nom$': 'Valide',
             attributes: {
                 exclude: [
                     "statutId",
