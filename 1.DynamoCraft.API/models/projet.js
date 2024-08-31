@@ -1,4 +1,3 @@
-// models/projet.js
 "use strict";
 const { Model, DataTypes } = require("sequelize");
 
@@ -11,10 +10,21 @@ module.exports = (sequelize) => {
                 primaryKey: true,
                 autoIncrement: true,
             },
-            nom: DataTypes.STRING,
-            description: DataTypes.STRING,
-            estValide: DataTypes.BOOLEAN,
-            commentaire_admin: DataTypes.STRING,
+            nom: {
+                type: DataTypes.STRING(255),
+                allowNull: false,
+                unique: true,
+            },
+            description: {
+                type: DataTypes.TEXT,
+            },
+            estValide: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false,
+            },
+            commentaire_admin: {
+                type: DataTypes.TEXT,
+            },
             statutId: DataTypes.INTEGER,
             statistiqueId: DataTypes.INTEGER,
             categorieId: DataTypes.INTEGER,

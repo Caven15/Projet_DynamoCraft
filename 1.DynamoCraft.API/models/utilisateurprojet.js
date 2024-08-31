@@ -1,8 +1,9 @@
 "use strict";
-const { Model } = require("sequelize");
+const { Model, DataTypes } = require("sequelize");
 
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize) => {
     class UtilisateurProjet extends Model {}
+
     UtilisateurProjet.init(
         {
             id: {
@@ -10,16 +11,35 @@ module.exports = (sequelize, DataTypes) => {
                 primaryKey: true,
                 autoIncrement: true,
             },
-            dateTelechargement: DataTypes.DATE,
-            utilisateurId: DataTypes.INTEGER,
-            projetId: DataTypes.INTEGER,
+            dateTelechargement: {
+                type: DataTypes.DATE,
+                allowNull: false,
+                defaultValue: DataTypes.NOW, // Définit la date de téléchargement par défaut à la date actuelle
+            },
+            utilisateurId: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                references: {
+                    model: "utilisateur",
+                    key: "id",
+                },
+            },
+            projetId: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                references: {
+                    model: "projet",
+                    key: "id",
+                },
+            },
         },
         {
             sequelize,
-            modelName: "utilisateurProjet",
+            modelName: "UtilisateurProjet",
             tableName: "utilisateurProjet",
             timestamps: false,
         }
     );
+
     return UtilisateurProjet;
 };

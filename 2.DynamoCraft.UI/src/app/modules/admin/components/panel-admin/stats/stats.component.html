@@ -1,1 +1,33 @@
-<p>stats works!</p>
+<div class="bg-dc-2">
+    <div class="row justify-content-center align-items-cente bg-warning text-center mb-0">
+        <div class="col-3 icon-container" (click)="setActiveTab('statut')" [class.active-tab]="activeTab === 'statut'">
+            <span class="text-black font-dc">Projets par Statut</span>
+        </div>
+        <div class="col-3 icon-container" (click)="setActiveTab('categorie')"
+            [class.active-tab]="activeTab === 'categorie'">
+            <span class="text-black font-dc">Projets par Catégorie</span>
+        </div>
+        <div class="col-3 icon-container" (click)="setActiveTab('top5')" [class.active-tab]="activeTab === 'top5'">
+            <span class="text-black font-dc">Top 5 des Projets</span>
+        </div>
+        <div class="col-3 icon-container" (click)="setActiveTab('evolution')"
+            [class.active-tab]="activeTab === 'evolution'">
+            <span class="text-black font-dc">Téléchargements</span>
+        </div>
+    </div>
+
+    <div>
+        <ng-container *ngIf="activeTab === 'statut'">
+            <app-projet-par-statut></app-projet-par-statut>
+        </ng-container>
+        <ng-container *ngIf="activeTab === 'categorie'">
+            <app-projet-par-categorie></app-projet-par-categorie>
+        </ng-container>
+        <ng-container *ngIf="activeTab === 'top5'">
+            <app-projet-top5></app-projet-top5>
+        </ng-container>
+        <ng-container *ngIf="activeTab === 'evolution'">
+            <app-projet-evolution></app-projet-evolution>
+        </ng-container>
+    </div>
+</div>

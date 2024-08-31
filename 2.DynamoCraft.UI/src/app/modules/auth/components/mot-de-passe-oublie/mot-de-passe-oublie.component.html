@@ -1,0 +1,31 @@
+<div class="container d-flex justify-content-center align-items-center min-vh-75">
+    <div class="col-md-6">
+        <div class="card p-4 shadow-lg bg-dc-2">
+            <h2 class="text-center text-warning mb-4 font-dc">Mot de passe oublié</h2>
+            <form [formGroup]="forgotPasswordForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+                <div class="form-floating mb-3">
+                    <input type="email" id="email" class="form-control" placeholder="name@example.com"
+                        formControlName="email"
+                        [class.is-invalid]="forgotPasswordForm.get('email')?.invalid && forgotPasswordForm.get('email')?.touched">
+                    <label for="email">Email</label>
+                    <div *ngIf="forgotPasswordForm.get('email')?.invalid && forgotPasswordForm.get('email')?.touched"
+                        class="invalid-feedback">
+                        Un email valide est requis.
+                    </div>
+                </div>
+
+                <!-- reCAPTCHA -->
+                <div class="captcha-container d-flex justify-content-center my-4">
+                    <app-google-captcha (captchaResolved)="onCaptchaResolved($event)"></app-google-captcha>
+                </div>
+
+                <div *ngIf="errorMessage" class="alert alert-danger text-center">
+                    {{ errorMessage }}
+                </div>
+
+                <button type="submit" class="btn btn-warning w-100 py-2 mt-3 font-dc"
+                    [disabled]="forgotPasswordForm.invalid || !captchaValid">Envoyer</button>
+            </form>
+        </div>
+    </div>
+</div>

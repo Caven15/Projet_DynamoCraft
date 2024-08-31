@@ -10,7 +10,9 @@ module.exports = {
                 type: Sequelize.INTEGER,
             },
             nom: {
-                type: Sequelize.STRING,
+                type: Sequelize.STRING(50),
+                allowNull: false,
+                unique: true,
             },
         });
     },

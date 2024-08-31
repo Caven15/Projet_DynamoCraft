@@ -35,7 +35,7 @@
                             <tr *ngFor="let utilisateur of filteredUtilisateurs; let i = index"
                                 [ngClass]="{'bg-dc': i % 2 === 0, 'bg-dc-2': i % 2 !== 0}"
                                 class="text-center align-middle">
-                                <td>{{ utilisateur.pseudo }}</td>
+                                <td>{{ utilisateur.pseudo | slice: 0 : 20 }}...</td>
                                 <td>{{ utilisateur.statutCompte ? 'Actif' : 'Désactivé' }}</td>
                                 <td>{{ utilisateur.totalDownloads }}</td>
                                 <td>{{ utilisateur.totalUploads }}</td>
@@ -65,6 +65,25 @@
                         <h5 class="text-warning mt-4">Aucun utilisateur trouvé.</h5>
                     </div>
                 </ng-template>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-center align-items-center mt-3 px-3">
+                <ul class="pagination mb-0">
+                    <li class="page-item" [ngClass]="{'disabled': currentPage === 1}">
+                        <a class="page-link" (click)="changePage(currentPage - 1)">Précédent</a>
+                    </li>
+                    <li class="page-item" *ngFor="let page of getPaginationPages()"
+                        [ngClass]="{'active': currentPage === page}">
+                        <a class="page-link" (click)="changePage(page)">{{ page }}</a>
+                    </li>
+                    <li class="page-item" [ngClass]="{'disabled': currentPage === getTotalPages()}">
+                        <a class="page-link" (click)="changePage(currentPage + 1)">Suivant</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="text-warning d-flex justify-content-center align-items-center">
+                Page {{ currentPage }} sur {{ getTotalPages() }}
             </div>
         </div>
     </div>

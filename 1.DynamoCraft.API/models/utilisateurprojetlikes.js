@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.INTEGER,
                 allowNull: false,
                 references: {
-                    model: "utilisateur", // Table utilisateur en minuscule
+                    model: "utilisateur",
                     key: "id",
                 },
             },
@@ -22,13 +22,18 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.INTEGER,
                 allowNull: false,
                 references: {
-                    model: "projet", // Table projet en minuscule
+                    model: "projet",
                     key: "id",
                 },
             },
             dateLike: {
                 type: DataTypes.DATE,
                 defaultValue: DataTypes.NOW,
+                allowNull: false,
+                validate: {
+                    isDate: true,
+                    isBefore: new Date().toISOString(),
+                },
             },
         },
         {
@@ -36,6 +41,13 @@ module.exports = (sequelize, DataTypes) => {
             modelName: "UtilisateurProjetLike",
             tableName: "utilisateurProjetLike",
             timestamps: false,
+            indexes: [
+                {
+                    unique: true,
+                    fields: ["utilisateurId", "projetId"],
+                    name: "unique_utilisateur_projet_like",
+                },
+            ],
         }
     );
     return UtilisateurProjetLike;

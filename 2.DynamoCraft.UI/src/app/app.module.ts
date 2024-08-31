@@ -20,6 +20,8 @@ import { ConditionsUtilisationComponent } from './components/conditions-utilisat
 import { UtilisateurModule } from './modules/utilisateur/utilisateur.module';
 import { ProjetModule } from './modules/projet/projet.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { NgChartsModule } from 'ng2-charts';
+import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha';
 
 @NgModule({
     declarations: [
@@ -44,7 +46,10 @@ import { AdminModule } from './modules/admin/admin.module';
         AuthModule,
         UtilisateurModule,
         ProjetModule,
-        AdminModule
+        AdminModule,
+        NgChartsModule,
+        RecaptchaModule,
+        RecaptchaFormsModule
     ],
     providers: [
         provideClientHydration(),

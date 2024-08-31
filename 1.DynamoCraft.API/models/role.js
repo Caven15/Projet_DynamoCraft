@@ -10,7 +10,15 @@ module.exports = (sequelize, DataTypes) => {
                 primaryKey: true,
                 autoIncrement: true,
             },
-            nom: DataTypes.STRING,
+            nom: {
+                type: DataTypes.STRING(50),
+                allowNull: false,
+                unique: true,
+                validate: {
+                    notEmpty: true, 
+                    len: [1, 50],
+                },
+            },
         },
         {
             sequelize,

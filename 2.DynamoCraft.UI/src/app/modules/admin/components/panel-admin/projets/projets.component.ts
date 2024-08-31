@@ -19,6 +19,11 @@ export class ProjetsComponent implements OnInit {
     sortColumn: string = 'nom';
     sortDirection: 'asc' | 'desc' = 'asc';
 
+    // Variables pour la pagination
+    itemsPerPage: number = 10;  // Nombre d'éléments par page
+    currentPage: number = 1;    // Page courante
+    maxPageButtons: number = 5; // Nombre maximum de boutons de pages à afficher
+
     constructor(
         private projetService: ProjetService,
         private router: Router
@@ -46,59 +51,40 @@ export class ProjetsComponent implements OnInit {
     loadProjets(): void {
         console.log(`Chargement des projets pour le filtre : ${this.selectedFilter}`);
 
+        let projectObservable;
+
         if (this.selectedFilter === 'valide') {
-            this.projetService.getValidProjet().subscribe({
-                next: (projets) => {
-                    console.log('Projets valides récupérés :', projets);
-                    this.projets = projets.filter(projet => projet.nom);
-                    this.filterProjets();
-                },
-                error: (error) => {
-                    console.error('Erreur lors de la récupération des projets valides :', error);
-                }
-            });
+            projectObservable = this.projetService.getValidProjet();
         } else if (this.selectedFilter === 'invalide') {
-            this.projetService.getInvalidProjet().subscribe({
-                next: (projets) => {
-                    console.log('Projets invalides récupérés :', projets);
-                    this.projets = projets.filter(projet => projet.nom);
-                    this.filterProjets();
-                },
-                error: (error) => {
-                    console.error('Erreur lors de la récupération des projets invalides :', error);
-                }
-            });
+            projectObservable = this.projetService.getInvalidProjet();
         } else if (this.selectedFilter === 'attente') {
-            this.projetService.getPendingProjet().subscribe({
-                next: (projets) => {
-                    console.log('Projets en attente récupérés :', projets);
-                    this.projets = projets.filter(projet => projet.nom);
-                    this.filterProjets();
-                },
-                error: (error) => {
-                    console.error('Erreur lors de la récupération des projets en attente :', error);
-                }
-            });
+            projectObservable = this.projetService.getPendingProjet();
         } else {
-            this.projetService.getAllProjets().subscribe({
-                next: (projets) => {
-                    console.log('Tous les projets récupérés :', projets);
-                    this.projets = projets.filter(projet => projet.nom);
-                    this.filterProjets();
-                },
-                error: (error) => {
-                    console.error('Erreur lors de la récupération de tous les projets :', error);
-                }
-            });
+            projectObservable = this.projetService.getAllProjets();
         }
+
+        projectObservable.subscribe({
+            next: (projets) => {
+                console.log(`Projets récupérés :`, projets);
+                this.projets = projets.filter(projet => projet.nom);
+                this.filterProjets();
+            },
+            error: (error) => {
+                console.error('Erreur lors de la récupération des projets :', error);
+            }
+        });
     }
 
     filterProjets(): void {
-        this.filteredProjets = this.projets.filter(projet =>
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        const endIndex = startIndex + this.itemsPerPage;
+
+        const filtered = this.projets.filter(projet =>
             projet.nom && projet.nom.toLowerCase().includes(this.searchTerm.toLowerCase())
         );
+
+        this.filteredProjets = filtered.slice(startIndex, endIndex);
         this.sortData(this.sortColumn); // Appliquer le tri après le filtrage
-        console.log('Projets filtrés :', this.filteredProjets);
     }
 
     sortData(column: string): void {
@@ -133,6 +119,30 @@ export class ProjetsComponent implements OnInit {
             return this.sortDirection === 'asc' ? 'bi-sort-up' : 'bi-sort-down';
         }
         return 'bi-sort';
+    }
+
+    changePage(page: number): void {
+        if (page > 0 && page <= this.getTotalPages()) {
+            this.currentPage = page;
+            this.filterProjets();
+        }
+    }
+
+    getTotalPages(): number {
+        return Math.ceil(this.projets.length / this.itemsPerPage);
+    }
+
+    getPaginationPages(): number[] {
+        const totalPages = this.getTotalPages();
+        const halfMax = Math.floor(this.maxPageButtons / 2);
+        let startPage = Math.max(1, this.currentPage - halfMax);
+        let endPage = Math.min(totalPages, startPage + this.maxPageButtons - 1);
+
+        if (endPage - startPage < this.maxPageButtons - 1) {
+            startPage = Math.max(1, endPage - this.maxPageButtons + 1);
+        }
+
+        return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
     }
 
     viewProjectDetails(projetId: number): void {

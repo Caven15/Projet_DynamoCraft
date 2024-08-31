@@ -86,9 +86,9 @@ export class BaseApiService {
      */
     protected handleError<T>(operation = 'operation', result?: T) {
         return (error: HttpErrorResponse): Observable<T> => {
-            let errorMessage = `${operation} a échoué: ${error.message}`;
+            let errorMessage = `${error.message}`;
             if (error.error && error.error.message) {
-                errorMessage = `${operation} a échoué: ${error.error.message}`;
+                errorMessage = `${error.error.message}`;
             }
 
             console.error(errorMessage);

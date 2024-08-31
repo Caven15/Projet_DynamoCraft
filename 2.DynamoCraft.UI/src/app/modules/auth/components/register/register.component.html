@@ -97,9 +97,14 @@
                     </div>
                 </div>
 
+                <!-- reCAPTCHA -->
+                <div class="captcha-container d-flex justify-content-center my-4">
+                    <app-google-captcha (captchaResolved)="onCaptchaResolved($event)"></app-google-captcha>
+                </div>
+
                 <!-- Bouton de soumission -->
                 <button type="submit" class="btn btn-warning w-100 py-2 mt-3 font-dc"
-                    [disabled]="registerForm.invalid">Créer un compte</button>
+                    [disabled]="registerForm.invalid || !captchaValid">Créer un compte</button>
 
             </form>
         </div>

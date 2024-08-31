@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../tools/services/api/auth.service';
@@ -11,7 +11,9 @@ import { AuthService } from '../../../../tools/services/api/auth.service';
 export class LoginComponent implements OnInit {
     loginForm!: FormGroup;
     errorMessage: string = '';
-    isPasswordVisible: boolean = false; // État pour gérer la visibilité du mot de passe
+    isPasswordVisible: boolean = false;
+    captchaValid: boolean = false;
+    captchaResponse: string = '';
 
     constructor(
         private fb: FormBuilder,
@@ -30,28 +32,31 @@ export class LoginComponent implements OnInit {
         });
     }
 
-    // Fonction pour basculer la visibilité du mot de passe
     togglePasswordVisibility(): void {
         this.isPasswordVisible = !this.isPasswordVisible;
     }
 
-    // Fonction soumise au moment de la connexion
+    onCaptchaResolved(captchaResponse: string | null): void {
+        this.captchaResponse = captchaResponse || '';
+        this.captchaValid = !!captchaResponse;
+    }
+
     onSubmit(): void {
-        if (this.loginForm.invalid) {
-            this.errorMessage = 'Le formulaire est invalide';
+        if (this.loginForm.invalid || !this.captchaValid) {
+            this.errorMessage = 'Le formulaire est invalide ou le captcha n\'a pas été validé';
             return;
         }
 
         const { email, password } = this.loginForm.value;
 
-        this.authService.login(email, password).subscribe({
+        this.authService.login(email, password, this.captchaResponse).subscribe({
             next: (response) => {
                 console.log('Connexion réussie:', response);
-                this.router.navigate(['/home']); // Redirection après la connexion
+                this.router.navigate(['/home']);
             },
             error: (err) => {
                 console.error('Erreur de connexion:', err);
-                this.errorMessage = 'Email ou mot de passe incorrect';
+                this.errorMessage = err
             },
         });
     }

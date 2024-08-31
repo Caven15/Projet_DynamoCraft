@@ -29,7 +29,7 @@ export class DetailValidationComponent implements OnInit {
 
     finalDecision: number = 3; // 1: Valide, 2: Invalide, 3: En attente
     commentaireValidation: string = '';
-    validatedCount: number = 0;  // Ajout de la propriété validatedCount
+    validatedCount: number = 0;
 
     constructor(
         private projetService: ProjetService,
@@ -49,7 +49,7 @@ export class DetailValidationComponent implements OnInit {
         this.projetService.getProjetById(id).subscribe(projet => {
             this.projet = projet;
             this.projet.imageProjet = this.projet.imageProjet || [];
-            this.updateFinalDecision(); // Mettre à jour la décision finale en fonction des validations
+            this.updateFinalDecision();
         });
     }
 
@@ -157,8 +157,25 @@ export class DetailValidationComponent implements OnInit {
 
     submitFinalDecision(): void {
         if (this.canFinalize()) {
-            console.log('Décision finale soumise:', this.finalDecision);
-            this.router.navigate(['/projet/validation-summary']);
+            switch (this.finalDecision) {
+                case 1: // Valide
+                    this.projetService.setValidProjet(this.projet.id, this.commentaireValidation).subscribe(() => {
+                        this.router.navigate(['/admin/panel']);
+                    });
+                    break;
+                case 2: // Invalide
+                    this.projetService.setInvalidProjet(this.projet.id, this.commentaireValidation).subscribe(() => {
+                        this.router.navigate(['/admin/panel']);
+                    });
+                    break;
+                case 3: // En attente
+                    this.projetService.setPendingProjet(this.projet.id, this.commentaireValidation).subscribe(() => {
+                        this.router.navigate(['/admin/panel']);
+                    });
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

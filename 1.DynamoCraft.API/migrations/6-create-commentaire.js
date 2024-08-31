@@ -10,7 +10,8 @@ module.exports = {
                 type: Sequelize.INTEGER,
             },
             description: {
-                type: Sequelize.STRING,
+                type: Sequelize.TEXT, // Utilisation de TEXT pour des commentaires plus longs
+                allowNull: false, // Obliger la présence d'une description
             },
             dateCreation: {
                 allowNull: false,
@@ -25,22 +26,20 @@ module.exports = {
             projetId: {
                 type: Sequelize.INTEGER,
                 references: {
-                    model: {
-                        tableName: "projet",
-                    },
+                    model: "projet",
                     key: "id",
                 },
                 allowNull: false,
+                onDelete: "CASCADE", 
             },
             utilisateurId: {
                 type: Sequelize.INTEGER,
                 references: {
-                    model: {
-                        tableName: "utilisateur",
-                    },
+                    model: "utilisateur",
                     key: "id",
                 },
                 allowNull: false,
+                onDelete: "CASCADE",
             },
         });
     },

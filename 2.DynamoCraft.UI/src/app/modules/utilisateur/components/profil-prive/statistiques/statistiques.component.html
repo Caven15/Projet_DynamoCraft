@@ -4,7 +4,6 @@
         <h5 class="text-warning mb-4 text-center">Statistiques générales :</h5>
         <p>Nombre total de modèles ajoutés : {{ totalModelsAdded }}</p>
         <p>Nombre total de modèles téléchargés : {{ totalModelsDownloaded }}</p>
-        <p>Nombre de modèles téléchargés au cours des 7 derniers jours : {{ modelsDownloadedLast7Days }}</p>
         <p>Total des commentaires laissés sur les modèles : {{ totalComments }}</p>
         <p>Total appréciations reçues : {{ totalLikesReceived }}</p>
         <p>Total appréciations données : {{ totalLikesGiven }}</p>
@@ -81,17 +80,22 @@
                                     Projet
                                     <i [class]="getSortIcon('projet.nom', 'recentComments')" class="fs-3 ms-2"></i>
                                 </th>
-                                <th scope="col">Commentaire</th>
+                                <th scope="col" colspan="2">Commentaire</th> <!-- colspan ajouté -->
                                 <th scope="col">Détails</th>
                             </tr>
                         </thead>
+
+
+
                         <tbody>
                             <tr *ngFor="let comment of recentComments; let i = index"
                                 [ngClass]="{'bg-dc': i % 2 === 0, 'bg-dc-2': i % 2 !== 0}"
                                 class="text-center align-middle">
                                 <td>{{ comment.dateCreation | date: 'dd/MM/yyyy' }}</td>
                                 <td>{{ comment.projet!.nom }}</td>
-                                <td>{{ comment.description | slice: 0:50 }}...</td>
+                                <td colspan="2"> <textarea class="form-control bg-dark text-light" rows="2" readonly
+                                        [ngStyle]="{'resize': 'none'}">{{ comment.description | slice: 0:50 || 'Pas de commentaire' }}</textarea>
+                                </td> <!-- colspan ajouté -->
                                 <td>
                                     <button class="btn btn-outline-warning btn-sm"
                                         (click)="viewComment(comment.projetId, comment.id)">

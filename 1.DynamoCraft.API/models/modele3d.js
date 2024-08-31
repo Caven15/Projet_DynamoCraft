@@ -10,15 +10,35 @@ module.exports = (sequelize, DataTypes) => {
                 primaryKey: true,
                 autoIncrement: true,
             },
-            nom: DataTypes.STRING,
-            dateCreation: DataTypes.DATE,
-            dateModif: DataTypes.DATE,
-            projetId: DataTypes.INTEGER,
+            nom: {
+                type: DataTypes.STRING(255), 
+                allowNull: false,
+            },
+            dateCreation: {
+                type: DataTypes.DATE,
+                allowNull: false,
+                defaultValue: DataTypes.NOW,
+            },
+            dateModif: {
+                type: DataTypes.DATE,
+                allowNull: false,
+                defaultValue: DataTypes.NOW,
+            },
+            projetId: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                references: {
+                    model: "projet",
+                    key: "id",
+                },
+                onDelete: "CASCADE",
+                onUpdate: "CASCADE",
+            },
         },
         {
             sequelize,
-            modelName: "modele3D",
-            tableName: "modele3D",
+            modelName: "Modele3D",
+            tableName: "modele3d",
             timestamps: false,
         }
     );

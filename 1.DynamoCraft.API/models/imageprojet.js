@@ -10,14 +10,30 @@ module.exports = (sequelize, DataTypes) => {
                 primaryKey: true,
                 autoIncrement: true,
             },
-            nom: DataTypes.STRING,
-            dateCreation: DataTypes.DATE,
-            dateModif: DataTypes.DATE,
-            projetId: DataTypes.INTEGER,
+            nom: {
+                type: DataTypes.STRING(255),
+                allowNull: false,
+            },
+            dateCreation: {
+                type: DataTypes.DATE,
+                allowNull: false,
+            },
+            dateModif: {
+                type: DataTypes.DATE,
+                allowNull: false,
+            },
+            projetId: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                references: {
+                    model: "Projet",
+                    key: "id",
+                },
+            },
         },
         {
             sequelize,
-            modelName: "imageProjet",
+            modelName: "ImageProjet",
             tableName: "imageProjet",
             timestamps: false,
         }

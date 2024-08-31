@@ -10,10 +10,24 @@ module.exports = (sequelize, DataTypes) => {
                 primaryKey: true,
                 autoIncrement: true,
             },
-            nombreApreciation: DataTypes.INTEGER,
-            nombreTelechargement: DataTypes.INTEGER,
-            datePublication: DataTypes.DATE,
-            dateModification: DataTypes.DATE,
+            nombreApreciation: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                defaultValue: 0,
+            },
+            nombreTelechargement: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                defaultValue: 0,
+            },
+            datePublication: {
+                type: DataTypes.DATE,
+                allowNull: false,
+            },
+            dateModification: {
+                type: DataTypes.DATE,
+                allowNull: false,
+            },
         },
         {
             sequelize,

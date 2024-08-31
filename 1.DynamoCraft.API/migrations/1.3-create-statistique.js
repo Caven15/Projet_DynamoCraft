@@ -1,6 +1,5 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-    version: 3,
     async up(queryInterface, Sequelize) {
         await queryInterface.createTable("statistique", {
             id: {
@@ -11,15 +10,21 @@ module.exports = {
             },
             nombreApreciation: {
                 type: Sequelize.INTEGER,
+                allowNull: false,
+                defaultValue: 0,
             },
             nombreTelechargement: {
                 type: Sequelize.INTEGER,
+                allowNull: false,
+                defaultValue: 0,
             },
             datePublication: {
                 type: Sequelize.DATE,
+                allowNull: false,
             },
             dateModification: {
                 type: Sequelize.DATE,
+                allowNull: false,
             },
         });
     },

@@ -1,0 +1,17 @@
+<div class="btn-group d-flex justify-content-center my-3" role="group">
+    <button type="button" class="btn btn-lg btn-outline-warning" [ngClass]="{'active': selectedView === 'month'}"
+        (click)="changeView('month')">
+        <i class="bi bi-calendar3"></i> Par Mois
+    </button>
+    <button type="button" class="btn btn-lg btn-outline-warning" [ngClass]="{'active': selectedView === 'week'}"
+        (click)="changeView('week')">
+        <i class="bi bi-calendar-week"></i> Par Semaine
+    </button>
+    <button type="button" class="btn btn-lg btn-outline-warning" [ngClass]="{'active': selectedView === 'day'}"
+        (click)="changeView('day')">
+        <i class="bi bi-calendar-day"></i> Par Jour
+    </button>
+</div>
+
+<h5 class="text-warning text-center mt-4">Évolution des Téléchargements</h5>
+<canvas id="downloadsEvolutionChart" style="height: 23vh;"></canvas>

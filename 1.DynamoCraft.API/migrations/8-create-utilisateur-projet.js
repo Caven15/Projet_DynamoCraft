@@ -11,27 +11,37 @@ module.exports = {
             },
             dateTelechargement: {
                 type: Sequelize.DATE,
+                allowNull: false,
+                defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
             },
             utilisateurId: {
                 type: Sequelize.INTEGER,
+                allowNull: false,
                 references: {
                     model: {
                         tableName: "utilisateur",
                     },
                     key: "id",
                 },
-                allowNull: false,
+                onDelete: "CASCADE", // Supprimez la relation si l'utilisateur est supprimé
             },
             projetId: {
                 type: Sequelize.INTEGER,
+                allowNull: false,
                 references: {
                     model: {
                         tableName: "projet",
                     },
                     key: "id",
                 },
-                allowNull: false,
+                onDelete: "CASCADE", // Supprimez la relation si le projet est supprimé
             },
+        });
+
+        await queryInterface.addConstraint("utilisateurProjet", {
+            fields: ["utilisateurId", "projetId"],
+            type: "unique",
+            name: "unique_utilisateur_projet",
         });
     },
     async down(queryInterface, Sequelize) {

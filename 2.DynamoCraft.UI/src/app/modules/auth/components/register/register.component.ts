@@ -13,9 +13,11 @@ export class RegisterComponent implements OnInit {
     registerForm!: FormGroup;
     imagePreview: string | ArrayBuffer | null = null;
     selectedFile!: File | null;
-    isPasswordVisible: boolean = false;  // Pour basculer la visibilité du mot de passe
-    defaultImage: string = 'assets/png/logo.png';  // Image par défaut
-    passwordMismatch: boolean = false;  // Pour indiquer si les mots de passe correspondent
+    isPasswordVisible: boolean = false;
+    defaultImage: string = 'assets/png/logo.png';
+    passwordMismatch: boolean = false;
+    captchaValid: boolean = false;
+    captchaResponse: string = '';
 
     constructor(
         private fb: FormBuilder,
@@ -24,7 +26,6 @@ export class RegisterComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
-        // Initialisation du formulaire avec les validations
         this.registerForm = this.fb.group({
             pseudo: ['', Validators.required],
             email: ['', [Validators.required, Validators.email]],
@@ -37,7 +38,6 @@ export class RegisterComponent implements OnInit {
         }, { validators: this.passwordMatchValidator });
     }
 
-    // Validator personnalisé pour vérifier que les mots de passe correspondent
     passwordMatchValidator(formGroup: FormGroup): any {
         const password = formGroup.get('password')?.value;
         const confirmPassword = formGroup.get('confirmPassword')?.value;
@@ -49,18 +49,15 @@ export class RegisterComponent implements OnInit {
         return null;
     }
 
-    // Méthode pour basculer la visibilité du mot de passe
     togglePasswordVisibility(): void {
         this.isPasswordVisible = !this.isPasswordVisible;
     }
 
-    // Méthode pour ouvrir la boîte de dialogue de fichier lorsque l'utilisateur clique sur le bouton "+" ou l'icône de mise à jour
     triggerFileInput(): void {
         const fileInputElement = document.getElementById('image') as HTMLInputElement;
         fileInputElement.click();
     }
 
-    // Gestion de la sélection de fichier et de la prévisualisation de l'image
     onFileSelected(event: Event): void {
         const fileInput = event.target as HTMLInputElement;
         if (fileInput.files && fileInput.files.length > 0) {
@@ -74,24 +71,26 @@ export class RegisterComponent implements OnInit {
         }
     }
 
+    onCaptchaResolved(captchaResponse: string | null): void {
+        this.captchaResponse = captchaResponse || '';
+        this.captchaValid = !!captchaResponse;
+    }
+
     onSubmit(): void {
-        if (this.registerForm.invalid) {
+        if (this.registerForm.invalid || !this.captchaValid) {
             return;
         }
 
-        // Vérifier si les mots de passe correspondent
         if (this.registerForm.get('password')?.value !== this.registerForm.get('confirmPassword')?.value) {
             this.passwordMismatch = true;
             return;
         }
 
-        // Création de FormData pour envoyer à l'API
         const formData = new FormData();
         formData.append('pseudo', this.registerForm.get('pseudo')?.value || '');
         formData.append('email', this.registerForm.get('email')?.value);
         formData.append('password', this.registerForm.get('password')?.value);
 
-        // Convertir dateNaissance en objet Date et en chaîne ISO
         const dateNaissanceValue = this.registerForm.get('dateNaissance')?.value;
         const dateNaissance = dateNaissanceValue ? new Date(dateNaissanceValue).toISOString() : '';
         formData.append('dateNaissance', dateNaissance);
@@ -103,9 +102,13 @@ export class RegisterComponent implements OnInit {
             formData.append('image', this.selectedFile, this.selectedFile.name);
         }
 
+        formData.append('recaptchaToken', this.captchaResponse); // Ajouter le token reCAPTCHA au formulaire
+
         this.authService.register(formData).subscribe({
             next: () => {
                 alert('Inscription réussie');
+                this.registerForm.reset();
+                this.captchaValid = false; // Réinitialiser l'état du captcha après la soumission
                 this.router.navigate(['/login']);
             },
             error: (error) => {

@@ -850,6 +850,9 @@ exports.getTop10Liked = async (req, res, next) => {
     );
     try {
         const topProjects = await dbConnector.Projet.findAll({
+            where: {
+                estValide: true, // Ajout de la condition pour n'inclure que les projets validés
+            },
             include: [
                 {
                     model: dbConnector.Statistique,
@@ -857,7 +860,7 @@ exports.getTop10Liked = async (req, res, next) => {
                 },
                 {
                     model: dbConnector.Statut,
-                    as: "statut", // Utilisation de l'alias défini pour la relation
+                    as: "statut",
                     attributes: ["nom"],
                     where: {
                         nom: "Valide", // Filtre basé sur le statut "Valide"
@@ -869,19 +872,19 @@ exports.getTop10Liked = async (req, res, next) => {
                 },
                 {
                     model: dbConnector.Utilisateur,
-                    as: "utilisateur", // Utilisation de l'alias défini pour la relation
+                    as: "utilisateur",
                     attributes: ["pseudo", "id"],
                     include: [
                         {
                             model: dbConnector.ImageUtilisateur,
-                            attributes: ["nom"], // Inclure l'image utilisateur liée
+                            attributes: ["nom"],
                         },
                     ],
                 },
                 {
                     model: dbConnector.ImageProjet,
-                    as: "imageProjet", // Utilisation de l'alias défini pour la relation
-                    attributes: ["nom", "dateCreation"], // Inclure l'image du projet
+                    as: "imageProjet",
+                    attributes: ["nom", "dateCreation"],
                 },
             ],
             attributes: {
@@ -922,6 +925,7 @@ exports.getTop10Liked = async (req, res, next) => {
         });
     }
 };
+
 
 // Récupérer les 16 derniers projets créés
 exports.getLast = async (req, res, next) => {
@@ -1015,10 +1019,10 @@ exports.search = async (req, res, next) => {
                 {
                     [Op.or]: [
                         { nom: { [Op.like]: `%${keyword}%` } },
-                        { description: { [Op.like]: `%${keyword}%` } },
+                        { description: { [Op.like]: `%${keyword}%` } }
                     ],
                 },
-                { categorieId: 1 },
+                { estValide: true },  // Ajout de cette ligne pour exclure les projets non valides
             ],
         };
 
@@ -1064,11 +1068,11 @@ exports.search = async (req, res, next) => {
             offset: parseInt(offset),
         });
 
-        const remainingItems = count - offset; // Combien d'éléments sont encore disponibles
+        const remainingItems = count - offset;
 
         let adjustedLimit = limit;
         if (remainingItems < limit) {
-            adjustedLimit = remainingItems; // Ajuste la limite pour la dernière page
+            adjustedLimit = remainingItems;
         }
 
         logMessage(`Offset: ${offset}, Limit: ${adjustedLimit}`, COLOR_YELLOW);
@@ -1087,6 +1091,7 @@ exports.search = async (req, res, next) => {
             .json({ message: "Erreur lors de la recherche des projets" });
     }
 };
+
 
 // Récupérer les projets téléchargés par un utilisateur
 exports.getDownloadedByUser = async (req, res, next) => {

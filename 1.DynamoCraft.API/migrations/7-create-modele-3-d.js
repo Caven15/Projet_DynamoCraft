@@ -10,7 +10,8 @@ module.exports = {
                 type: Sequelize.INTEGER,
             },
             nom: {
-                type: Sequelize.STRING,
+                type: Sequelize.STRING(255),
+                allowNull: false,
             },
             dateCreation: {
                 allowNull: false,
@@ -20,7 +21,9 @@ module.exports = {
             dateModif: {
                 allowNull: false,
                 type: Sequelize.DATE,
-                defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+                defaultValue: Sequelize.literal(
+                    "CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+                ),
             },
             projetId: {
                 type: Sequelize.INTEGER,
@@ -31,6 +34,8 @@ module.exports = {
                     key: "id",
                 },
                 allowNull: false,
+                onDelete: "CASCADE",
+                onUpdate: "CASCADE",
             },
         });
     },

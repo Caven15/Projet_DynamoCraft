@@ -10,17 +10,19 @@ module.exports = {
                 type: Sequelize.INTEGER,
             },
             nom: {
+                type: Sequelize.STRING(255),
+                allowNull: false,
                 unique: true,
-                type: Sequelize.STRING,
             },
             description: {
-                type: Sequelize.STRING,
+                type: Sequelize.TEXT, 
             },
             estvalide: {
                 type: Sequelize.BOOLEAN,
+                defaultValue: false,
             },
             commentaire_admin: {
-                type: Sequelize.STRING,
+                type: Sequelize.TEXT, 
             },
             statutId: {
                 type: Sequelize.INTEGER,

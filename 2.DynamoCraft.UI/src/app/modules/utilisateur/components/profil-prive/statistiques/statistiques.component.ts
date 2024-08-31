@@ -15,7 +15,6 @@ import { UtilisateurService } from '../../../../../tools/services/api/utilisateu
 export class StatistiquesComponent implements OnInit {
     totalModelsAdded: number | undefined = 0;
     totalModelsDownloaded: number | undefined = 0;
-    modelsDownloadedLast7Days: number | undefined = 0;
     totalComments: number | undefined = 0;
     totalLikesReceived: number | undefined = 0;
     totalLikesGiven: number | undefined = 0;

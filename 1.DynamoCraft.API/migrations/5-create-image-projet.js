@@ -10,7 +10,8 @@ module.exports = {
                 type: Sequelize.INTEGER,
             },
             nom: {
-                type: Sequelize.STRING,
+                type: Sequelize.STRING(255), // Limite de taille définie
+                allowNull: false,
             },
             dateCreation: {
                 allowNull: false,
@@ -33,6 +34,9 @@ module.exports = {
                 allowNull: false,
             },
         });
+
+        // Ajout d'un index sur projetId pour améliorer les performances de requête
+        await queryInterface.addIndex('imageProjet', ['projetId']);
     },
     async down(queryInterface, Sequelize) {
         await queryInterface.dropTable("imageProjet");

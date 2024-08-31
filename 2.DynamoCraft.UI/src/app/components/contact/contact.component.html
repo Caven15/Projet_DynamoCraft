@@ -3,7 +3,7 @@
         <div class="card p-4 shadow-lg bg-dc-2">
             <h2 class="text-center text-warning mb-4 font-dc">Contactez-nous</h2>
 
-            <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+            <form [formGroup]="contactForm" (ngSubmit)="onSubmit(recaptchaRef)" class="needs-validation" novalidate>
 
                 <!-- Email -->
                 <div class="form-floating mb-3">
@@ -37,7 +37,8 @@
                         </optgroup>
                     </select>
                     <label for="subject">Sujet</label>
-                    <div *ngIf="contactForm.get('subject')?.touched && contactForm.get('subject')?.invalid" class="invalid-feedback">
+                    <div *ngIf="contactForm.get('subject')?.touched && contactForm.get('subject')?.invalid"
+                        class="invalid-feedback">
                         Veuillez sélectionner un sujet.
                     </div>
                 </div>
@@ -54,10 +55,14 @@
                     </div>
                 </div>
 
+                <!-- Captcha -->
+                <app-google-captcha #recaptchaRef (captchaResolved)="onCaptchaResolved($event)"></app-google-captcha>
+
                 <!-- Boutons de soumission et de réinitialisation -->
                 <div class="d-flex justify-content-between">
-                    <button type="button" class="btn btn-secondary" (click)="onReset()">Réinitialiser</button>
-                    <button type="submit" class="btn btn-warning" [disabled]="contactForm.invalid">Envoyer</button>
+                    <button type="button" class="btn btn-secondary" (click)="onReset(recaptchaRef)">Réinitialiser</button>
+                    <button type="submit" class="btn btn-warning"
+                        [disabled]="contactForm.invalid || !captchaValid">Envoyer</button>
                 </div>
 
             </form>

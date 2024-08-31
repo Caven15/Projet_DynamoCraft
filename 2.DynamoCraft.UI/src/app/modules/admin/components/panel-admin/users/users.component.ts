@@ -17,6 +17,11 @@ export class UsersComponent implements OnInit {
     sortColumn: string = 'pseudo';
     sortDirection: 'asc' | 'desc' = 'asc';
 
+    // Variables pour la pagination
+    itemsPerPage: number = 10;  // Nombre d'éléments par page
+    currentPage: number = 1;    // Page courante
+    maxPageButtons: number = 5; // Nombre maximum de boutons de pages à afficher
+
     constructor(
         private utilisateurService: UtilisateurService,
         private router: Router
@@ -35,9 +40,14 @@ export class UsersComponent implements OnInit {
     }
 
     filterUtilisateurs(): void {
-        this.filteredUtilisateurs = this.utilisateurs.filter(utilisateur =>
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        const endIndex = startIndex + this.itemsPerPage;
+
+        const filtered = this.utilisateurs.filter(utilisateur =>
             utilisateur.pseudo!.toLowerCase().includes(this.searchTerm.toLowerCase())
         );
+
+        this.filteredUtilisateurs = filtered.slice(startIndex, endIndex);
         this.sortData(this.sortColumn); // Appliquer le tri après le filtrage
     }
 
@@ -73,6 +83,30 @@ export class UsersComponent implements OnInit {
             return this.sortDirection === 'asc' ? 'bi-sort-up' : 'bi-sort-down';
         }
         return 'bi-sort';
+    }
+
+    changePage(page: number): void {
+        if (page > 0 && page <= this.getTotalPages()) {
+            this.currentPage = page;
+            this.filterUtilisateurs();
+        }
+    }
+
+    getTotalPages(): number {
+        return Math.ceil(this.utilisateurs.length / this.itemsPerPage);
+    }
+
+    getPaginationPages(): number[] {
+        const totalPages = this.getTotalPages();
+        const halfMax = Math.floor(this.maxPageButtons / 2);
+        let startPage = Math.max(1, this.currentPage - halfMax);
+        let endPage = Math.min(totalPages, startPage + this.maxPageButtons - 1);
+
+        if (endPage - startPage < this.maxPageButtons - 1) {
+            startPage = Math.max(1, endPage - this.maxPageButtons + 1);
+        }
+
+        return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
     }
 
     viewUserDetails(id: number | undefined): void {

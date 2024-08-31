@@ -29,11 +29,12 @@ export class AuthService extends BaseApiService {
      * Connexion de l'utilisateur
      * @param email Email de l'utilisateur
      * @param password Mot de passe de l'utilisateur
+     * @param recaptchaToken Token de validation reCAPTCHA
      * @returns Observable contenant l'access token
      */
-    login(email: string, password: string): Observable<{ accessToken: string, id: string, roleId: string }> {
-        const utilisateur = new Utilisateur(email, password);
-        return this.post<{ accessToken: string, id: string, roleId: string }>('auth/login', utilisateur).pipe(
+    login(email: string, password: string, recaptchaToken: string): Observable<{ accessToken: string, id: string, roleId: string }> {
+        const loginData = { email, password, recaptchaToken };
+        return this.post<{ accessToken: string, id: string, roleId: string }>('auth/login', loginData).pipe(
             tap(response => {
                 console.log(response);
                 // Mettre à jour le BehaviorSubject avec les nouvelles données utilisateur
@@ -42,11 +43,7 @@ export class AuthService extends BaseApiService {
                         datas.roleId = parseInt(response.roleId);
                         this.currentUserSubject.next(datas);
                     }
-                })
-                // // Stocker le token JWT et les informations utilisateur dans le sessionStorage
-                // sessionStorage.setItem('token', response.accessToken);
-                // sessionStorage.setItem('idUser', JSON.stringify(response.id));
-                // sessionStorage.setItem('roleId', JSON.stringify(response.roleId));
+                });
                 console.log('Utilisateur connecté avec succès');
             }),
             catchError(this.handleError<{ accessToken: string, id: string, roleId: string }>('login'))
@@ -66,11 +63,11 @@ export class AuthService extends BaseApiService {
     }
 
     /**
- * Réinitialisation du mot de passe de l'utilisateur
- * @param oldPassword Ancien mot de passe
- * @param newPassword Nouveau mot de passe
- * @returns Observable indiquant le succès ou l'échec de l'opération
- */
+     * Réinitialisation du mot de passe de l'utilisateur
+     * @param oldPassword Ancien mot de passe
+     * @param newPassword Nouveau mot de passe
+     * @returns Observable indiquant le succès ou l'échec de l'opération
+     */
     resetPassword(oldPassword: string, newPassword: string): Observable<any> {
         const currentUser = this.getCurrentUser();
         if (!currentUser) {
@@ -89,6 +86,39 @@ export class AuthService extends BaseApiService {
                 this.logout();
             }),
             catchError(this.handleError<any>('resetPassword'))
+        );
+    }
+
+    /**
+     * Réinitialisation du mot de passe via le lien envoyé par email
+     * @param token Token de réinitialisation envoyé par email
+     * @param newPassword Nouveau mot de passe
+     * @returns Observable indiquant le succès ou l'échec de l'opération
+     */
+    resetPasswordWithToken(token: string, newPassword: string): Observable<any> {
+        const body = { token, newPassword };
+
+        return this.post<any>('auth/reset-mot-de-passe-oublie', body).pipe(
+            tap(() => {
+                console.log('Mot de passe réinitialisé avec succès via le token');
+            }),
+            catchError(this.handleError<any>('resetPasswordWithToken'))
+        );
+    }
+
+    /**
+     * Demande de réinitialisation de mot de passe pour un utilisateur qui a oublié son mot de passe
+     * @param email Email de l'utilisateur
+     * @param recaptchaToken Token de validation reCAPTCHA
+     * @returns Observable indiquant le succès ou l'échec de l'opération
+     */
+    forgotPassword(email: string, recaptchaToken: string): Observable<any> {
+        const body = { email, recaptchaToken };
+        return this.post<any>('auth/mot-de-passe-oublie', body).pipe(
+            tap(() => {
+                console.log('Email de réinitialisation du mot de passe envoyé');
+            }),
+            catchError(this.handleError<any>('forgotPassword'))
         );
     }
 

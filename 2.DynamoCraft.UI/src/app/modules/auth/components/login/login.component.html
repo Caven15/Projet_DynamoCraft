@@ -28,14 +28,20 @@
                     </div>
                 </div>
 
+                <!-- reCAPTCHA -->
+                <div class="captcha-container d-flex justify-content-center my-4">
+                    <app-google-captcha #recaptchaRef (captchaResolved)="onCaptchaResolved($event)"></app-google-captcha>
+                </div>
+
                 <div *ngIf="errorMessage" class="alert alert-danger text-center">
                     {{ errorMessage }}
                 </div>
 
-                <button type="submit" class="btn btn-warning w-100 py-2 mt-3 font-dc">Valider</button>
+                <button type="submit" class="btn btn-warning w-100 py-2 mt-3 font-dc"
+                    [disabled]="loginForm.invalid || !captchaValid">Valider</button>
 
                 <div class="text-center mt-3">
-                    <a href="#" class="link-warning">Mot de passe oublié ?</a>
+                    <a routerLink="/auth/mot-de-passe-oublie" class="link-warning">Mot de passe oublié ?</a>
                 </div>
             </form>
         </div>

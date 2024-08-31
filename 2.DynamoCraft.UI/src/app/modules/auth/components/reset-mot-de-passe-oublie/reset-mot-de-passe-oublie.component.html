@@ -1,0 +1,49 @@
+<div class="container d-flex justify-content-center align-items-center min-vh-75">
+    <div class="col-md-6">
+        <div class="card p-4 shadow-lg bg-dc-2">
+            <h2 class="text-center text-warning mb-4 font-dc">Réinitialiser le mot de passe</h2>
+            <form [formGroup]="resetPasswordForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+
+                <!-- New Password Input -->
+                <div class="form-floating mb-3 position-relative">
+                    <input [type]="isPasswordVisible ? 'text' : 'password'" id="newPassword" class="form-control"
+                        placeholder="Nouveau mot de passe" formControlName="newPassword"
+                        [class.is-invalid]="resetPasswordForm.get('newPassword')?.invalid && resetPasswordForm.get('newPassword')?.touched">
+                    <label for="newPassword">Nouveau mot de passe</label>
+                    <i (click)="togglePasswordVisibility()"
+                        [class]="isPasswordVisible ? 'bi bi-eye position-absolute end-0 top-50 translate-middle-y pe-3' : 'bi bi-eye-slash position-absolute end-0 top-50 translate-middle-y pe-3'"
+                        style="cursor: pointer;"></i>
+                    <div *ngIf="resetPasswordForm.get('newPassword')?.invalid && resetPasswordForm.get('newPassword')?.touched"
+                        class="invalid-feedback">
+                        Le mot de passe doit comporter au moins 8 caractères, avec une lettre majuscule, une lettre
+                        minuscule, un chiffre et un symbole spécial.
+                    </div>
+                </div>
+
+                <!-- Confirm Password Input -->
+                <div class="form-floating mb-3 position-relative">
+                    <input [type]="isPasswordVisible ? 'text' : 'password'" id="confirmPassword" class="form-control"
+                        placeholder="Confirmez le mot de passe" formControlName="confirmPassword"
+                        [class.is-invalid]="resetPasswordForm.get('confirmPassword')?.invalid && resetPasswordForm.get('confirmPassword')?.touched">
+                    <label for="confirmPassword">Confirmez le mot de passe</label>
+                    <i (click)="togglePasswordVisibility()"
+                        [class]="isPasswordVisible ? 'bi bi-eye position-absolute end-0 top-50 translate-middle-y pe-3' : 'bi bi-eye-slash position-absolute end-0 top-50 translate-middle-y pe-3'"
+                        style="cursor: pointer;"></i>
+                    <div *ngIf="resetPasswordForm.get('confirmPassword')?.invalid && resetPasswordForm.get('confirmPassword')?.touched"
+                        class="invalid-feedback">
+                        Les mots de passe ne correspondent pas.
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                <div *ngIf="errorMessage" class="alert alert-danger text-center">
+                    {{ errorMessage }}
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-warning w-100 py-2 mt-3 font-dc"
+                    [disabled]="resetPasswordForm.invalid">Réinitialiser</button>
+            </form>
+        </div>
+    </div>
+</div>

@@ -42,8 +42,8 @@
                             <tr *ngFor="let projet of filteredProjets; let i = index"
                                 [ngClass]="{'bg-dc': i % 2 === 0, 'bg-dc-2': i % 2 !== 0}"
                                 class="text-center align-middle">
-                                <td>{{ projet.utilisateur.pseudo }}</td>
-                                <td>{{ projet.nom }}</td>
+                                <td>{{ projet.utilisateur.pseudo | slice: 0 : 15}}...</td>
+                                <td>{{ projet.nom | slice: 0 : 15 }}...</td>
                                 <td>{{ projet.categorie!.nom }}</td>
                                 <td>{{ projet.statut?.nom }}</td>
                                 <td>
@@ -52,9 +52,9 @@
                                         <i class="bi bi-eye text-white"></i>
                                     </button>
                                     <!-- Show validate button only if the project is in 'Invalide' or 'En attente' state -->
-                                    <button *ngIf="projet.statut?.nom === 'Invalide' || projet.statut?.nom === 'En attente'"
-                                            class="btn btn-outline-success btn-sm"
-                                            (click)="validateProject(projet.id)">
+                                    <button
+                                        *ngIf="projet.statut?.nom === 'Invalide' || projet.statut?.nom === 'En attente'"
+                                        class="btn btn-outline-success btn-sm" (click)="validateProject(projet.id)">
                                         <i class="bi bi-check-circle text-white"></i>
                                     </button>
                                 </td>
@@ -69,6 +69,25 @@
                         <h5 class="text-warning mt-4">Aucun projet trouvé.</h5>
                     </div>
                 </ng-template>
+            </div>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-center align-items-center mt-3 px-3">
+                <ul class="pagination mb-0">
+                    <li class="page-item" [ngClass]="{'disabled': currentPage === 1}">
+                        <a class="page-link" (click)="changePage(currentPage - 1)">Précédent</a>
+                    </li>
+                    <li class="page-item" *ngFor="let page of getPaginationPages()"
+                        [ngClass]="{'active': currentPage === page}">
+                        <a class="page-link" (click)="changePage(page)">{{ page }}</a>
+                    </li>
+                    <li class="page-item" [ngClass]="{'disabled': currentPage === getTotalPages()}">
+                        <a class="page-link" (click)="changePage(currentPage + 1)">Suivant</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="text-warning d-flex justify-content-center align-items-center">
+                Page {{ currentPage }} sur {{ getTotalPages() }}
             </div>
         </div>
     </div>

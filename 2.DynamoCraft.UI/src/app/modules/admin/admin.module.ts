@@ -8,6 +8,10 @@ import { ProjetsComponent } from './components/panel-admin/projets/projets.compo
 import { StatsComponent } from './components/panel-admin/stats/stats.component';
 import { UsersComponent } from './components/panel-admin/users/users.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ProjetParStatutComponent } from './components/panel-admin/stats/projet-par-statut/projet-par-statut.component';
+import { ProjetParCategorieComponent } from './components/panel-admin/stats/projet-par-categorie/projet-par-categorie.component';
+import { ProjetTop5Component } from './components/panel-admin/stats/projet-top5/projet-top5.component';
+import { ProjetEvolutionComponent } from './components/panel-admin/stats/projet-evolution/projet-evolution.component';
 
 
 @NgModule({
@@ -17,6 +21,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     ProjetsComponent,
     StatsComponent,
     UsersComponent,
+    ProjetParStatutComponent,
+    ProjetParCategorieComponent,
+    ProjetTop5Component,
+    ProjetEvolutionComponent,
   ],
   imports: [
     CommonModule,

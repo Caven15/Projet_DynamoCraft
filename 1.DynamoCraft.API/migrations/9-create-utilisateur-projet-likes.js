@@ -13,10 +13,8 @@ module.exports = {
                 type: Sequelize.INTEGER,
                 allowNull: false,
                 references: {
-                    model: {
-                        tableName: "utilisateur", // Table utilisateur en minuscule
-                    },
-                    key: "id", // Clé primaire de l'utilisateur
+                    model: "utilisateur",
+                    key: "id",
                 },
                 onUpdate: "CASCADE",
                 onDelete: "CASCADE",
@@ -25,19 +23,23 @@ module.exports = {
                 type: Sequelize.INTEGER,
                 allowNull: false,
                 references: {
-                    model: {
-                        tableName: "projet", // Table projet en minuscule
-                    },
-                    key: "id", // Clé primaire du projet
+                    model: "projet",
+                    key: "id",
                 },
                 onUpdate: "CASCADE",
                 onDelete: "CASCADE",
             },
             dateLike: {
                 type: Sequelize.DATE,
+                allowNull: false,
                 defaultValue: Sequelize.NOW,
             },
         });
+
+        await queryInterface.addIndex("utilisateurProjetLike", [
+            "utilisateurId",
+        ]);
+        await queryInterface.addIndex("utilisateurProjetLike", ["projetId"]);
     },
 
     down: async (queryInterface, Sequelize) => {

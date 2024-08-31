@@ -24,6 +24,45 @@ $couleur-main: rgb(227, 178, 0);
     background-position: center;
 }
 
+.captcha-container {
+    display: flex;
+    justify-content: center;
+}
+
+.g-recaptcha {
+    transform: scale(1.1);
+    -webkit-transform: scale(1.1);
+    transform-origin: 0 0;
+}
+
+.form-floating .form-select {
+    background-color: transparent;
+    border: 1px solid $couleur-main;
+    color: white;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-floating .form-select:focus {
+    border-color: $couleur-main;
+    box-shadow: 0 0 0 0.25rem rgba(227, 178, 0, 0.25);
+}
+
+.dropdown-menu-style {
+    background-color: $couleur-main;
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    color: black;
+    font-family: 'ethnocentric', sans-serif;
+    font-size: 1rem;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    color: white;
+    background-color: $couleur-fond-2;
+}
+
+
 h5,
 h2,
 .font-dc,

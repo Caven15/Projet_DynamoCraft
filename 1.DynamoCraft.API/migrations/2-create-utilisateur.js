@@ -1,6 +1,5 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-    version: 5,
     async up(queryInterface, Sequelize) {
         await queryInterface.createTable("utilisateur", {
             id: {
@@ -10,22 +9,30 @@ module.exports = {
                 type: Sequelize.INTEGER,
             },
             pseudo: {
-                type: Sequelize.STRING,
+                type: Sequelize.STRING(50),
+                allowNull: false,
+                unique: true,
             },
             email: {
-                type: Sequelize.STRING,
+                type: Sequelize.STRING(100),
+                allowNull: false,
+                unique: true,
             },
             dateNaissance: {
-                type: Sequelize.DATE,
+                type: Sequelize.DATEONLY,
+                allowNull: true,
             },
             biographie: {
-                type: Sequelize.STRING,
+                type: Sequelize.TEXT,
+                allowNull: true,
             },
             password: {
-                type: Sequelize.STRING,
+                type: Sequelize.STRING(255),
+                allowNull: false,
             },
             centreInterets: {
-                type: Sequelize.STRING,
+                type: Sequelize.TEXT,
+                allowNull: true,
             },
             dateInscription: {
                 allowNull: false,
@@ -49,6 +56,25 @@ module.exports = {
             },
             statutCompte: {
                 type: Sequelize.BOOLEAN,
+                allowNull: false,
+                defaultValue: true,
+            },
+            resetPasswordToken: {
+                type: Sequelize.STRING,
+                allowNull: true,
+            },
+            resetPasswordExpires: {
+                type: Sequelize.DATE,
+                allowNull: true,
+            },
+            loginAttempts: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+                defaultValue: 0,
+            },
+            lockUntil: {
+                type: Sequelize.DATE,
+                allowNull: true,
             },
         });
     },
