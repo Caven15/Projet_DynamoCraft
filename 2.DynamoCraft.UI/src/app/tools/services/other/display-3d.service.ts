@@ -1,4 +1,4 @@
-import { Injectable, NgZone, ElementRef } from '@angular/core';
+import { Injectable, NgZone, ElementRef, HostListener } from '@angular/core';
 import * as THREE from 'three';
 import { STLLoader } from 'three/examples/jsm/loaders/STLLoader.js';
 
@@ -25,7 +25,9 @@ export class Display3dService {
     private isDragging = false;
     private previousMousePosition = { x: 0, y: 0 };
 
-    constructor(private ngZone: NgZone) {}
+    constructor(private ngZone: NgZone) {
+        window.addEventListener('resize', () => this.onWindowResize());
+    }
 
     initThree(conteneurs: ElementRef[]): void {
         conteneurs.forEach((conteneur, index) => {
@@ -179,6 +181,20 @@ export class Display3dService {
 
         element.addEventListener('mouseleave', () => {
             this.isDragging = false;
+        });
+    }
+
+    onWindowResize(): void {
+        this.rendus.forEach((rendu, index) => {
+            const container = rendu.domElement.parentElement;
+            if (container) {
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+
+                rendu.setSize(width, height);
+                this.cameras[index].aspect = width / height;
+                this.cameras[index].updateProjectionMatrix();
+            }
         });
     }
 }

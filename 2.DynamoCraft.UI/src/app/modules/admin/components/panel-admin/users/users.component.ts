@@ -111,7 +111,7 @@ export class UsersComponent implements OnInit {
 
     viewUserDetails(id: number | undefined): void {
         if (id !== undefined) {
-            this.router.navigate([`/profil/${id}`]);
+            this.router.navigate([`utilisateur/profil/${id}`]);
         }
     }
 

@@ -1,17 +1,36 @@
 <header class="p-3 bg-dc-2 text-white font-dc">
     <div class="container">
         <div class="d-flex flex-wrap align-items-center justify-content-between">
-            <a class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none" routerLink="/home">
+            <a class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
                 <img src="assets/png/logo.png" alt="logo" width="60" height="60">
                 <span class="navbar-brand font-dc text-white fs-4 ms-2 me-5">DynamoCraft</span>
             </a>
+
             <ul class="nav col-12 col-xl-auto me-lg-auto mb-2 d-flex justify-content-center mb-md-0">
-                <li><a class="nav-link col-12 d-flex justify-content-center" routerLink="/recherche">Recherche</a></li>
-                <li><a class="nav-link col-12 d-flex justify-content-center" routerLink="/modele/top10">Top 10</a></li>
-                <li><a class="nav-link col-12 d-flex justify-content-center"
-                        routerLink="/modele/nouveautes">Nouveautés</a></li>
-                <li><a class="nav-link col-12 d-flex justify-content-center"
-                        routerLink="/modele/categories">Catégories</a></li>
+                <li>
+                    <a class="nav-link col-12 d-flex justify-content-center" [ngClass]="{'active': isActive('/home')}"
+                        (click)="setActiveLink('/home')" routerLink="/home">Accueil</a>
+                </li>
+                <li>
+                    <a class="nav-link col-12 d-flex justify-content-center"
+                        [ngClass]="{'active': isActive('/recherche')}" (click)="setActiveLink('/recherche')"
+                        routerLink="/recherche">Recherche</a>
+                </li>
+                <li>
+                    <a class="nav-link col-12 d-flex justify-content-center"
+                        [ngClass]="{'active': isActive('/modele/top10')}" (click)="setActiveLink('/modele/top10')"
+                        routerLink="/modele/top10">Top 10</a>
+                </li>
+                <li>
+                    <a class="nav-link col-12 d-flex justify-content-center"
+                        [ngClass]="{'active': isActive('/modele/nouveautes')}"
+                        (click)="setActiveLink('/modele/nouveautes')" routerLink="/modele/nouveautes">Nouveautés</a>
+                </li>
+                <li>
+                    <a class="nav-link col-12 d-flex justify-content-center"
+                        [ngClass]="{'active': isActive('/modele/categories')}"
+                        (click)="setActiveLink('/modele/categories')" routerLink="/modele/categories">Catégories</a>
+                </li>
             </ul>
 
             <div class="dropdown text-end">
@@ -27,12 +46,11 @@
                 <ul class="dropdown-menu text-small dropdown-menu-end p-2" style="min-width: 200px;">
                     <!-- Vérifiez si l'utilisateur est connecté -->
                     <ng-container *ngIf="isConnected(); else guestLinks">
-                        <!-- Affichez des options spécifiques en fonction du rôle -->
-                        <li><a class="dropdown-item" routerLink="/utilisateur/profil">Mon Profil</a></li>
-                        <li *ngIf="isAdmin()"><a class="dropdown-item" routerLink="/admin/panel">Admin Panel</a></li>
-                        <li *ngIf="isModerator()"><a class="dropdown-item"zz
-                                routerLink="/moderator/dashboard">Modérateur</a></li>
-                        <li><a class="dropdown-item" routerLink="/projet/ajout">Ajouter projet</a></li>
+                        <ng-container *ngFor="let link of userLinks">
+                            <li>
+                                <a class="dropdown-item" [routerLink]="link.url">{{ link.label }}</a>
+                            </li>
+                        </ng-container>
                         <li>
                             <hr class="dropdown-divider">
                         </li>

@@ -57,7 +57,6 @@ export class ProjetService extends BaseApiService {
         formData.append('nom', Projet.nom);
         formData.append('description', Projet.description);
         formData.append('categorieId', Projet.categorieId.toString());
-        formData.append('utilisateurId', Projet.utilisateurId.toString());
 
         Images.forEach((Image, index) => formData.append('images', Image, Image.name));
 
@@ -120,13 +119,6 @@ export class ProjetService extends BaseApiService {
                         console.warn("Utilisateur non trouvé pour le projet :", projet.nom);
                     }
 
-                    // // Vérifier si ImageProjet est présent
-                    // if (projet.imageProjet) {
-                    //     console.log("Nom de l'image projet :", projet.imageProjet.nom);
-                    // } else {
-                    //     console.warn("ImageProjet non trouvée pour le projet :", projet.nom);
-                    // }
-
                     return projet;
                 });
             }),
@@ -138,7 +130,10 @@ export class ProjetService extends BaseApiService {
         );
     }
 
-
+    /**
+     * Récupérer les 16 derniers projets créés
+     * @returns Observable contenant la liste des derniers projets
+     */
     getLastProjects(): Observable<Projet[]> {
         return this.get<{ recentProjects: Projet[] }>('projet/last').pipe(
             map(response => {
@@ -167,6 +162,11 @@ export class ProjetService extends BaseApiService {
         );
     }
 
+    /**
+     * Récupérer les projets par catégorie
+     * @param Id Identifiant de la catégorie
+     * @returns Observable contenant la liste des projets de la catégorie
+     */
     getProjectsByCategoryId(Id: number): Observable<Projet[]> {
         return this.getAll<Projet>(`projet/${Id}/categorie`).pipe(
             tap({
@@ -177,6 +177,11 @@ export class ProjetService extends BaseApiService {
         );
     }
 
+    /**
+     * Récupérer les projets par utilisateur
+     * @param Id Identifiant de l'utilisateur
+     * @returns Observable contenant la liste des projets de l'utilisateur
+     */
     getProjectsByUserId(Id: number): Observable<Projet[]> {
         return this.getAll<Projet>(`projet/${Id}/utilisateur`).pipe(
             map(realisations => {
@@ -205,6 +210,11 @@ export class ProjetService extends BaseApiService {
         );
     }
 
+    /**
+     * Incrémenter le nombre de likes pour un projet spécifique
+     * @param projetId Identifiant du projet
+     * @returns Observable indiquant le résultat de l'opération
+     */
     incrementLike(projetId: number): Observable<any> {
         return this.authService.currentUser$.pipe(
             switchMap((currentUser) => {
@@ -226,6 +236,11 @@ export class ProjetService extends BaseApiService {
         );
     }
 
+    /**
+     * Incrémenter le nombre de téléchargements pour un projet spécifique
+     * @param Id Identifiant du projet
+     * @returns Observable indiquant le résultat de l'opération
+     */
     incrementDownload(Id: number): Observable<any> {
         return this.put<any>(`projet/${Id}/incrementDownloads`, {}).pipe(
             tap({
@@ -236,6 +251,12 @@ export class ProjetService extends BaseApiService {
         );
     }
 
+    /**
+     * Mettre à jour l'état d'un projet en "valide"
+     * @param Id Identifiant du projet
+     * @param commentaire_admin Commentaire de l'administrateur
+     * @returns Observable indiquant le résultat de l'opération
+     */
     setValidProjet(Id: number, commentaire_admin: string): Observable<any> {
         return this.put<any>(`/projet/${Id}/valide`, { commentaire_admin }).pipe(
             tap({
@@ -246,6 +267,12 @@ export class ProjetService extends BaseApiService {
         );
     }
 
+    /**
+     * Mettre à jour l'état d'un projet en "invalide"
+     * @param Id Identifiant du projet
+     * @param commentaire_admin Commentaire de l'administrateur
+     * @returns Observable indiquant le résultat de l'opération
+     */
     setInvalidProjet(Id: number, commentaire_admin: string): Observable<any> {
         return this.put<any>(`/projet/${Id}/invalide`, { commentaire_admin }).pipe(
             tap({
@@ -256,6 +283,12 @@ export class ProjetService extends BaseApiService {
         );
     }
 
+    /**
+     * Mettre à jour l'état d'un projet en "en attente"
+     * @param Id Identifiant du projet
+     * @param commentaire_admin Commentaire de l'administrateur
+     * @returns Observable indiquant le résultat de l'opération
+     */
     setPendingProjet(Id: number, commentaire_admin: string): Observable<any> {
         return this.put<any>(`/projet/${Id}/attente`, { commentaire_admin }).pipe(
             tap({
@@ -266,6 +299,10 @@ export class ProjetService extends BaseApiService {
         );
     }
 
+    /**
+     * Récupérer les projets valides
+     * @returns Observable contenant la liste des projets valides
+     */
     getValidProjet(): Observable<Projet[]> {
         return this.getAll<Projet>('projets/valide').pipe(
             tap({
@@ -276,6 +313,10 @@ export class ProjetService extends BaseApiService {
         );
     }
 
+    /**
+     * Récupérer les projets invalides
+     * @returns Observable contenant la liste des projets invalides
+     */
     getInvalidProjet(): Observable<Projet[]> {
         return this.getAll<Projet>('projets/invalide').pipe(
             tap({
@@ -286,6 +327,10 @@ export class ProjetService extends BaseApiService {
         );
     }
 
+    /**
+     * Récupérer les projets en attente
+     * @returns Observable contenant la liste des projets en attente
+     */
     getPendingProjet(): Observable<Projet[]> {
         return this.getAll<Projet>('projets/attente').pipe(
             tap({
@@ -297,7 +342,10 @@ export class ProjetService extends BaseApiService {
     }
 
     searchProjects(Keyword: string, Page: number, Limit: number): Observable<any> {
-        return this.get<any>(`projets/search/${Keyword}/${Page}/${Limit}`).pipe(
+        // Si le mot-clé est vide, remplacez-le par "all" ou une autre valeur par défaut
+        const searchKeyword = Keyword.trim() === '' ? 'all' : Keyword;
+
+        return this.get<any>(`projets/search/${searchKeyword}/${Page}/${Limit}`).pipe(
             map(response => {
                 response.projects = response.projects.map((Projet: any) => {
                     if (Projet.imageProjet && !Array.isArray(Projet.imageProjet)) {
@@ -314,12 +362,13 @@ export class ProjetService extends BaseApiService {
                 return response;
             }),
             tap({
-                next: () => console.log(`Recherche des projets avec le mot-clé ${Keyword}`),
-                error: (error) => console.error(`Erreur lors de la recherche des projets avec le mot-clé ${Keyword} :`, error)
+                next: () => console.log(`Recherche des projets avec le mot-clé ${searchKeyword}`),
+                error: (error) => console.error(`Erreur lors de la recherche des projets avec le mot-clé ${searchKeyword} :`, error)
             }),
             catchError(this.handleError<any>('searchProjects'))
         );
     }
+
 
     /**
      * Récupérer les projets téléchargés par l'utilisateur connecté

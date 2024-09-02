@@ -110,6 +110,25 @@ exports.register = async (req, res, next) => {
         }
 
         logMessage("Utilisateur enregistré avec succès", COLOR_GREEN);
+
+        // Envoyer un email de remerciement à l'utilisateur
+        logMessage(`Envoi d'un email de remerciement à l'utilisateur : ${email}`, COLOR_YELLOW);
+        await transporter.sendMail({
+            from: `"DynamoCraft" <${process.env.EMAIL_USER}>`, // Adresse d'expéditeur
+            to: email, // Adresse de l'utilisateur nouvellement inscrit
+            subject: "Bienvenue sur DynamoCraft",
+            html: `
+                <p>Bonjour ${pseudo},</p>
+                <p>Merci de vous être inscrit sur DynamoCraft ! Nous sommes ravis de vous compter parmi notre communauté.</p>
+                <p>Vous pouvez dès à présent explorer nos projets et partager les vôtres.</p>
+                <p>Si vous avez des questions, n'hésitez pas à nous contacter.</p>
+                <p>Meilleures salutations,</p>
+                <p>L'équipe DynamoCraft</p>
+            `,
+        });
+
+        logMessage("Email de remerciement envoyé avec succès", COLOR_GREEN);
+
         res.status(201).json({
             message: "Utilisateur enregistré avec succès",
             utilisateurId: newUtilisateur.id,
@@ -226,7 +245,7 @@ exports.login = async (req, res, next) => {
 
             await utilisateur.save();
 
-            return res.status(403).json({ message: "Mot de passe incorrect" });
+            return res.status(401).json({ message: "Mot de passe incorrect" });
         }
 
         // Si le mot de passe est correct, réinitialiser les tentatives et déverrouiller le compte
@@ -320,7 +339,12 @@ exports.resetPassword = async (req, res, next) => {
     logMessage("Début de la réinitialisation du mot de passe", COLOR_YELLOW);
 
     try {
-        const { oldPassword, newPassword, token } = req.body;
+        const { oldPassword, newPassword } = req.body;
+
+        // Extraire l'utilisateur du token JWT
+        const token = req.headers.authorization.split(' ')[1];
+        const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+        const userId = decodedToken.id;
 
         if (!oldPassword || !newPassword) {
             logMessage(
@@ -328,15 +352,11 @@ exports.resetPassword = async (req, res, next) => {
                 COLOR_RED
             );
             return res.status(400).json({
-                message:
-                    "L'ancien et le nouveau mot de passe sont obligatoires",
+                message: "L'ancien et le nouveau mot de passe sont obligatoires",
             });
         }
 
-        logMessage(
-            `Vérification de l'existence de l'utilisateur avec ID: ${userId}`,
-            COLOR_YELLOW
-        );
+        logMessage(`Vérification de l'existence de l'utilisateur avec ID: ${userId}`, COLOR_YELLOW);
         const utilisateur = await dbConnector.Utilisateur.findOne({
             where: { id: userId },
         });
@@ -354,9 +374,7 @@ exports.resetPassword = async (req, res, next) => {
 
         if (!passwordMatch) {
             logMessage("L'ancien mot de passe est incorrect", COLOR_RED);
-            return res
-                .status(403)
-                .json({ message: "L'ancien mot de passe est incorrect" });
+            return res.status(401).json({ message: "L'ancien mot de passe est incorrect" });
         }
 
         logMessage("Hachage du nouveau mot de passe", COLOR_YELLOW);
@@ -373,10 +391,7 @@ exports.resetPassword = async (req, res, next) => {
             message: "Mot de passe réinitialisé avec succès",
         });
     } catch (error) {
-        logMessage(
-            "Erreur lors de la réinitialisation du mot de passe",
-            COLOR_RED
-        );
+        logMessage("Erreur lors de la réinitialisation du mot de passe", COLOR_RED);
         console.error(error);
         res.status(500).json({
             message: "Erreur lors de la réinitialisation du mot de passe",

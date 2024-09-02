@@ -1,27 +1,27 @@
-<div class="container min-vh-75">
-    <h2 class="text-center text-warning mb-4">Recherche de Projets</h2>
+<div class="container min-vh-75 bg-dc-2 py-3 rounded-3">
+    <h1 class="font-dc text-center text-warning mb-4">Recherche de Projets</h1>
 
     <!-- Barre de recherche -->
     <div class="row mb-4 d-flex justify-content-center">
         <div class="col-10 col-md-6">
             <div class="input-group shadow-sm">
-                <input type="text" class="form-control" placeholder="Rechercher un projet..." [(ngModel)]="searchQuery">
+                <input type="text" class="form-control" placeholder="Rechercher un projet..." [(ngModel)]="searchQuery"
+                    (ngModelChange)="onSearchQueryChange($event)">
                 <button class="btn btn-warning" type="button" (click)="onSearch()">Rechercher</button>
             </div>
         </div>
     </div>
 
-    <!-- Affichage des projets -->
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
-        @for (projet of projects; track projet.id) {
-        <div class="col d-flex align-items-stretch">
+    <!-- Affichage des projets ou message si aucun projet trouvé -->
+    <div *ngIf="projects.length > 0; else noProjects"
+        class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
+        <div *ngFor="let projet of projects" class="col d-flex align-items-stretch">
             <a routerLink="/projet/detail/{{ projet.id }}" class="text-decoration-none w-100">
-                <div class="card-hover image-container rounded h-100 text-center shadow-sm border-0">
-                    @if (projet.imageProjet && projet.imageProjet.length > 0) {
-                    <img [src]="url + projet.imageProjet[0].nom" class="card-img-top rounded" alt="Image du projet">
-                    } @else {
-                    <p class="text-muted">Pas d'image disponible</p>
-                    }
+                <div class="card-hover image-container rounded h-100 text-center shadow-sm border-0 position-relative">
+                    <img *ngIf="projet.imageProjet && projet.imageProjet.length > 0"
+                        [src]="url + projet.imageProjet[0].nom" class="card-img-top rounded" alt="Image du projet">
+                    <p *ngIf="!projet.imageProjet || projet.imageProjet.length === 0" class="text-muted p-4">Pas d'image
+                        disponible</p>
                     <div
                         class="hover-content d-flex justify-content-center align-items-center position-absolute top-0 start-0 w-100 h-100">
                         <i class="bi bi-eye text-white" style="font-size: 2rem;"></i>
@@ -30,8 +30,16 @@
                 </div>
             </a>
         </div>
-        }
     </div>
+
+    <!-- Template pour aucun projet trouvé -->
+    <ng-template #noProjects>
+        <div class="d-flex flex-column align-items-center text-center text-warning mt-5 hauteur-70">
+            <i class="bi bi-exclamation-triangle-fill" style="font-size: 4rem;"></i>
+            <h3 class="mt-3">Aucun projet trouvé</h3>
+            <p class="mt-2">Aucun projet ne correspond à votre recherche "{{ searchQuery }}"</p>
+        </div>
+    </ng-template>
 
     <!-- Pagination -->
     <div class="row mt-5">

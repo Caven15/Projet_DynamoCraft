@@ -1,0 +1,65 @@
+<div class="container-fluid hauteur-70 d-flex flex-column justify-content-center align-items-center text-white">
+    <div class="card text-center bg-dc-2 p-4 shadow-lg" style="max-width: 700px;">
+        <div class="card-body">
+            <h1 class="text-warning font-dc">403 - Accès Interdit</h1>
+            <p class="lead mb-4 d-flex justify-content-center">
+                Vous avez osé défier les gardiens des secrets profonds...<br>
+                Mais ici, dans le royaume du code sacré, vous ne passerez pas !
+            </p>
+
+            <div class="mb-4">
+                <img src="/assets/gif/forbiden.gif" alt="Accès Interdit" class="img-fluid rounded shadow-sm"
+                    style="width: 100%; max-width: 500px;">
+            </div>
+
+            <p class="mb-4">
+                "Je suis un serviteur du Feu Secret, détenteur de la flamme d'Anor. <br>
+                Le feu sombre ne vous servira à rien, flamme d'Udûn. Repartez dans l'ombre ! Vous ne passerez pas !"
+            </p>
+
+            <p class="mb-4 text-warning">
+                Désolé, mais il semble que vous ayez essayé d'accéder à une section réservée aux mages suprêmes du
+                code.<br>
+                Mais rappelez-vous, comme le dit si bien notre ami Dennis Nedry : <br>
+                <em>"Ha ha ha, vous n'avez pas dit le mot magiqueeeeee !"</em>
+            </p>
+
+            <a routerLink="/home"
+                class="btn btn-warning btn-lg mt-3 d-flex align-items-center justify-content-center w-100">
+                <i class="bi bi-arrow-left me-2"></i> Retourner à l'accueil
+            </a>
+
+            <button class="btn btn-warning btn-lg mt-3 d-flex align-items-center justify-content-center w-100"
+                data-bs-toggle="modal" data-bs-target="#curiosityModal" id="continueButton">
+                <i class="bi bi-eye me-2"></i> continuer... ?
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour la vidéo -->
+<div class="modal fade" id="curiosityModal" tabindex="-1" aria-labelledby="curiosityModalLabel" aria-hidden="true"
+    data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content bg-dark text-white hauteur-90">
+            <div class="modal-header">
+                <span class="modal-title" id="curiosityModalLabel">Ha ha ha, vous n'avez pas dit le mot magiqueeeeee ! </span>
+                <span id="countdown" class="text-warning me-auto"> Temps restant avant de pouvoir fermer : 25s</span>
+                <button type="button" class="btn-close couleur-main" data-bs-dismiss="modal" aria-label="Close"
+                    id="closeModalButton"></button>
+            </div>
+            <div class="modal-body d-flex justify-content-center align-items-center">
+                <div class="ratio ratio-16x9 w-100" style="max-height: 100vh;">
+                    <iframe id="videoIframe" title="YouTube video" allowfullscreen class="rounded shadow-sm w-100 h-100"
+                        style="pointer-events: none;"></iframe>
+                </div>
+            </div>
+            <div class="modal-footer">
+
+                <!-- Compteur -->
+                <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal"
+                    id="dismissButton">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>

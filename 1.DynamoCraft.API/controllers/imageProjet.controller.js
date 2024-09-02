@@ -1,6 +1,7 @@
 const dbConnector = require("../tools/ConnexionDb.tools").get();
 const path = require("path");
 const fs = require("fs");
+const jwt = require("jsonwebtoken");
 const {
     logMessage,
     COLOR_GREEN,
@@ -22,6 +23,11 @@ exports.create = async (req, res, next) => {
             return res.status(400).json({ message: "Aucun fichier fourni" });
         }
 
+        // Extraire l'utilisateur du token JWT
+        const token = req.headers.authorization.split(" ")[1];
+        const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+        const utilisateurId = decodedToken.id;
+
         logMessage("Vérification de l'existence du projet", COLOR_YELLOW);
         const projet = await dbConnector.Projet.findByPk(id);
         if (!projet) {
@@ -33,26 +39,6 @@ exports.create = async (req, res, next) => {
                 });
             });
             return res.status(404).json({ message: "Projet non trouvé" });
-        }
-
-        logMessage(
-            "Vérification du nombre d'images existantes pour le projet",
-            COLOR_YELLOW
-        );
-        const existingImages = await dbConnector.ImageProjet.findAll({
-            where: { projetId: id },
-        });
-        if (existingImages.length + files.length > 8) {
-            logMessage("Limite de 8 images par projet atteinte", COLOR_RED);
-            // Supprimer les fichiers téléchargés en cas d'erreur
-            files.forEach((file) => {
-                fs.unlink(file.path, (err) => {
-                    if (err) console.log(err);
-                });
-            });
-            return res
-                .status(400)
-                .json({ message: "Limite de 8 images par projet atteinte" });
         }
 
         logMessage("Ajout des nouvelles images au projet", COLOR_YELLOW);
@@ -133,13 +119,18 @@ exports.updateByProjetId = async (req, res, next) => {
         const { id } = req.params;
         const imagesToRemove = req.body.imagesToDelete
             ? JSON.parse(req.body.imagesToDelete)
-            : []; // Convertir en tableau si nécessaire
+            : [];
 
         logMessage(`ID du projet : ${id}`, COLOR_YELLOW);
         logMessage(
             `Images à supprimer : ${JSON.stringify(imagesToRemove)}`,
             COLOR_YELLOW
         );
+
+        // Extraire l'utilisateur du token JWT
+        const token = req.headers.authorization.split(" ")[1];
+        const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+        const utilisateurId = decodedToken.id;
 
         // Vérifier si le projet existe
         logMessage("Vérification de l'existence du projet", COLOR_YELLOW);
@@ -260,6 +251,11 @@ exports.delete = async (req, res, next) => {
     try {
         const imageId = req.params.id;
         logMessage(`ID de l'image projet : ${imageId}`, COLOR_YELLOW);
+
+        // Extraire l'utilisateur du token JWT
+        const token = req.headers.authorization.split(" ")[1];
+        const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+        const utilisateurId = decodedToken.id;
 
         logMessage(
             "Vérification de l'existence de l'image projet",

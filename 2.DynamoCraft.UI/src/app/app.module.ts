@@ -5,7 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { HomeComponent } from './components/home/home.component';
-import { provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptorsFromDi } from '@angular/common/http';
 import { FooterComponent } from './components/footer/footer.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CategorieComponent } from './components/categorie/categorie.component';
@@ -22,6 +22,10 @@ import { ProjetModule } from './modules/projet/projet.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { NgChartsModule } from 'ng2-charts';
 import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha';
+import { AccesNonAutoriserComponent } from './components/acces-non-autoriser/acces-non-autoriser.component';
+import { NotFoundComponent } from './components/not-found/not-found.component';
+import { JwtInterceptor } from './tools/interceptors/jwt';
+import { ProjetRoutingModule } from './modules/projet/projet-routing.module';
 
 @NgModule({
     declarations: [
@@ -36,7 +40,9 @@ import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha';
         ContactComponent,
         QuiSommesNousComponent,
         PolitiqueConfidentialiteComponent,
-        ConditionsUtilisationComponent
+        ConditionsUtilisationComponent,
+        AccesNonAutoriserComponent,
+        NotFoundComponent
     ],
     imports: [
         BrowserModule,
@@ -47,13 +53,15 @@ import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha';
         UtilisateurModule,
         ProjetModule,
         AdminModule,
+        ProjetRoutingModule ,
         NgChartsModule,
         RecaptchaModule,
         RecaptchaFormsModule
     ],
     providers: [
         provideClientHydration(),
-        provideHttpClient(withFetch(), withInterceptorsFromDi())
+        provideHttpClient(withFetch(), withInterceptorsFromDi()),
+        { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     ],
     bootstrap: [AppComponent]
 })

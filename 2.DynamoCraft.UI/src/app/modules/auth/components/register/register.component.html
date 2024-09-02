@@ -4,15 +4,31 @@
             <h2 class="text-center text-warning mb-4 font-dc">Créer un compte</h2>
 
             <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
-
                 <!-- Image de profil avec bouton d'ajout ou de mise à jour -->
                 <div class="profile-image-wrapper position-relative mb-4">
-                    <img [src]="imagePreview || defaultImage" class="profile-image" alt="Prévisualisation">
-                    <div class="overlay d-flex justify-content-center align-items-center" (click)="triggerFileInput()">
-                        <i [class]="selectedFile ? 'bi bi-arrow-clockwise' : 'bi bi-plus'" style="font-size: 5rem;"></i>
+                    <ng-container *ngIf="imagePreview; else defaultIcon">
+                        <img [src]="imagePreview" class="profile-image w-100 h-100" alt="Prévisualisation"
+                            style="object-fit: cover; border-radius: 50%;">
+                    </ng-container>
+                    <ng-template #defaultIcon>
+                        <!-- Affichage de l'icône Bootstrap si aucune image n'est sélectionnée -->
+                        <div class="w-100 h-100 d-flex justify-content-center align-items-center"
+                            style="background-color: #2a2a2a; border-radius: 50%;">
+                            <i class="bi bi-person-circle" style="font-size: 13rem; color: #ffc107;"></i>
+                        </div>
+                    </ng-template>
+                    <div class="overlay d-flex justify-content-center align-items-center" (click)="triggerFileInput()"
+                        style="cursor: pointer;">
+                        <i [class]="selectedFile ? 'bi bi-arrow-clockwise' : 'bi bi-plus'"
+                            style="font-size: 3rem; color: #ffffff;"></i>
                     </div>
+
                     <!-- Input de fichier caché -->
                     <input type="file" id="image" (change)="onFileSelected($event)" class="d-none" #fileInput>
+                    <div *ngIf="registerForm.get('image')?.errors?.['fileSizeExceeded']"
+                        class="invalid-feedback d-block">
+                        La taille de l'image ne doit pas dépasser 5 Mo.
+                    </div>
                 </div>
 
                 <!-- Pseudo -->
@@ -33,9 +49,13 @@
                         placeholder="Votre email"
                         [class.is-invalid]="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
                     <label for="email">Email</label>
-                    <div *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid"
+                    <div *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.errors?.['email']"
                         class="invalid-feedback">
                         Un email valide est requis.
+                    </div>
+                    <div *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.errors?.['invalidDomainLength']"
+                        class="invalid-feedback">
+                        Le domaine de l'email doit comporter au moins 2 caractères après le dernier point.
                     </div>
                 </div>
 
@@ -44,9 +64,9 @@
                     <input type="date" id="dateNaissance" formControlName="dateNaissance" class="form-control"
                         [class.is-invalid]="registerForm.get('dateNaissance')?.touched && registerForm.get('dateNaissance')?.invalid">
                     <label for="dateNaissance">Date de naissance</label>
-                    <div *ngIf="registerForm.get('dateNaissance')?.touched && registerForm.get('dateNaissance')?.invalid"
+                    <div *ngIf="registerForm.get('dateNaissance')?.touched && registerForm.get('dateNaissance')?.hasError('invalidDate')"
                         class="invalid-feedback">
-                        La date de naissance est obligatoire.
+                        La date de naissance doit être raisonnable et ne doit pas être dans le futur.
                     </div>
                 </div>
 
@@ -56,7 +76,11 @@
                         placeholder="Parlez de vous..."
                         [class.is-invalid]="registerForm.get('biographie')?.touched && registerForm.get('biographie')?.invalid"></textarea>
                     <label for="biographie">Biographie</label>
-                    <div *ngIf="registerForm.get('biographie')?.touched && registerForm.get('biographie')?.invalid"
+                    <div *ngIf="registerForm.get('biographie')?.touched && registerForm.get('biographie')?.errors?.['minlength']"
+                        class="invalid-feedback">
+                        La biographie doit comporter au moins 50 caractères.
+                    </div>
+                    <div *ngIf="registerForm.get('biographie')?.touched && registerForm.get('biographie')?.errors?.['maxlength']"
                         class="invalid-feedback">
                         La biographie ne doit pas dépasser 500 caractères.
                     </div>
@@ -65,8 +89,13 @@
                 <!-- Centre d'intérêts (Textarea) -->
                 <div class="form-floating mb-3">
                     <textarea id="centreInterets" formControlName="centreInterets" class="form-control"
-                        style="height: 100px" placeholder="Vos centres d'intérêts"></textarea>
+                        style="height: 100px" placeholder="Vos centres d'intérêts"
+                        [class.is-invalid]="registerForm.get('centreInterets')?.touched && registerForm.get('centreInterets')?.invalid"></textarea>
                     <label for="centreInterets">Centres d'intérêts</label>
+                    <div *ngIf="registerForm.get('centreInterets')?.touched && registerForm.get('centreInterets')?.errors?.['minlength']"
+                        class="invalid-feedback">
+                        Les centres d'intérêts doivent comporter au moins 50 caractères.
+                    </div>
                 </div>
 
                 <!-- Mot de passe -->
@@ -78,9 +107,22 @@
                     <i (click)="togglePasswordVisibility()"
                         [class]="isPasswordVisible ? 'bi bi-eye position-absolute end-0 top-50 translate-middle-y pe-3' : 'bi bi-eye-slash position-absolute end-0 top-50 translate-middle-y pe-3'"
                         style="cursor: pointer;"></i>
-                    <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid"
+                    <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.errors?.['required']"
                         class="invalid-feedback">
-                        Le mot de passe doit comporter au moins 6 caractères.
+                        Le mot de passe est obligatoire.
+                    </div>
+                    <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.errors?.['minlength']"
+                        class="invalid-feedback">
+                        Le mot de passe doit comporter au moins 8 caractères.
+                    </div>
+                    <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.errors?.['passwordComplexity']"
+                        class="invalid-feedback">
+                        Le mot de passe doit comporter au moins une majuscule, une minuscule, un chiffre et un caractère
+                        spécial.
+                    </div>
+                    <div *ngIf="registerForm.get('confirmPassword')?.touched && (registerForm.get('confirmPassword')?.invalid || passwordMismatch)"
+                        class="invalid-feedback">
+                        Les mots de passe doivent correspondre.
                     </div>
                 </div>
 

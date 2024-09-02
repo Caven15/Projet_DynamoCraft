@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../tools/services/api/auth.service';
+import { password } from '../../../../tools/validators/password.validator';  // Import du validateur personnalisé
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
     selector: 'app-reset-password',
@@ -28,7 +30,7 @@ export class ResetPasswordComponent implements OnInit {
     initForm(): void {
         this.resetPasswordForm = this.fb.group({
             oldPassword: ['', [Validators.required]],
-            newPassword: ['', [Validators.required, Validators.minLength(6)]],
+            newPassword: ['', [Validators.required, password()]],
             confirmPassword: ['', [Validators.required]]
         }, {
             validators: this.passwordMatchValidator
@@ -69,12 +71,13 @@ export class ResetPasswordComponent implements OnInit {
         this.authService.resetPassword(oldPassword, newPassword).subscribe({
             next: () => {
                 alert('Mot de passe réinitialisé avec succès');
-                this.router.navigate(['/login']); // Redirection après la réinitialisation
+                this.router.navigate(['auth/login']); // Redirection après la réinitialisation
             },
-            error: (err) => {
+            error: (err: string) => {
                 console.error('Erreur lors de la réinitialisation:', err);
-                this.errorMessage = 'Erreur lors de la réinitialisation du mot de passe';
+                this.errorMessage = err || 'L\'ancien mot de passe est incorrect ou vous n\'êtes pas autorisé à effectuer cette action.';
             },
         });
     }
+
 }

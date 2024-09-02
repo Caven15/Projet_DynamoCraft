@@ -37,12 +37,6 @@ module.exports = {
                 onDelete: "CASCADE", // Supprimez la relation si le projet est supprimé
             },
         });
-
-        await queryInterface.addConstraint("utilisateurProjet", {
-            fields: ["utilisateurId", "projetId"],
-            type: "unique",
-            name: "unique_utilisateur_projet",
-        });
     },
     async down(queryInterface, Sequelize) {
         await queryInterface.dropTable("utilisateurProjet");

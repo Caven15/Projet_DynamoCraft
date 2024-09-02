@@ -1,11 +1,13 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray, FormControl } from '@angular/forms';
 import { ProjetService } from '../../../../tools/services/api/projet.service';
 import { CategorieService } from '../../../../tools/services/api/categorie.service';
 import { Router } from '@angular/router';
 import { Categorie } from '../../../../models/categorie.model';
 import { Display3dService } from '../../../../tools/services/other/display-3d.service';
 import { Modele3dService } from '../../../../tools/services/api/modele-3d.service';
+import { imgType } from '../../../../tools/validators/imgType.validator';
+import { fileType } from '../../../../tools/validators/fileType.validator';
 
 @Component({
     selector: 'app-ajout',
@@ -25,7 +27,9 @@ export class AjoutComponent {
     modal3DIndex: number = 0;
     maxImages: number = 8;
     maxSize: number = 20 * 1024 * 1024; // 20 MB
+    max3DFileSize: number = 50 * 1024 * 1024; // 50 MB
     errorMessage: string = '';
+    threeDErrorMessage: string = '';
 
     @ViewChild('imageInput') imageInput!: ElementRef;
     @ViewChild('threeContainer') threeContainer!: ElementRef;
@@ -33,15 +37,17 @@ export class AjoutComponent {
     constructor(
         private fb: FormBuilder,
         private projetService: ProjetService,
-        private modele3DService: Modele3dService, // Ajout du service de fichiers 3D
+        private modele3DService: Modele3dService,
         private categorieService: CategorieService,
         private router: Router,
         private display3dService: Display3dService
     ) {
         this.projetForm = this.fb.group({
-            nom: ['', Validators.required],
-            description: ['', Validators.required],
+            nom: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(50)]],
+            description: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(50)]],
             categorieId: ['', Validators.required],
+            images: this.fb.array([], [Validators.required]),
+            modeles3D: this.fb.array([], [Validators.required])
         });
     }
 
@@ -51,25 +57,34 @@ export class AjoutComponent {
         });
     }
 
+    get images(): FormArray {
+        return this.projetForm.get('images') as FormArray;
+    }
+
+    get modeles3D(): FormArray {
+        return this.projetForm.get('modeles3D') as FormArray;
+    }
+
     onImageSelected(event: any): void {
         const files = Array.from(event.target.files) as File[];
         const validFiles: File[] = [];
 
-        if (this.selectedImages.length + files.length > this.maxImages) {
+        if (this.images.length + files.length > this.maxImages) {
             this.errorMessage = `Vous ne pouvez pas ajouter plus de ${this.maxImages} images.`;
             return;
         }
 
         files.forEach(file => {
-            if (file.size <= this.maxSize) {
+            if (file.size <= this.maxSize && this.validateImageFile(file)) {
                 validFiles.push(file);
             } else {
-                this.errorMessage = `La taille de l'image ${file.name} dépasse 20 MB.`;
+                this.errorMessage = `Le fichier ${file.name} n'est pas un type d'image valide ou dépasse la taille autorisée de 20 MB.`;
             }
         });
 
-        this.selectedImages.push(...validFiles);
         validFiles.forEach(file => {
+            this.images.push(new FormControl(file, [imgType()]));
+            this.selectedImages.push(file);
             const reader = new FileReader();
             reader.onload = (e: any) => this.imagePreviewUrls.push(e.target.result);
             reader.readAsDataURL(file);
@@ -80,10 +95,49 @@ export class AjoutComponent {
         }
     }
 
+    on3DFileSelected(event: any): void {
+        const files = Array.from(event.target.files) as File[];
+        const valid3DFiles: File[] = [];
+
+        files.forEach(file => {
+            if (file.size <= this.max3DFileSize && this.validate3DFile(file)) {
+                valid3DFiles.push(file);
+            } else {
+                this.threeDErrorMessage = `Le fichier 3D ${file.name} dépasse 50 MB ou n'est pas au format STL.`;
+            }
+        });
+
+        valid3DFiles.forEach(file => {
+            this.modeles3D.push(new FormControl(file, [fileType()]));
+            this.selected3DFiles.push(file);
+        });
+
+        if (valid3DFiles.length > 0) {
+            this.threeDErrorMessage = ''; // Réinitialiser le message d'erreur si les fichiers sont valides
+        }
+    }
+
+    validateImageFile(file: File): boolean {
+        const allowedExtensions = ['png', 'jpeg', 'jpg'];
+        const fileExtension = file.name.split('.').pop()?.toLowerCase();
+        return allowedExtensions.includes(fileExtension || '');
+    }
+
+    validate3DFile(file: File): boolean {
+        return file.name.split('.').pop()?.toLowerCase() === 'stl';
+    }
+
     removeImage(index: number): void {
+        this.images.removeAt(index);
         this.selectedImages.splice(index, 1);
         this.imagePreviewUrls.splice(index, 1);
-        this.closeModal(); // Close the modal if the image is removed
+        this.closeModal(); // Fermer la modale si l'image est supprimée
+    }
+
+    remove3DFile(index: number): void {
+        this.modeles3D.removeAt(index);
+        this.selected3DFiles.splice(index, 1);
+        this.close3DModal();
     }
 
     openImageModal(index: number): void {
@@ -93,16 +147,6 @@ export class AjoutComponent {
 
     closeModal(): void {
         this.showModal = false;
-    }
-
-    on3DFileSelected(event: any): void {
-        const files = Array.from(event.target.files) as File[];
-        this.selected3DFiles.push(...files);
-    }
-
-    remove3DFile(index: number): void {
-        this.selected3DFiles.splice(index, 1);
-        this.close3DModal(); // Close the modal if the 3D file is removed
     }
 
     open3DModal(index: number): void {

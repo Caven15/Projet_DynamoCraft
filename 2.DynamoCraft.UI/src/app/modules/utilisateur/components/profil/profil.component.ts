@@ -69,6 +69,6 @@ export class ProfilComponent implements OnInit {
     }
 
     navigateToAllProjects(): void {
-        this.router.navigate(['/realisations', this.utilisateur?.id]);
+        this.router.navigate(['utilisateur/realisations', this.utilisateur?.id]);
     }
 }

@@ -1,4 +1,5 @@
 const dbConnector = require("../tools/ConnexionDb.tools").get();
+const jwt = require("jsonwebtoken");
 const {
     logMessage,
     COLOR_GREEN,
@@ -12,7 +13,6 @@ exports.create = async (req, res, next) => {
 
     try {
         const { description, projetId } = req.body;
-        const { id } = req.params; // id from URL params
 
         if (!description || !projetId) {
             logMessage(
@@ -24,18 +24,10 @@ exports.create = async (req, res, next) => {
             });
         }
 
-        // Vérifier si l'utilisateur existe
-        logMessage(
-            `Vérification de l'existence de l'utilisateur avec ID: ${id}`,
-            COLOR_YELLOW
-        );
-        const utilisateur = await dbConnector.Utilisateur.findByPk(id);
-        if (!utilisateur) {
-            logMessage("Utilisateur non trouvé", COLOR_RED);
-            return res
-                .status(404)
-                .json({ message: "L'utilisateur n'existe pas" });
-        }
+        // Extraire l'utilisateur du token JWT
+        const token = req.headers.authorization.split(" ")[1];
+        const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+        const utilisateurId = decodedToken.id;
 
         // Vérifier si le projet existe
         logMessage(
@@ -55,7 +47,7 @@ exports.create = async (req, res, next) => {
             dateCreation: new Date(),
             dateModif: new Date(),
             projetId,
-            utilisateurId: utilisateur.id,
+            utilisateurId,
         });
 
         logMessage("Commentaire créé avec succès", COLOR_GREEN);
@@ -101,12 +93,12 @@ exports.getByProjectId = async (req, res, next) => {
         const commentaires = await dbConnector.Commentaire.findAll({
             where: { projetId: id },
             include: [
-                { model: dbConnector.Projet, as : 'projet' },
+                { model: dbConnector.Projet, as: "projet" },
                 {
                     model: dbConnector.Utilisateur,
-                    as : 'utilisateur',
+                    as: "utilisateur",
                     attributes: ["id", "pseudo"],
-                }, 
+                },
             ],
         });
 
@@ -133,8 +125,13 @@ exports.update = async (req, res, next) => {
     logMessage("Début de la mise à jour du commentaire", COLOR_YELLOW);
 
     try {
-        const { description, utilisateurId } = req.body;
+        const { description } = req.body;
         const commentaireId = req.params.id;
+
+        // Extraire l'utilisateur du token JWT
+        const token = req.headers.authorization.split(" ")[1];
+        const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+        const utilisateurId = decodedToken.id;
 
         // Vérifier si le commentaire existe
         logMessage(
@@ -191,6 +188,11 @@ exports.delete = async (req, res, next) => {
     try {
         const commentaireId = req.params.id;
 
+        // Extraire l'utilisateur du token JWT
+        const token = req.headers.authorization.split(" ")[1];
+        const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+        const utilisateurId = decodedToken.id;
+
         // Vérifier si le commentaire existe
         logMessage(
             `Vérification de l'existence du commentaire avec ID: ${commentaireId}`,
@@ -202,6 +204,17 @@ exports.delete = async (req, res, next) => {
         if (!commentaire) {
             logMessage("Commentaire non trouvé", COLOR_RED);
             return res.status(404).json({ message: "Commentaire non trouvé" });
+        }
+
+        // Vérifier si l'utilisateur est le titulaire du commentaire
+        if (commentaire.utilisateurId !== utilisateurId) {
+            logMessage(
+                "Utilisateur non autorisé à supprimer ce commentaire",
+                COLOR_RED
+            );
+            return res.status(403).json({
+                message: "Vous n'êtes pas autorisé à supprimer ce commentaire",
+            });
         }
 
         // Supprimer le commentaire
@@ -232,14 +245,19 @@ exports.getByUserId = async (req, res, next) => {
     );
 
     try {
-        const userId = req.params.id;
+        // Extraire l'utilisateur du token JWT
+        const token = req.headers.authorization.split(" ")[1];
+        const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+        const utilisateurId = decodedToken.id;
 
         // Vérifier si l'utilisateur existe
         logMessage(
-            `Vérification de l'existence de l'utilisateur avec ID: ${userId}`,
+            `Vérification de l'existence de l'utilisateur avec ID: ${utilisateurId}`,
             COLOR_YELLOW
         );
-        const utilisateur = await dbConnector.Utilisateur.findByPk(userId);
+        const utilisateur = await dbConnector.Utilisateur.findByPk(
+            utilisateurId
+        );
         if (!utilisateur) {
             logMessage("Utilisateur non trouvé", COLOR_RED);
             return res.status(404).json({ message: "Utilisateur non trouvé" });
@@ -251,11 +269,11 @@ exports.getByUserId = async (req, res, next) => {
             COLOR_YELLOW
         );
         const commentaires = await dbConnector.Commentaire.findAll({
-            where: { utilisateurId: userId },
+            where: { utilisateurId },
             include: [
                 {
                     model: dbConnector.Projet,
-                    as: 'projet',
+                    as: "projet",
                     attributes: ["id", "nom"], // Inclure seulement les champs nécessaires
                 },
             ],

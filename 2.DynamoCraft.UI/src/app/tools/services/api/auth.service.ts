@@ -36,8 +36,7 @@ export class AuthService extends BaseApiService {
         const loginData = { email, password, recaptchaToken };
         return this.post<{ accessToken: string, id: string, roleId: string }>('auth/login', loginData).pipe(
             tap(response => {
-                console.log(response);
-                // Mettre à jour le BehaviorSubject avec les nouvelles données utilisateur
+                sessionStorage.setItem(this.tokenKey, response.accessToken);
                 this.utilisateurService.getUtilisateurById(parseInt(response.id)).subscribe({
                     next: (datas) => {
                         datas.roleId = parseInt(response.roleId);
@@ -49,7 +48,6 @@ export class AuthService extends BaseApiService {
             catchError(this.handleError<{ accessToken: string, id: string, roleId: string }>('login'))
         );
     }
-
     /**
      * Inscription de l'utilisateur
      * @param formData FormData contenant les données de l'utilisateur et l'image

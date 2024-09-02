@@ -9,6 +9,7 @@ const {
     COLOR_RED,
     COLOR_YELLOW,
 } = require("../tools/logs.tools");
+const jwt = require("jsonwebtoken");
 
 // Récupérer tous les utilisateurs
 exports.getAll = async (req, res, next) => {

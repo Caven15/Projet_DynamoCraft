@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const imageUtilisateurController = require('../controllers/imageUtilisateur.Controller');
-const upload = require("../tools/multerConfig.tools")
+const upload = require("../tools/multerConfig.tools");
+const estAutorise = require('../middleware/estAutorise.middleware');
 
-router.post('/imageUtilisateur/:id/utilisateur', upload.single('image'), imageUtilisateurController.addImage);
-router.put('/imageUtilisateur/:id/utilisateur', upload.single('image'), imageUtilisateurController.updateImage);
-router.delete('/imageUtilisateur/:id/utilisateur', imageUtilisateurController.deleteImage);
+// Ajouter une image utilisateur
+router.post('/imageUtilisateur', estAutorise(1), upload.single('image'), imageUtilisateurController.addImage);
+router.put('/imageUtilisateur', estAutorise(1), upload.single('image'), imageUtilisateurController.updateImage);
+router.delete('/imageUtilisateur', estAutorise(1), imageUtilisateurController.deleteImage);
 
 module.exports = router;

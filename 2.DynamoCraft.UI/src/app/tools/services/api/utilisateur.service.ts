@@ -54,6 +54,7 @@ export class UtilisateurService extends BaseApiService {
             catchError(this.handleError<Utilisateur>('getUtilisateurById'))
         );
     }
+
     /**
      * Mettre à jour un utilisateur par ID
      * @param id Identifiant de l'utilisateur
@@ -86,10 +87,10 @@ export class UtilisateurService extends BaseApiService {
     }
 
     /**
- * Activer ou désactiver un utilisateur
- * @param id Identifiant de l'utilisateur
- * @returns Observable indiquant le résultat de l'opération
- */
+     * Activer ou désactiver un utilisateur
+     * @param id Identifiant de l'utilisateur
+     * @returns Observable indiquant le résultat de l'opération
+     */
     toggleActivation(id: number): Observable<any> {
         return this.put<any>(`utilisateur/${id}/toggle-activation`, {}).pipe(
             tap({

@@ -10,6 +10,8 @@ import { Projet } from '../../../../models/projet.model';
 import { Modele3D } from '../../../../models/modele-3d.model';
 import { Categorie } from '../../../../models/categorie.model';
 import { ImageProjet } from '../../../../models/imageProjet.model';
+import { imgType } from '../../../../tools/validators/imgType.validator';
+import { fileType } from '../../../../tools/validators/fileType.validator';
 import { environment } from '../../../../../environments/environment.dev';
 
 @Component({
@@ -32,7 +34,9 @@ export class UpdateComponent implements OnInit {
     modal3DIndex: number = 0;
     maxImages: number = 8;
     maxSize: number = 20 * 1024 * 1024; // 20 MB
+    max3DFileSize: number = 50 * 1024 * 1024; // 50 MB
     errorMessage: string = '';
+    threeDErrorMessage: string = '';
     url: string = `${environment.apiUrl}/uploads/`;
 
     @ViewChild('threeContainer') threeContainer!: ElementRef;
@@ -48,8 +52,8 @@ export class UpdateComponent implements OnInit {
         private display3dService: Display3dService
     ) {
         this.projetForm = this.fb.group({
-            nom: ['', Validators.required],
-            description: ['', Validators.required],
+            nom: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(50)]],
+            description: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(50)]],
             categorieId: ['', Validators.required],
         });
         this.projetId = this.route.snapshot.params['id'];
@@ -66,7 +70,6 @@ export class UpdateComponent implements OnInit {
         });
     }
 
-    // Récupère le nom du fichier
     getFileName(file: File | ImageProjet | Modele3D): string {
         return (file instanceof File) ? file.name : file.nom;
     }
@@ -94,7 +97,6 @@ export class UpdateComponent implements OnInit {
         });
     }
 
-    // Sélection et validation des images
     onImageSelected(event: any): void {
         const files = Array.from(event.target.files) as File[];
         const validFiles: File[] = [];
@@ -105,15 +107,15 @@ export class UpdateComponent implements OnInit {
         }
 
         files.forEach(file => {
-            if (file.size <= this.maxSize) {
+            if (file.size <= this.maxSize && this.validateImageFile(file)) {
                 validFiles.push(file);
             } else {
-                this.errorMessage = `La taille de l'image ${file.name} dépasse 20 MB.`;
+                this.errorMessage = `Le fichier ${file.name} n'est pas un type d'image valide ou dépasse la taille autorisée de 20 MB.`;
             }
         });
 
-        this.selectedImages.push(...validFiles);
         validFiles.forEach(file => {
+            this.selectedImages.push(file);
             const reader = new FileReader();
             reader.onload = (e: any) => this.imagePreviewUrls.push(e.target.result);
             reader.readAsDataURL(file);
@@ -124,13 +126,37 @@ export class UpdateComponent implements OnInit {
         }
     }
 
-    // Sélection des fichiers 3D
-    on3DFileSelected(event: any): void {
-        const files = Array.from(event.target.files) as File[];
-        this.selected3DFiles.push(...files);
+    validateImageFile(file: File): boolean {
+        const allowedExtensions = ['png', 'jpeg', 'jpg'];
+        const fileExtension = file.name.split('.').pop()?.toLowerCase();
+        return allowedExtensions.includes(fileExtension || '');
     }
 
-    // Supprimer une image
+    on3DFileSelected(event: any): void {
+        const files = Array.from(event.target.files) as File[];
+        const valid3DFiles: File[] = [];
+
+        files.forEach(file => {
+            if (file.size <= this.max3DFileSize && this.validate3DFile(file)) {
+                valid3DFiles.push(file);
+            } else {
+                this.threeDErrorMessage = `Le fichier 3D ${file.name} dépasse 50 MB ou n'est pas au format STL.`;
+            }
+        });
+
+        valid3DFiles.forEach(file => {
+            this.selected3DFiles.push(file);
+        });
+
+        if (valid3DFiles.length > 0) {
+            this.threeDErrorMessage = ''; // Réinitialiser le message d'erreur si les fichiers sont valides
+        }
+    }
+
+    validate3DFile(file: File): boolean {
+        return file.name.split('.').pop()?.toLowerCase() === 'stl';
+    }
+
     removeImage(index: number): void {
         const image = this.selectedImages[index];
         if (!(image instanceof File)) {
@@ -157,7 +183,6 @@ export class UpdateComponent implements OnInit {
         this.showModal = true;
     }
 
-    // Ouverture de la modale 3D
     open3DModal(index: number): void {
         this.modal3DIndex = index;
         this.show3DModal = true;
@@ -165,7 +190,6 @@ export class UpdateComponent implements OnInit {
         const file = this.selected3DFiles[index];
         const url = file instanceof File ? URL.createObjectURL(file) : `${this.url}${file.nom}`;
 
-        // Affichage de la modale et chargement du modèle 3D
         setTimeout(() => {
             if (this.threeContainer?.nativeElement) {
                 this.display3dService.initThree([this.threeContainer]);
@@ -174,13 +198,11 @@ export class UpdateComponent implements OnInit {
         }, 300);
     }
 
-    // Fermeture de la modale 3D
     close3DModal(): void {
         this.show3DModal = false;
         this.display3dService.nettoyerScene(0); // Nettoyer la scène Three.js après la fermeture
     }
 
-    // Soumission du formulaire pour mettre à jour le projet, images et fichiers 3D
     onSubmit(): void {
         if (this.projetForm.valid) {
             const updatedProjet = this.projetForm.value;
@@ -214,7 +236,6 @@ export class UpdateComponent implements OnInit {
             });
         }
     }
-
 
     // Méthodes de manipulation 3D
     zoomAvant(): void { this.display3dService.zoomAvant(0); }

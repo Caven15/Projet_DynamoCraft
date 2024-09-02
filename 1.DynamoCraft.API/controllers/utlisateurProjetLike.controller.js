@@ -1,10 +1,21 @@
 const dbConnector = require("../tools/ConnexionDb.tools").get();
-const { logMessage, COLOR_RED, COLOR_YELLOW, COLOR_GREEN } = require("../tools/logs.tools");
+const {
+    logMessage,
+    COLOR_RED,
+    COLOR_YELLOW,
+    COLOR_GREEN,
+} = require("../tools/logs.tools");
+const jwt = require("jsonwebtoken");
 
 // Vérifier si un utilisateur a déjà liké un projet
 exports.hasLiked = async (req, res, next) => {
     try {
-        const { utilisateurId, projetId } = req.params;
+        const { projetId } = req.params;
+
+        // Extraire l'utilisateur du token JWT
+        const token = req.headers.authorization.split(" ")[1];
+        const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+        const utilisateurId = decodedToken.id;
 
         // Log pour début de la vérification
         logMessage(

@@ -3,28 +3,48 @@
         <div class="card p-4 shadow-lg bg-dc-2">
             <h2 class="text-center text-warning mb-4 font-dc">Connexion</h2>
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+
+                <!-- Email -->
                 <div class="form-floating mb-3">
                     <input type="email" id="email" class="form-control" placeholder="name@example.com"
                         formControlName="email"
-                        [class.is-invalid]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+                        [class.is-invalid]="loginForm.get('email')?.touched && loginForm.get('email')?.invalid">
                     <label for="email">Email</label>
-                    <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+                    <div *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.hasError('required')"
+                        class="invalid-feedback">
+                        L'email est requis.
+                    </div>
+                    <div *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.hasError('email')"
                         class="invalid-feedback">
                         Un email valide est requis.
                     </div>
+                    <div *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.hasError('invalidDomainLength')"
+                        class="invalid-feedback">
+                        Le domaine de l'email doit comporter au moins 2 caractères après le dernier point.
+                    </div>
                 </div>
 
+                <!-- Mot de passe -->
                 <div class="form-floating mb-3 position-relative">
                     <input [type]="isPasswordVisible ? 'text' : 'password'" id="password" class="form-control"
                         placeholder="Mot de passe" formControlName="password"
-                        [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                        [class.is-invalid]="loginForm.get('password')?.touched && loginForm.get('password')?.invalid">
                     <label for="password">Mot de passe</label>
                     <i (click)="togglePasswordVisibility()"
                         [class]="isPasswordVisible ? 'bi bi-eye position-absolute end-0 top-50 translate-middle-y pe-3' : 'bi bi-eye-slash position-absolute end-0 top-50 translate-middle-y pe-3'"
                         style="cursor: pointer;"></i>
-                    <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+                    <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')"
+                        class="invalid-feedback">
+                        Le mot de passe est requis.
+                    </div>
+                    <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('minlength')"
                         class="invalid-feedback">
                         Le mot de passe doit comporter au moins 6 caractères.
+                    </div>
+                    <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('passwordComplexity')"
+                        class="invalid-feedback">
+                        Le mot de passe doit comporter au moins une majuscule, une minuscule, un chiffre et un caractère
+                        spécial.
                     </div>
                 </div>
 
@@ -33,10 +53,12 @@
                     <app-google-captcha #recaptchaRef (captchaResolved)="onCaptchaResolved($event)"></app-google-captcha>
                 </div>
 
+                <!-- Message d'erreur global -->
                 <div *ngIf="errorMessage" class="alert alert-danger text-center">
                     {{ errorMessage }}
                 </div>
 
+                <!-- Bouton de soumission -->
                 <button type="submit" class="btn btn-warning w-100 py-2 mt-3 font-dc"
                     [disabled]="loginForm.invalid || !captchaValid">Valider</button>
 

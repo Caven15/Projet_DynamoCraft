@@ -24,7 +24,7 @@ export class UtilisateurProjetService extends BaseApiService {
                 if (!user) {
                     throw new Error('Utilisateur non connecté');
                 }
-                const endpoint = `utilisateurProjet/${projetId}/download?utilisateurId=${user.id}`;
+                const endpoint = `utilisateurProjet/${projetId}/download`;
                 return this.httpClient.get(`${this.baseUrl}/${endpoint}`, { headers, responseType: 'blob' });
             })
         );
@@ -37,7 +37,7 @@ export class UtilisateurProjetService extends BaseApiService {
                 if (!user) {
                     throw new Error('Utilisateur non connecté');
                 }
-                const endpoint = `utilisateurProjet/${user.id}/${projetId}`;
+                const endpoint = `utilisateurProjet/${projetId}`;
                 return this.httpClient.delete<void>(`${this.baseUrl}/${endpoint}`, this.httpOptions);
             })
         );

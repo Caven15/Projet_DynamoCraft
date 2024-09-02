@@ -2,6 +2,10 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../tools/services/api/auth.service';
+import { imageSize } from '../../../../tools/validators/imageSize.validator';
+import { email } from '../../../../tools/validators/email.validator';
+import { dateOfBirth } from '../../../../tools/validators/dateOfBirth.validator';
+import { password } from '../../../../tools/validators/password.validator';
 
 @Component({
     selector: 'app-register',
@@ -27,14 +31,14 @@ export class RegisterComponent implements OnInit {
 
     ngOnInit(): void {
         this.registerForm = this.fb.group({
-            pseudo: ['', Validators.required],
-            email: ['', [Validators.required, Validators.email]],
-            dateNaissance: ['', Validators.required],
-            biographie: ['', Validators.maxLength(500)],
-            password: ['', [Validators.required, Validators.minLength(6)]],
+            pseudo: ['', [Validators.required, Validators.minLength(3)]],
+            email: ['', [Validators.required, Validators.email, email(2)]],
+            dateNaissance: ['', [Validators.required, dateOfBirth(15, 90)]],
+            biographie: ['', [Validators.required, Validators.minLength(50), Validators.maxLength(500)]],
+            password: ['', [Validators.required, Validators.minLength(8), password()]],
             confirmPassword: ['', Validators.required],
-            centreInterets: [''],
-            image: ['']
+            centreInterets: ['', [Validators.required, Validators.minLength(50)]],
+            image: ['', [imageSize(5)]]
         }, { validators: this.passwordMatchValidator });
     }
 
@@ -109,10 +113,11 @@ export class RegisterComponent implements OnInit {
                 alert('Inscription réussie');
                 this.registerForm.reset();
                 this.captchaValid = false; // Réinitialiser l'état du captcha après la soumission
-                this.router.navigate(['/login']);
+                this.router.navigate(['auth/login']);
             },
             error: (error) => {
                 console.error('Erreur lors de l\'inscription:', error);
+                
             }
         });
     }

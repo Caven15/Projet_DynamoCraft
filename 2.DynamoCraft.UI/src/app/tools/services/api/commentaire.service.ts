@@ -16,11 +16,12 @@ export class CommentaireService extends BaseApiService {
     /**
      * Créer un nouveau commentaire
      * @param commentaire Objet commentaire à créer
-     * @param utilisateurId Identifiant de l'utilisateur
      * @returns Observable contenant le commentaire créé
      */
-    createCommentaire(commentaire: Commentaire, utilisateurId: number): Observable<Commentaire> {
-        return this.post<Commentaire>(`comentaire/${utilisateurId}/utilisateur`, commentaire);
+    createCommentaire(commentaire: Commentaire): Observable<Commentaire> {
+        return this.post<Commentaire>('comentaire', commentaire).pipe(
+            map(response => response)
+        );
     }
 
     /**
@@ -41,7 +42,9 @@ export class CommentaireService extends BaseApiService {
      * @returns Observable contenant le commentaire mis à jour
      */
     updateCommentaire(commentaireId: number, commentaire: Commentaire): Observable<Commentaire> {
-        return this.put<Commentaire>(`comentaire/${commentaireId}`, commentaire);
+        return this.put<Commentaire>(`comentaire/${commentaireId}`, commentaire).pipe(
+            map(response => response)
+        );
     }
 
     /**
@@ -50,16 +53,17 @@ export class CommentaireService extends BaseApiService {
      * @returns Observable indiquant le résultat de l'opération
      */
     deleteCommentaire(commentaireId: number): Observable<void> {
-        return this.delete<void>(`comentaire/${commentaireId}`);
+        return this.delete<void>(`comentaire/${commentaireId}`).pipe(
+            map(response => response)
+        );
     }
 
     /**
- * Récupérer tous les commentaires postés par un utilisateur donné
- * @param utilisateurId Identifiant de l'utilisateur
- * @returns Observable contenant la liste des commentaires
- */
-    getCommentairesByUtilisateurId(utilisateurId: number): Observable<Commentaire[]> {
-        return this.get<{ commentaires: Commentaire[] }>(`comentaires/${utilisateurId}/utilisateur`).pipe(
+     * Récupérer tous les commentaires postés par un utilisateur donné
+     * @returns Observable contenant la liste des commentaires
+     */
+    getCommentairesByUtilisateurId(): Observable<Commentaire[]> {
+        return this.get<{ commentaires: Commentaire[] }>(`comentaires/utilisateur`).pipe(
             map(response => response.commentaires)
         );
     }

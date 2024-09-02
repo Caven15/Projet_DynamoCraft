@@ -1,4 +1,5 @@
 const dbConnector = require("../tools/ConnexionDb.tools").get();
+const jwt = require("jsonwebtoken");
 const {
     logMessage,
     COLOR_GREEN,
@@ -11,11 +12,17 @@ exports.create = async (req, res, next) => {
     logMessage("Début de la création de la statistique", COLOR_YELLOW);
 
     try {
+        // Extraire l'utilisateur du token JWT
+        const token = req.headers.authorization.split(" ")[1];
+        const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+        const utilisateurId = decodedToken.id;
+
         const newStat = await dbConnector.Statistique.create({
             nombreApreciation: 0,
             nombreTelechargement: 0,
             datePublication: new Date(),
             dateModification: new Date(),
+            utilisateurId: utilisateurId, // Associer la statistique à l'utilisateur
         });
 
         logMessage("Statistique créée avec succès", COLOR_GREEN);
@@ -317,40 +324,78 @@ exports.getDownloadsEvolutionByMonth = async (req, res, next) => {
 
 // Récupérer l'évolution des téléchargements par semaine
 exports.getDownloadsEvolutionByWeek = async (req, res, next) => {
-    logMessage("Récupération de l'évolution des téléchargements par semaine", COLOR_YELLOW);
+    logMessage(
+        "Récupération de l'évolution des téléchargements par semaine",
+        COLOR_YELLOW
+    );
     try {
         const evolution = await dbConnector.Statistique.findAll({
             attributes: [
-                [dbConnector.Sequelize.fn("WEEKDAY", dbConnector.Sequelize.col("datePublication")), "weekday"],
-                [dbConnector.Sequelize.fn("SUM", dbConnector.Sequelize.col("nombreTelechargement")), "totalDownloads"],
+                [
+                    dbConnector.Sequelize.fn(
+                        "WEEKDAY",
+                        dbConnector.Sequelize.col("datePublication")
+                    ),
+                    "weekday",
+                ],
+                [
+                    dbConnector.Sequelize.fn(
+                        "SUM",
+                        dbConnector.Sequelize.col("nombreTelechargement")
+                    ),
+                    "totalDownloads",
+                ],
             ],
             group: ["weekday"],
         });
         res.status(200).json(evolution);
     } catch (error) {
-        logMessage("Erreur lors de la récupération des téléchargements par semaine", COLOR_RED);
+        logMessage(
+            "Erreur lors de la récupération des téléchargements par semaine",
+            COLOR_RED
+        );
         res.status(500).json({
-            message: "Erreur lors de la récupération des téléchargements par semaine",
+            message:
+                "Erreur lors de la récupération des téléchargements par semaine",
         });
     }
 };
 
 // Récupérer l'évolution des téléchargements par semaine
 exports.getDownloadsEvolutionByDay = async (req, res, next) => {
-    logMessage("Récupération de l'évolution des téléchargements par jour", COLOR_YELLOW);
+    logMessage(
+        "Récupération de l'évolution des téléchargements par jour",
+        COLOR_YELLOW
+    );
     try {
         const evolution = await dbConnector.Statistique.findAll({
             attributes: [
-                [dbConnector.Sequelize.fn("HOUR", dbConnector.Sequelize.col("datePublication")), "hour"],
-                [dbConnector.Sequelize.fn("SUM", dbConnector.Sequelize.col("nombreTelechargement")), "totalDownloads"],
+                [
+                    dbConnector.Sequelize.fn(
+                        "HOUR",
+                        dbConnector.Sequelize.col("datePublication")
+                    ),
+                    "hour",
+                ],
+                [
+                    dbConnector.Sequelize.fn(
+                        "SUM",
+                        dbConnector.Sequelize.col("nombreTelechargement")
+                    ),
+                    "totalDownloads",
+                ],
             ],
             group: ["hour"],
         });
         res.status(200).json(evolution);
     } catch (error) {
-        logMessage("Erreur lors de la récupération des téléchargements par jour", COLOR_RED);
+        logMessage(
+            "Erreur lors de la récupération des téléchargements par jour",
+            COLOR_RED
+        );
         res.status(500).json({
-            message: "Erreur lors de la récupération des téléchargements par jour",
+            message:
+                "Erreur lors de la récupération des téléchargements par jour",
         });
     }
 };

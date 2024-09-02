@@ -1,6 +1,7 @@
 const dbConnector = require("../tools/ConnexionDb.tools").get();
 const fs = require("fs");
 const path = require("path");
+const jwt = require("jsonwebtoken");
 const {
     logMessage,
     COLOR_GREEN,
@@ -15,6 +16,12 @@ exports.create = async (req, res, next) => {
     try {
         const { files } = req;
         const { projetId } = req.body;
+
+        // Extraire l'utilisateur du token JWT
+        const token = req.headers.authorization.split(' ')[1];
+        const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+        const utilisateurId = decodedToken.id;
+
         logMessage(`ID du projet : ${projetId}`, COLOR_YELLOW);
 
         if (!files || files.length === 0) {
@@ -29,9 +36,7 @@ exports.create = async (req, res, next) => {
                     if (err) console.log(err);
                 });
             });
-            return res
-                .status(400)
-                .json({ message: "Limite de 25 fichiers par envoi dépassée" });
+            return res.status(400).json({ message: "Limite de 25 fichiers par envoi dépassée" });
         }
 
         logMessage("Vérification de l'existence du projet", COLOR_YELLOW);
@@ -130,8 +135,12 @@ exports.updateByProjetId = async (req, res, next) => {
     try {
         const { files } = req;
         const { id } = req.params; // ID du projet
-        console.log(req.body);
         const modelesToRemove = req.body.modelesToDelete ? JSON.parse(req.body.modelesToDelete) : [];
+
+        // Extraire l'utilisateur du token JWT
+        const token = req.headers.authorization.split(' ')[1];
+        const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+        const utilisateurId = decodedToken.id;
 
         logMessage(`ID du projet : ${id}`, COLOR_YELLOW);
         logMessage(`Modèles 3D à supprimer : ${JSON.stringify(modelesToRemove)}`, COLOR_YELLOW);

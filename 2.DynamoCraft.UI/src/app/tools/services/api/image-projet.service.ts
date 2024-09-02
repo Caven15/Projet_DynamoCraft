@@ -41,7 +41,7 @@ export class ImageProjetService extends BaseApiService {
      * Mettre à jour les images d'un projet
      * @param projetId Identifiant du projet
      * @param files Liste des nouveaux fichiers à ajouter
-     * @param imagesToRemove Liste des identifiants des images à supprimer
+     * @param imagesToDelete Liste des identifiants des images à supprimer
      * @returns Observable contenant la liste des images mises à jour
      */
     updateImages(projetId: number, files: File[], imagesToDelete: number[]): Observable<ImageProjet[]> {

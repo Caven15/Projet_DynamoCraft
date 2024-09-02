@@ -1,37 +1,62 @@
 const { faker } = require("@faker-js/faker");
+const { logMessage, COLOR_GREEN, COLOR_RED, COLOR_YELLOW } = require("../tools/logs.tools");
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
+        logMessage("Étape 9/1 : Génération et insertion des commentaires", COLOR_YELLOW);
+
         const commentaires = [];
 
-        for (let projetId = 1; projetId <= 300; projetId++) {
-            const nombreCommentaires = faker.number.int({ min: 1, max: 20 });
+        logMessage("Sous-étape 1/2 : Génération des commentaires pour chaque projet", COLOR_YELLOW);
 
-            for (let i = 0; i < nombreCommentaires; i++) {
-                const dateCreation = faker.date.past({ years: 2 });
-                const dateModif =
-                    faker.datatype.boolean() && faker.date.recent()
-                        ? faker.date.between({
-                              from: dateCreation,
-                              to: new Date(),
-                          })
+        try {
+            for (let projetId = 1; projetId <= 300; projetId++) {
+                const nombreCommentaires = faker.number.int({ min: 1, max: 20 });
+
+                for (let i = 0; i < nombreCommentaires; i++) {
+                    const dateCreation = faker.date.past({ years: 2 });
+                    const dateModif = faker.datatype.boolean() 
+                        ? faker.date.between({ from: dateCreation, to: new Date() })
                         : dateCreation;
-                commentaires.push({
-                    description: faker.lorem.sentences(
-                        faker.number.int({ min: 1, max: 3 })
-                    ),
-                    dateCreation: dateCreation,
-                    dateModif: dateModif,
-                    projetId: projetId,
-                    utilisateurId: faker.number.int({ min: 1, max: 300 }),
-                });
+                    
+                    commentaires.push({
+                        description: faker.lorem.sentences(faker.number.int({ min: 1, max: 3 })),
+                        dateCreation: dateCreation,
+                        dateModif: dateModif,
+                        projetId: projetId,
+                        utilisateurId: faker.number.int({ min: 1, max: 300 }),
+                    });
+                }
+
+                if (projetId % 50 === 0) {
+                    logMessage(`Sous-étape 1/2 - Génération des commentaires pour le projet ${projetId}/300 terminée`, COLOR_GREEN);
+                }
             }
+
+            logMessage("Sous-étape 2/2 : Insertion des commentaires en base de données", COLOR_YELLOW);
+
+            await queryInterface.bulkInsert("commentaire", commentaires, {});
+            logMessage("Sous-étape 2/2 - Insertion des commentaires réussie", COLOR_GREEN);
+
+        } catch (error) {
+            logMessage("Erreur lors de l'insertion des commentaires", COLOR_RED);
+            console.error("Erreur lors de l'insertion des commentaires:", error);
+            throw error;
         }
 
-        await queryInterface.bulkInsert("commentaire", commentaires, {});
+        logMessage("Étape 9/10 - Génération et insertion des commentaires terminée", COLOR_GREEN);
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.bulkDelete("commentaire", null, {});
+        logMessage("Étape 9/2 : Suppression des commentaires en base de données", COLOR_YELLOW);
+
+        try {
+            await queryInterface.bulkDelete("commentaire", null, {});
+            logMessage("Suppression des commentaires réussie", COLOR_GREEN);
+        } catch (error) {
+            logMessage("Erreur lors de la suppression des commentaires", COLOR_RED);
+            console.error("Erreur lors de la suppression des commentaires:", error);
+            throw error;
+        }
     },
 };

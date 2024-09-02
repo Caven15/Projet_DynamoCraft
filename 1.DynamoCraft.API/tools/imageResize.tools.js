@@ -2,7 +2,7 @@ const Jimp = require('jimp');
 const path = require('path');
 const fs = require('fs');
 
-async function resizeImage(originalImagePath, resizedImagePath, width = 350, height = 350) {
+async function resizeImage(originalImagePath, resizedImagePath, width = 500, height = 500) {
     try {
         // Vérifie si le répertoire pour les images redimensionnées existe, sinon le crée
         const resizedDir = path.dirname(resizedImagePath);

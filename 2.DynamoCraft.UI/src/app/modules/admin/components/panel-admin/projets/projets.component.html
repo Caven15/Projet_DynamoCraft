@@ -1,5 +1,5 @@
-<div class="container-fluid bg-dc-2 px-0">
-    <div class="card shadow-lg bg-dark text-white rounded-custom mb-0">
+<div class="container-fluid bg-dc-2 px-0 no-padding">
+    <div class="card bg-dc-2 text-white mb-0">
         <div class="card-body p-0">
             <div class="input-group mb-3 p-3">
                 <button class="btn btn-outline-warning dropdown-toggle" type="button" data-bs-toggle="dropdown"
@@ -12,7 +12,7 @@
                     <li><button class="dropdown-item" (click)="setFilter('invalide')">Invalides</button></li>
                     <li><button class="dropdown-item" (click)="setFilter('attente')">En attente</button></li>
                 </ul>
-                <input type="text" class="form-control bg-dark text-white border-warning"
+                <input type="text" class="form-control text-white border-warning"
                     placeholder="Rechercher un projet..." [(ngModel)]="searchTerm" (input)="filterProjets()">
                 <button class="btn btn-outline-warning" type="button">
                     <i class="bi bi-search"></i>

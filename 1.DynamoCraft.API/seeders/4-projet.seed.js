@@ -1,7 +1,20 @@
+const fs = require("fs");
+const path = require("path");
 const { faker } = require("@faker-js/faker");
+const {
+    logMessage,
+    COLOR_GREEN,
+    COLOR_RED,
+    COLOR_YELLOW,
+} = require("../tools/logs.tools");
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
+        logMessage(
+            "Étape 7/1 : Génération et insertion des projets avec statistiques",
+            COLOR_YELLOW
+        );
+
         const projets = [];
         const categories = [
             "Objets décoratifs",
@@ -16,11 +29,18 @@ module.exports = {
             "Outils",
         ];
 
+        logMessage("Sous-étape 1/3 : Génération des projets", COLOR_YELLOW);
+
         for (let i = 1; i <= 300; i++) {
             const categorieId = faker.number.int({ min: 1, max: 10 });
             const categorieNom = categories[categorieId - 1];
 
-            const nom = `${categorieNom} - ${faker.commerce.productName()}_${i}`;
+            let nom = `${faker.commerce.productName()}`;
+
+            // Ajout d'un suffixe unique pour éviter les doublons
+            const suffixeUnique = `${i}-${Date.now()}`;
+            nom = `${nom}-${suffixeUnique}`;
+
             const description = faker.commerce.productDescription();
 
             const nombreApreciation = faker.number.int({ min: 0, max: 500 });
@@ -29,7 +49,10 @@ module.exports = {
                 max: 1000,
             });
 
-            // Insertion d'une statistique et récupération de l'ID
+            // Sous-étape 2/3 : Insertion d'une statistique et récupération de l'ID
+            logMessage(`Sous-étape 2/3 : Insertion de la statistique pour le projet ${i}`, COLOR_YELLOW);
+            
+            // Utiliser `queryInterface` pour exécuter une requête brute et récupérer l'ID de la statistique insérée
             await queryInterface.bulkInsert(
                 "statistique",
                 [
@@ -39,40 +62,74 @@ module.exports = {
                         datePublication: faker.date.past({ years: 2 }),
                         dateModification: faker.date.recent(),
                     },
-                ],
-                {}
+                ]
             );
 
-            // Récupération de l'ID de la statistique insérée
             const [statistique] = await queryInterface.sequelize.query(
                 "SELECT LAST_INSERT_ID() as id;",
                 { type: queryInterface.sequelize.QueryTypes.SELECT }
             );
 
-            const statutId = [1, 1, 2, 3][Math.floor(Math.random() * 4)];
-            const estValide = Math.random() < 0.66;
+            const statistiqueId = statistique.id;
 
             projets.push({
                 nom,
                 description,
-                estvalide: estValide,
+                estvalide: Math.random() < 0.66,
                 commentaire_admin: faker.lorem.sentence(),
-                statutId: statutId,
-                statistiqueId: statistique.id,
+                statutId: [1, 1, 2, 3][Math.floor(Math.random() * 4)],
+                statistiqueId: statistiqueId,
                 categorieId: categorieId,
                 utilisateurId: faker.number.int({ min: 1, max: 300 }),
             });
+
+            if (i % 50 === 0) {
+                logMessage(
+                    `Sous-étape 2/3 - Insertion de la statistique pour le projet ${i}/300 terminée`,
+                    COLOR_GREEN
+                );
+            }
         }
+
+        logMessage(
+            "Sous-étape 3/3 : Insertion des projets en base de données",
+            COLOR_YELLOW
+        );
 
         try {
             await queryInterface.bulkInsert("projet", projets, {});
+            logMessage(
+                "Sous-étape 3/3 - Insertion des projets réussie",
+                COLOR_GREEN
+            );
         } catch (error) {
+            logMessage(
+                "Sous-étape 3/3 - Erreur lors de l'insertion des projets",
+                COLOR_RED
+            );
             console.error("Erreur lors de l'insertion du projet:", error);
             throw error;
         }
+
+        logMessage(
+            "Étape 7/10 - Génération et insertion des projets terminée",
+            COLOR_GREEN
+        );
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.bulkDelete("projet", null, {});
+        logMessage(
+            "Étape 7/2 : Suppression des projets en base de données",
+            COLOR_YELLOW
+        );
+
+        try {
+            await queryInterface.bulkDelete("projet", null, {});
+            logMessage("Suppression des projets réussie", COLOR_GREEN);
+        } catch (error) {
+            logMessage("Erreur lors de la suppression des projets", COLOR_RED);
+            console.error("Erreur lors de la suppression des projets:", error);
+            throw error;
+        }
     },
 };

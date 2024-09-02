@@ -74,7 +74,7 @@ export class StatistiquesComponent implements OnInit {
     }
 
     loadRecentComments(userId: number): void {
-        this.commentaireService.getCommentairesByUtilisateurId(userId).subscribe(comments => {
+        this.commentaireService.getCommentairesByUtilisateurId().subscribe(comments => {
             this.recentComments = comments.slice(0, 5);
             this.sortData('dateCreation', 'recentComments');
         });

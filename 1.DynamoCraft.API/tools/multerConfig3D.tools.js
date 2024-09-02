@@ -4,14 +4,14 @@ const path = require("path");
 // Liste des extensions de fichiers 3D acceptées
 const allowedExtensions = [
     ".stl",
-    ".obj",
-    ".amf",
-    ".3mf",
-    ".ply",
-    ".step",
-    ".fbx",
-    ".iges",
-    ".x3d",
+    // ".obj",
+    // ".amf",
+    // ".3mf",
+    // ".ply",
+    // ".step",
+    // ".fbx",
+    // ".iges",
+    // ".x3d",
 ];
 
 const storage = multer.diskStorage({

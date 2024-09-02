@@ -142,6 +142,10 @@ export class StatistiqueService extends BaseApiService {
         );
     }
 
+    /**
+     * Récupérer l'évolution des téléchargements par semaine
+     * @returns Observable contenant l'évolution des téléchargements par semaine
+     */
     getDownloadsEvolutionByWeek(): Observable<any> {
         return this.get<any>('statistique/downloads-evolution/week').pipe(
             tap({
@@ -152,6 +156,10 @@ export class StatistiqueService extends BaseApiService {
         );
     }
 
+    /**
+     * Récupérer l'évolution des téléchargements par jour
+     * @returns Observable contenant l'évolution des téléchargements par jour
+     */
     getDownloadsEvolutionByDay(): Observable<any> {
         return this.get<any>('statistique/downloads-evolution/day').pipe(
             tap({
@@ -161,7 +169,6 @@ export class StatistiqueService extends BaseApiService {
             catchError(this.handleError<any>('getDownloadsEvolutionByDay'))
         );
     }
-
 
     /**
      * Récupérer les projets les plus commentés

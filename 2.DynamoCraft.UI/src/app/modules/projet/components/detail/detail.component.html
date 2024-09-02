@@ -82,10 +82,9 @@
         <div class="col-lg-5 d-flex flex-column">
             <div class="user-info bg-dc p-1 rounded-custom shadow-lg text-center text-light">
                 <h5 class="text-warning mb-4">Publié par</h5>
-                <div class="profile-image-wrapper mx-auto profile-circle">
-                    <img [src]="url + projet.utilisateur.imageUtilisateur?.nom" class="rounded-circle shadow-lg"
-                        alt="Utilisateur" style="width: 150px; height: 150px; object-fit: cover; cursor: pointer;"
-                        (click)="navigateToUserProfile(projet.utilisateur.id)">
+                <div class="profile-image-wrapper mx-auto">
+                    <img [src]="url + projet.utilisateur.imageUtilisateur?.nom" class="image-card"
+                        alt="Utilisateur" (click)="navigateToUserProfile(projet.utilisateur.id)">
                 </div>
                 <h5>{{ projet.utilisateur.pseudo | slice: 0: 15 }}...</h5>
             </div>
@@ -141,9 +140,25 @@
             <!-- Formulaire pour ajouter un commentaire -->
             <div class="add-comment bg-dc p-4 rounded-custom shadow-lg mb-4 text-light">
                 <h5 class="text-warning">Ajouter un commentaire :</h5>
-                <textarea [(ngModel)]="newCommentaire" class="form-control mb-3" rows="4"
-                    placeholder="Votre commentaire..."></textarea>
-                <button class="btn btn-warning shadow" (click)="addComment()">Commenter</button>
+                <form [formGroup]="commentaireForm" (ngSubmit)="addComment()">
+                    <textarea formControlName="newCommentaire" class="form-control mb-3" rows="4"
+                        placeholder="Votre commentaire..."></textarea>
+                    <div *ngIf="commentaireForm.get('newCommentaire')?.touched">
+                        <div *ngIf="commentaireForm.get('newCommentaire')?.errors?.['required']"
+                            class="invalid-feedback d-block">
+                            Vous devez être connezcté pour envoyer une commentaire.
+                        </div>
+                        <div *ngIf="commentaireForm.get('newCommentaire')?.errors?.['minlength']"
+                            class="invalid-feedback d-block">
+                            Le commentaire doit comporter au moins 10 caractères.
+                        </div>
+                        <div *ngIf="commentaireForm.get('newCommentaire')?.errors?.['maxlength']"
+                            class="invalid-feedback d-block">
+                            Le commentaire ne doit pas dépasser 500 caractères.
+                        </div>
+                    </div>
+                    <button class="btn btn-warning shadow" type="submit" [disabled]="commentaireForm.invalid">Commenter</button>
+                </form>
             </div>
             <h3 class="text-warning d-flex justify-content-center">Commentaires</h3>
             <!-- Liste des commentaires -->

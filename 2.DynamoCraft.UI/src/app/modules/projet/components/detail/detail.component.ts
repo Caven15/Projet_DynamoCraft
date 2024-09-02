@@ -1,4 +1,5 @@
 import { Component, OnInit, ElementRef, ViewChild, AfterViewChecked, ChangeDetectorRef } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Projet } from '../../../../models/projet.model';
 import { Commentaire } from '../../../../models/commentaire.model';
 import { Utilisateur } from '../../../../models/utilisateur.model';
@@ -23,7 +24,7 @@ export class DetailComponent implements OnInit, AfterViewChecked {
 
     projet!: Projet;
     commentaires: Commentaire[] = [];
-    newCommentaire: string = '';
+    commentaireForm!: FormGroup;
     currentUser: Utilisateur | null = null;
     editingCommentId: number | null = null;
     editingCommentContent: string = '';
@@ -43,6 +44,7 @@ export class DetailComponent implements OnInit, AfterViewChecked {
     downloadCountdown: number = 5;
 
     constructor(
+        private fb: FormBuilder,
         private projetService: ProjetService,
         private commentaireService: CommentaireService,
         private authService: AuthService,
@@ -53,13 +55,14 @@ export class DetailComponent implements OnInit, AfterViewChecked {
         private cdr: ChangeDetectorRef,
         private utilisateurProjetService: UtilisateurProjetService,
         private utilisateurProjetLikeService: UtilisateurProjetLikeService,
-    ) { }
+    ) {}
 
     ngOnInit(): void {
         const projetId = this.route.snapshot.params['id'];
         this.loadProjet(projetId);
         this.loadCommentaires(projetId);
         this.loadModeles3D(projetId);
+        this.initCommentaireForm();
 
         this.authService.currentUser$.subscribe(user => {
             this.currentUser = user;
@@ -84,6 +87,12 @@ export class DetailComponent implements OnInit, AfterViewChecked {
                 this.load3DModel(this.selected3DFiles[this.active3DModelIndex].nom);
             }, 50);
         }
+    }
+
+    initCommentaireForm(): void {
+        this.commentaireForm = this.fb.group({
+            newCommentaire: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
+        });
     }
 
     loadProjet(id: number): void {
@@ -176,7 +185,10 @@ export class DetailComponent implements OnInit, AfterViewChecked {
     }
 
     addComment(): void {
-        if (!this.newCommentaire.trim()) return;
+        if (this.commentaireForm.invalid) {
+            this.commentaireForm.markAllAsTouched();
+            return;
+        }
 
         if (!this.currentUser || !this.currentUser.id) {
             this.router.navigate(['/auth/login']);
@@ -184,15 +196,15 @@ export class DetailComponent implements OnInit, AfterViewChecked {
         }
 
         const commentaire: Commentaire = {
-            description: this.newCommentaire,
+            description: this.commentaireForm.get('newCommentaire')?.value,
             utilisateurId: this.currentUser.id,
             projetId: this.projet.id
         };
 
-        this.commentaireService.createCommentaire(commentaire, this.currentUser.id)
+        this.commentaireService.createCommentaire(commentaire)
             .subscribe(newComment => {
                 this.commentaires.push(newComment);
-                this.newCommentaire = '';
+                this.commentaireForm.reset();
                 this.loadCommentaires(this.projet.id);
             });
     }
@@ -255,7 +267,7 @@ export class DetailComponent implements OnInit, AfterViewChecked {
     }
 
     navigateToUserProfile(userId: number | undefined): void {
-        this.router.navigate([`/profil/${userId}`]);
+        this.router.navigate([`utilisateur/profil/${userId}`]);
     }
 
     editComment(comment: Commentaire): void {
@@ -264,7 +276,6 @@ export class DetailComponent implements OnInit, AfterViewChecked {
     }
 
     saveComment(): void {
-        console.log("test");
         if (this.editingCommentId && this.editingCommentContent.trim()) {
             const updatedComment: Commentaire = {
                 ...this.commentaires.find(c => c.id === this.editingCommentId)!,

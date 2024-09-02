@@ -1,72 +1,90 @@
 const fs = require("fs");
 const path = require("path");
-const axios = require("axios");
 const { faker } = require("@faker-js/faker");
+const { logMessage, COLOR_GREEN, COLOR_RED, COLOR_YELLOW } = require("../tools/logs.tools");
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        const downloadsDir = path.join(__dirname, "..", "uploads");
+        logMessage("Étape 10/1 : Gestion des modèles 3D", COLOR_YELLOW);
 
-        // Créer le répertoire si nécessaire
-        if (!fs.existsSync(downloadsDir)) {
-            fs.mkdirSync(downloadsDir, { recursive: true });
+        const modelsDir = path.resolve(__dirname, "..", "seeds", "modele3d");
+        const uploadsDir = path.resolve(__dirname, "..", "uploads");
+
+        logMessage("Sous-étape 1/3 : Vérification ou création du répertoire 'uploads'", COLOR_YELLOW);
+        if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir, { recursive: true });
+            logMessage(`Répertoire créé : ${uploadsDir}`, COLOR_GREEN);
+        } else {
+            logMessage(`Répertoire existant : ${uploadsDir}`, COLOR_GREEN);
         }
 
-        const stlFiles = [];
-        const baseUrls = [
-            "https://www.thingiverse.com/thing:4649050/download",
-            "https://www.thingiverse.com/thing:4649051/download",
-            // Ajouter d'autres URLs ici
-        ];
+        const stlFiles = ["2_Colonnes.stl", "3DBenchy.stl", "Pikachu.stl"];
+        logMessage("Sous-étape 2/3 : Vérification des fichiers STL disponibles", COLOR_YELLOW);
 
-        // Téléchargement des modèles distincts avec latence
-        for (let i = 0; i < baseUrls.length; i++) {
-            const fileName = `model_${i + 1}_${Date.now()}.stl`;
-            const filePath = path.join(downloadsDir, fileName);
-
-            try {
-                const response = await axios({
-                    url: baseUrls[i],
-                    method: "GET",
-                    responseType: "stream",
-                });
-
-                response.data.pipe(fs.createWriteStream(filePath));
-                console.log(`Téléchargé: ${fileName}`);
-
-                stlFiles.push(fileName);
-
-                // Attente de 20ms avant de passer au prochain téléchargement
-                await new Promise((resolve) => setTimeout(resolve, 20));
-            } catch (error) {
-                console.error(
-                    `Erreur lors du téléchargement de ${fileName}:`,
-                    error.message
-                );
+        const availableFiles = stlFiles.filter((file) => {
+            const filePath = path.join(modelsDir, file);
+            if (fs.existsSync(filePath)) {
+                logMessage(`Fichier trouvé : ${filePath}`, COLOR_GREEN);
+                return true;
+            } else {
+                logMessage(`Fichier manquant : ${filePath}`, COLOR_RED);
+                return false;
             }
+        });
+
+        if (availableFiles.length === 0) {
+            logMessage(`Aucun fichier STL valide trouvé dans le répertoire : ${modelsDir}`, COLOR_RED);
+            return;
         }
 
+        logMessage("Sous-étape 3/3 : Copie des fichiers STL et insertion en base de données", COLOR_YELLOW);
         const models = [];
         for (let i = 1; i <= 300; i++) {
             const numModels = faker.number.int({ min: 1, max: 3 });
-            const selectedModels = faker.helpers
-                .shuffle(stlFiles)
-                .slice(0, numModels);
+            logMessage(`Projet ${i} - Nombre de modèles : ${numModels}`, COLOR_YELLOW);
+
+            const selectedModels = faker.helpers.shuffle(availableFiles).slice(0, numModels);
 
             selectedModels.forEach((model) => {
-                models.push({
-                    nom: model,
-                    projetId: i,
-                    dateCreation: faker.date.past({ years: 2 }),
-                    dateModif: faker.date.recent(),
-                });
+                const originalPath = path.join(modelsDir, model);
+                const fileName = `project_${i, Date.now()}_${model}`;
+                const destPath = path.join(uploadsDir, fileName);
+
+                try {
+                    fs.copyFileSync(originalPath, destPath);
+                    logMessage(`Fichier copié : ${fileName}`, COLOR_GREEN);
+
+                    models.push({
+                        nom: fileName,
+                        projetId: i,
+                        dateCreation: faker.date.past({ years: 2 }),
+                        dateModif: faker.date.recent(),
+                    });
+                } catch (error) {
+                    logMessage(`Erreur lors de la copie de ${fileName} : ${error.message}`, COLOR_RED);
+                }
             });
         }
 
-        await queryInterface.bulkInsert("modele3D", models, {});
+        if (models.length > 0) {
+            try {
+                await queryInterface.bulkInsert("modele3D", models, {});
+                logMessage(`${models.length} modèles 3D ont été insérés dans la table modele3D.`, COLOR_GREEN);
+            } catch (error) {
+                logMessage(`Erreur lors de l'insertion des modèles dans la base de données : ${error.message}`, COLOR_RED);
+            }
+        } else {
+            logMessage("Aucun modèle 3D à insérer.", COLOR_RED);
+        }
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.bulkDelete("modele3D", null, {});
+        logMessage("Étape 10/2 : Suppression des modèles 3D en base de données", COLOR_YELLOW);
+        try {
+            await queryInterface.bulkDelete("modele3D", null, {});
+            logMessage("Table modele3D vidée.", COLOR_GREEN);
+        } catch (error) {
+            logMessage(`Erreur lors de la suppression des données : ${error.message}`, COLOR_RED);
+        }
     },
 };

@@ -1,6 +1,8 @@
 const dbConnector = require("../tools/ConnexionDb.tools").get();
+const { Sequelize, DataTypes } = require("sequelize"); 
 const path = require("path");
 const fs = require("fs");
+const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
 const {
     logMessage,
@@ -10,12 +12,18 @@ const {
     COLOR_YELLOW,
 } = require("../tools/logs.tools");
 
+// Créer un projet
 exports.create = async (req, res, next) => {
     logMessage("Début de la création du projet", COLOR_YELLOW);
 
     try {
-        const { nom, description, categorieId, utilisateurId } = req.body;
+        const { nom, description, categorieId } = req.body;
         const { files } = req;
+
+        // Extraire l'utilisateur du token JWT
+        const token = req.headers.authorization.split(" ")[1];
+        const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+        const utilisateurId = decodedToken.id;
 
         if (!nom || !categorieId || !description || !utilisateurId) {
             logMessage(
@@ -599,10 +607,13 @@ exports.getPendingProjet = async (req, res, next) => {
 
 // Mettre à jour l'état d'un projet en "valide"
 exports.setValidProjet = async (req, res, next) => {
-    logMessage(`Début de la mise à jour du projet avec ID: ${req.params.id} en "valide"`, COLOR_YELLOW);
+    logMessage(
+        `Début de la mise à jour du projet avec ID: ${req.params.id} en "valide"`,
+        COLOR_YELLOW
+    );
     try {
         const projectId = req.params.id;
-        const { commentaire_admin } = req.body;  // Utilisation de camelCase
+        const { commentaire_admin } = req.body; // Utilisation de camelCase
 
         console.log(commentaire_admin);
 
@@ -616,16 +627,25 @@ exports.setValidProjet = async (req, res, next) => {
         await project.update({
             estValide: 1,
             statutId: 1,
-            commentaire_admin: commentaire_admin || "Le projet a été validé.",  // Utilisation du commentaire reçu ou par défaut
+            commentaire_admin: commentaire_admin || "Le projet a été validé.", // Utilisation du commentaire reçu ou par défaut
         });
 
-        logMessage(`Projet avec ID: ${req.params.id} mis à jour en "valide" avec succès`, COLOR_GREEN);
+        logMessage(
+            `Projet avec ID: ${req.params.id} mis à jour en "valide" avec succès`,
+            COLOR_GREEN
+        );
         return res.status(200).json({
             message: `Le projet ${projectId} a été mis à jour en "valide".`,
         });
     } catch (error) {
-        logMessage("Erreur lors de la mise à jour du projet en valide", COLOR_RED);
-        console.error("Erreur lors de la mise à jour du projet en valide :", error);
+        logMessage(
+            "Erreur lors de la mise à jour du projet en valide",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de la mise à jour du projet en valide :",
+            error
+        );
         return res.status(500).json({
             message: "Erreur lors de la mise à jour du projet en valide.",
         });
@@ -634,7 +654,10 @@ exports.setValidProjet = async (req, res, next) => {
 
 // Mettre à jour l'état d'un projet en "invalide"
 exports.setInvalidProjet = async (req, res, next) => {
-    logMessage(`Début de la mise à jour du projet avec ID: ${req.params.id} en "invalide"`, COLOR_YELLOW);
+    logMessage(
+        `Début de la mise à jour du projet avec ID: ${req.params.id} en "invalide"`,
+        COLOR_YELLOW
+    );
     try {
         const projectId = req.params.id;
         const { commentaire_admin } = req.body;
@@ -652,13 +675,22 @@ exports.setInvalidProjet = async (req, res, next) => {
             commentaire_admin: commentaire_admin || "Le projet a été invalidé.",
         });
 
-        logMessage(`Projet avec ID: ${req.params.id} mis à jour en "invalide" avec succès`, COLOR_GREEN);
+        logMessage(
+            `Projet avec ID: ${req.params.id} mis à jour en "invalide" avec succès`,
+            COLOR_GREEN
+        );
         return res.status(200).json({
             message: `Le projet ${projectId} a été mis à jour en "invalide".`,
         });
     } catch (error) {
-        logMessage("Erreur lors de la mise à jour du projet en invalide", COLOR_RED);
-        console.error("Erreur lors de la mise à jour du projet en invalide :", error);
+        logMessage(
+            "Erreur lors de la mise à jour du projet en invalide",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de la mise à jour du projet en invalide :",
+            error
+        );
         return res.status(500).json({
             message: "Erreur lors de la mise à jour du projet en invalide.",
         });
@@ -667,7 +699,10 @@ exports.setInvalidProjet = async (req, res, next) => {
 
 // Mettre à jour l'état d'un projet en "en attente"
 exports.setPendingProjet = async (req, res, next) => {
-    logMessage(`Début de la mise à jour du projet avec ID: ${req.params.id} en "en attente"`, COLOR_YELLOW);
+    logMessage(
+        `Début de la mise à jour du projet avec ID: ${req.params.id} en "en attente"`,
+        COLOR_YELLOW
+    );
     try {
         const projectId = req.params.id;
         const { commentaire_admin } = req.body;
@@ -682,30 +717,39 @@ exports.setPendingProjet = async (req, res, next) => {
         await project.update({
             estValide: false,
             statutId: 3,
-            commentaire_admin: commentaire_admin || "Le projet est en attente de validation.",
+            commentaire_admin:
+                commentaire_admin || "Le projet est en attente de validation.",
         });
 
-        logMessage(`Projet avec ID: ${req.params.id} mis à jour en "en attente" avec succès`, COLOR_GREEN);
+        logMessage(
+            `Projet avec ID: ${req.params.id} mis à jour en "en attente" avec succès`,
+            COLOR_GREEN
+        );
         return res.status(200).json({
             message: `Le projet ${projectId} a été mis à jour en "en attente".`,
         });
     } catch (error) {
-        logMessage("Erreur lors de la mise à jour du projet en attente", COLOR_RED);
-        console.error("Erreur lors de la mise à jour du projet en attente :", error);
+        logMessage(
+            "Erreur lors de la mise à jour du projet en attente",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de la mise à jour du projet en attente :",
+            error
+        );
         return res.status(500).json({
             message: "Erreur lors de la mise à jour du projet en attente.",
         });
     }
 };
 
-
 // Incrémenter le nombre de likes pour un projet spécifique
 exports.incrementLike = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { utilisateurId } = req.body;
-        console.log(req.params);
-        console.log(req.params);
+        const token = req.headers.authorization.split(" ")[1];
+        const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+        const utilisateurId = decodedToken.id;
 
         // Log des valeurs reçues
         logMessage(`ID utilisateur reçu: ${utilisateurId}`, COLOR_YELLOW);
@@ -926,7 +970,6 @@ exports.getTop10Liked = async (req, res, next) => {
     }
 };
 
-
 // Récupérer les 16 derniers projets créés
 exports.getLast = async (req, res, next) => {
     logMessage(
@@ -961,7 +1004,7 @@ exports.getLast = async (req, res, next) => {
                 },
             ],
             where: { estvalide: true },
-            '$statut.nom$': 'Valide',
+            "$statut.nom$": "Valide",
             attributes: {
                 exclude: [
                     "statutId",
@@ -998,56 +1041,76 @@ exports.getLast = async (req, res, next) => {
 // Recherche de projet(s) par mot clé incluant la pagination
 exports.search = async (req, res, next) => {
     logMessage(
-        `Début de la recherche de projets avec le mot-clé : ${req.params.keyword}`,
+        `Début de la recherche de projets avec le mot-clé : ${req.params.keyword || 'Tous les projets'}`,
         COLOR_YELLOW
     );
+
     try {
-        const { keyword, page = 1, limit = 10 } = req.params;
-
-        if (!keyword) {
-            logMessage("Le mot-clé de recherche est obligatoire", COLOR_RED);
-            return res
-                .status(400)
-                .json({ message: "Le mot-clé de recherche est obligatoire" });
-        }
-
+        const { keyword = '', page = 1, limit = 10 } = req.params;
         const offset = (page - 1) * limit;
 
-        // Filtre principal basé sur les propriétés du projet
-        const projectFilter = {
-            [Op.and]: [
-                {
-                    [Op.or]: [
-                        { nom: { [Op.like]: `%${keyword}%` } },
-                        { description: { [Op.like]: `%${keyword}%` } }
-                    ],
-                },
-                { estValide: true },  // Ajout de cette ligne pour exclure les projets non valides
+        // Filtre de recherche combiné pour les projets et les catégories
+        const projectFilter = keyword && keyword !== 'all' ? {
+            [Op.or]: [
+                { nom: { [Op.like]: `%${keyword}%` } },
+                { description: { [Op.like]: `%${keyword}%` } },
+                { '$categorie.nom$': { [Op.like]: `%${keyword}%` } }  // Filtre sur le nom de la catégorie
             ],
-        };
+            estValide: true,
+            statutId: 1
+        } : { estValide: true, statutId: 1 };
 
-        const { count, rows } = await dbConnector.Projet.findAndCountAll({
+        // Log du filtre appliqué
+        logMessage(`Filtre de recherche appliqué : ${JSON.stringify(projectFilter)}`, COLOR_YELLOW);
+
+        // Requête pour obtenir le nombre total d'éléments
+        const count = await dbConnector.Projet.count({
             where: projectFilter,
             include: [
                 {
+                    model: dbConnector.Categorie,
+                    as: "categorie",
+                    attributes: [],
+                    required: true, // La catégorie est requise pour appliquer le filtre sur son nom
+                }
+            ],
+        });
+
+        // Si le nombre d'éléments est inférieur à l'offset, ajuster pour retourner une page vide
+        if (offset >= count) {
+            return res.status(200).json({
+                totalItems: count,
+                totalPages: Math.ceil(count / limit),
+                currentPage: parseInt(page),
+                projects: []
+            });
+        }
+
+        // Requête pour obtenir les éléments paginés
+        const rows = await dbConnector.Projet.findAll({
+            where: projectFilter,
+            include: [
+                {
+                    model: dbConnector.Categorie,
+                    as: "categorie",
+                    attributes: ["nom"],
+                    required: true, // Inclure la catégorie pour chaque projet
+                },
+                {
                     model: dbConnector.Statut,
                     as: "statut",
-                    attributes: { exclude: ["id"] },
+                    attributes: [],
                     where: {
                         nom: "Valide",
                     },
                 },
                 {
                     model: dbConnector.Statistique,
-                    attributes: { exclude: ["id"] },
-                },
-                {
-                    model: dbConnector.Categorie,
-                    attributes: { exclude: ["id"] },
-                    required: false,
+                    attributes: [],
                 },
                 {
                     model: dbConnector.Utilisateur,
+                    attributes: { exclude: ["id", "email"] },
                     as: "utilisateur",
                 },
                 {
@@ -1058,39 +1121,30 @@ exports.search = async (req, res, next) => {
             ],
             attributes: {
                 exclude: [
-                    "statutId",
-                    "statistiqueId",
-                    "categorieId",
-                    "utilisateurId",
+                    // Les attributs à exclure ici...
                 ],
             },
             limit: parseInt(limit),
             offset: parseInt(offset),
         });
 
-        const remainingItems = count - offset;
-
-        let adjustedLimit = limit;
-        if (remainingItems < limit) {
-            adjustedLimit = remainingItems;
-        }
-
-        logMessage(`Offset: ${offset}, Limit: ${adjustedLimit}`, COLOR_YELLOW);
+        // Log des résultats de la requête
+        logMessage(`Nombre total d'éléments trouvés (count): ${count}`, COLOR_YELLOW);
+        logMessage(`Nombre d'éléments récupérés pour la page (rows.length): ${rows.length}`, COLOR_YELLOW);
 
         return res.status(200).json({
             totalItems: count,
             totalPages: Math.ceil(count / limit),
             currentPage: parseInt(page),
-            projects: rows.slice(0, adjustedLimit),
+            projects: rows
         });
     } catch (error) {
         logMessage("Erreur lors de la recherche des projets", COLOR_RED);
         console.error("Erreur lors de la recherche des projets :", error);
-        return res
-            .status(500)
-            .json({ message: "Erreur lors de la recherche des projets" });
+        return res.status(500).json({ message: "Erreur lors de la recherche des projets" });
     }
 };
+
 
 
 // Récupérer les projets téléchargés par un utilisateur

@@ -31,4 +31,13 @@ export class Top10Component implements OnInit {
             }
         });
     }
+
+    getRankColor(index: number): string {
+        switch (index) {
+            case 0: return '#FFD700'; // Or pour le premier
+            case 1: return '#C0C0C0'; // Argent pour le deuxième
+            case 2: return '#CD7F32'; // Bronze pour le troisième
+            default: return '#6c757d'; // Gris pour les autres
+        }
+    }
 }

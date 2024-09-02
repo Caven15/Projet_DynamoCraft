@@ -16,6 +16,12 @@ $couleur-main: rgb(227, 178, 0);
     color: white;
 }
 
+.image-card {
+    width: 205px;
+    height: 205px;
+    object-fit: cover;
+}
+
 .banner-image {
     width: 100%;
     height: 800px;
@@ -148,7 +154,7 @@ ul.nav .nav-link {
     position: relative;
     text-decoration: none;
     color: white;
-    transition: color 0.3s, transform 0.3s;
+    transition: color 0.3s ease, transform 0.3s ease;
 
     &::after {
         content: '';
@@ -158,12 +164,13 @@ ul.nav .nav-link {
         bottom: 0;
         left: 50%;
         background-color: $couleur-main;
-        transition: width 0.3s, left 0.3s;
+        transition: width 0.3s ease, left 0.3s ease;
     }
 
-    &:hover {
+    &:hover,
+    &.active {
         color: $couleur-main;
-        transform: scale(1.2);
+        transform: scale(1.1);
 
         &::after {
             width: 100%;
@@ -171,6 +178,8 @@ ul.nav .nav-link {
         }
     }
 }
+
+
 
 .dropdown-menu,
 .dropdown-menu-style {
@@ -726,8 +735,24 @@ i {
     opacity: 1;
 }
 
+.hauteur-10 {
+    min-height: 10vh;
+}
+
+.hauteur-20 {
+    min-height: 20vh;
+}
+
 .hauteur-30 {
     min-height: 30vh;
+}
+
+.hauteur-50 {
+    min-height: 50vh;
+}
+
+.hauteur-70 {
+    min-height: 70vh;
 }
 
 .hover-content {
@@ -793,4 +818,67 @@ input.form-control,
 select.form-select,
 textarea.form-control {
     transition: background-color 0s, color 0s, border-color 0s;
+}
+
+.card-hover {
+    background: linear-gradient(135deg, rgba(35, 35, 35, 0.9), rgba(25, 25, 25, 0.9));
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    border-radius: 25px;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+
+    &:hover {
+        transform: scale(1.05);
+        box-shadow: 0 1.5rem 3rem rgba(0, 0, 0, 0.5);
+    }
+
+    h5 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: $couleur-main;
+    }
+
+    p {
+        color: #dddddd;
+        line-height: 1.6;
+        font-size: 1.1rem;
+    }
+
+    .badge {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .number-circle {
+        background-color: $couleur-main;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .project-image-wrapper {
+        border: 5px solid $couleur-main;
+        border-radius: 50%;
+    }
+
+    .profile-circle {
+        transition: transform 0.3s ease;
+
+        &:hover img {
+            transform: scale(1.1);
+        }
+    }
+}
+
+.bg-gradient {
+    background: linear-gradient(to right, #1a1a1a, #4e4e4e);
+}
+
+.custom-row {
+    margin-right: 0;
+    margin-left: 0;
+    padding-right: calc(var(--bs-gutter-x) * .5);
+    padding-left: calc(var(--bs-gutter-x) * .5);
 }

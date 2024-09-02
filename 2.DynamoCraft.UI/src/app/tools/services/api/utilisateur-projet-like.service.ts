@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
 import { BaseApiService } from './base-api.service';
+import { HttpClient } from '@angular/common/http';
+import { Observable, switchMap } from 'rxjs';
 import { AuthService } from './auth.service';
+import { Utilisateur } from '../../../models/utilisateur.model';
 
 @Injectable({
     providedIn: 'root'
@@ -16,12 +17,14 @@ export class UtilisateurProjetLikeService extends BaseApiService {
     }
 
     hasLiked(projetId: number): Observable<{ hasLiked: boolean }> {
-        const currentUser = this.authService.getCurrentUser();
-        if (!currentUser) {
-            throw new Error("Utilisateur non connecté");
-        }
-
-        const endpoint = `projet/${projetId}/utilisateur/${currentUser.id}/hasLiked`;
-        return this.httpClient.get<{ hasLiked: boolean }>(`${this.baseUrl}/${endpoint}`, this.httpOptions);
+        return this.authService.currentUser$.pipe(
+            switchMap((user: Utilisateur | null): Observable<{ hasLiked: boolean }> => {
+                if (!user) {
+                    throw new Error('Utilisateur non connecté');
+                }
+                const endpoint = `projet/${projetId}/hasLiked`;
+                return this.httpClient.get<{ hasLiked: boolean }>(`${this.baseUrl}/${endpoint}`);
+            })
+        );
     }
 }
