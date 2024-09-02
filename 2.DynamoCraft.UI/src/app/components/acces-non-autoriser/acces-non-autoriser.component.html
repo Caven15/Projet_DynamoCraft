@@ -20,8 +20,6 @@
             <p class="mb-4 text-warning">
                 Désolé, mais il semble que vous ayez essayé d'accéder à une section réservée aux mages suprêmes du
                 code.<br>
-                Mais rappelez-vous, comme le dit si bien notre ami Dennis Nedry : <br>
-                <em>"Ha ha ha, vous n'avez pas dit le mot magiqueeeeee !"</em>
             </p>
 
             <a routerLink="/home"
@@ -31,7 +29,7 @@
 
             <button class="btn btn-warning btn-lg mt-3 d-flex align-items-center justify-content-center w-100"
                 data-bs-toggle="modal" data-bs-target="#curiosityModal" id="continueButton">
-                <i class="bi bi-eye me-2"></i> continuer... ?
+                <i class="bi bi-eye me-2"></i> Continuer
             </button>
         </div>
     </div>
@@ -42,9 +40,9 @@
     data-bs-backdrop="static">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content bg-dark text-white hauteur-90">
-            <div class="modal-header">
+            <div class="modal-header d-flex justify-content-center">
                 <span class="modal-title" id="curiosityModalLabel">Ha ha ha, vous n'avez pas dit le mot magiqueeeeee ! </span>
-                <span id="countdown" class="text-warning me-auto"> Temps restant avant de pouvoir fermer : 25s</span>
+                <span id="countdown" class="text-warning me-auto"> ( Temps restant : 25s ) </span>
                 <button type="button" class="btn-close couleur-main" data-bs-dismiss="modal" aria-label="Close"
                     id="closeModalButton"></button>
             </div>

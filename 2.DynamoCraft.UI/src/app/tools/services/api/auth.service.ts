@@ -18,6 +18,13 @@ export class AuthService extends BaseApiService {
     }
 
     /**
+     * Vérifie si le code est exécuté dans un environnement de navigateur
+     */
+    private isBrowser(): boolean {
+        return typeof window !== 'undefined' && typeof sessionStorage !== 'undefined';
+    }
+
+    /**
      * Obtenir l'utilisateur actuel en tant qu'Observable
      * @returns Observable de l'utilisateur connecté
      */
@@ -36,7 +43,9 @@ export class AuthService extends BaseApiService {
         const loginData = { email, password, recaptchaToken };
         return this.post<{ accessToken: string, id: string, roleId: string }>('auth/login', loginData).pipe(
             tap(response => {
-                sessionStorage.setItem(this.tokenKey, response.accessToken);
+                if (this.isBrowser()) {
+                    sessionStorage.setItem(this.tokenKey, response.accessToken);
+                }
                 this.utilisateurService.getUtilisateurById(parseInt(response.id)).subscribe({
                     next: (datas) => {
                         datas.roleId = parseInt(response.roleId);
@@ -48,6 +57,7 @@ export class AuthService extends BaseApiService {
             catchError(this.handleError<{ accessToken: string, id: string, roleId: string }>('login'))
         );
     }
+
     /**
      * Inscription de l'utilisateur
      * @param formData FormData contenant les données de l'utilisateur et l'image
@@ -125,7 +135,10 @@ export class AuthService extends BaseApiService {
      * @returns Le token JWT depuis le sessionStorage
      */
     getToken(): string | null {
-        return sessionStorage.getItem(this.tokenKey);
+        if (this.isBrowser()) {
+            return sessionStorage.getItem(this.tokenKey);
+        }
+        return null;
     }
 
     /**
@@ -140,7 +153,9 @@ export class AuthService extends BaseApiService {
      * Déconnexion de l'utilisateur
      */
     logout(): void {
-        sessionStorage.clear();
+        if (this.isBrowser()) {
+            sessionStorage.clear();
+        }
         this.currentUserSubject.next(null);  // Réinitialiser l'utilisateur connecté
         console.log('Utilisateur déconnecté');
     }

@@ -1,40 +1,126 @@
-<div class="container min-vh-75 d-flex flex-column justify-content-center align-items-center">
-    <!-- Hero Section -->
+<div class="container-fluid min-vh-100 bg-dc-2 d-flex flex-column justify-content-center align-items-center">
+
     <div class="hero text-center py-5 banner-image col-lg-12">
-        <h1 class="display-3 font-dc text-white">Bienvenue sur DynamoCraft</h1>
+        <h1 class="font-dc text-warning">Bienvenue sur DynamoCraft</h1>
     </div>
 
-    <!-- Cards Section -->
-    <div class="row w-100 justify-content-center mt-5">
-        <div class="col-sm-12 col-md-4 mb-5">
-            <div class="card-large shadow-lg card-hover couleur-main p-3">
-                <div class="card-body text-center">
-                    <h5 class="card-title font-dc text-white">Créativités</h5>
-                    <p class="card-text text-black">Explorez une variété de modèles uniques, allant des œuvres d'art aux
-                        gadgets innovants.</p>
-                    <a href="#" class="btn btn-light font-dc">Voir plus</a>
+    <!-- Static Image Section -->
+    <div class="mb-6 w-100 section-spacing" style="position: relative;">
+        <div class="bd-placeholder-img" style="width: 100%; height: 500px;">
+            <!-- Replace with your own image or content -->
+            <div class="container d-flex justify-content-center align-items-center full-height text-center"
+                style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;">
+                <div class="text-center">
+                    <h1 class="font-dc text-warning">Explorez vos Possibilités</h1>
+                    @if (isLoggedIn) {
+                        <p class="opacity-75 d-flex justify-content-center">Consultez les modèles disponibles.</p>
+                        <p><a class="btn btn-lg btn-warning d-flex justify-content-center" routerLink="/recherche">Voir les modèles</a></p>
+                    } @else {
+                        <p class="opacity-75 d-flex justify-content-center">Rejoignez notre communauté pour découvrir et partager vos créations uniques.</p>
+                        <p><a class="btn btn-lg btn-warning d-flex justify-content-center" routerLink="/auth/login">Rejoindre maintenant</a></p>
+                    }
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-sm-12 col-md-4 mb-5">
-            <div class="card-large shadow-lg card-hover couleur-main p-3">
-                <div class="card-body text-center">
-                    <h5 class="card-title font-dc text-white">Partages</h5>
-                    <p class="card-text text-black">Publiez vos créations et inspirez d'autres utilisateurs avec votre
-                        talent unique.</p>
-                    <a href="#" class="btn btn-light font-dc">Partager</a>
+    <!-- Introduction Section -->
+    <div class="w-100 text-center py-5 bg-dc-2 text-white section-spacing">
+        <h2 class="font-dc text-warning">À Propos de DynamoCraft</h2>
+        <p class="lead mt-4">DynamoCraft est une plateforme dédiée aux créateurs et innovateurs. Explorez une variété de
+            projets uniques, partagez vos propres créations, et connectez-vous avec une communauté passionnée. Que vous
+            soyez un artiste, un ingénieur, ou un amateur, DynamoCraft est votre espace pour apprendre, collaborer, et
+            inspirer.</p>
+    </div>
+
+    <!-- Three Columns Section -->
+    <div class="container marketing text-center section-spacing">
+        <div class="row">
+            <div class="col-lg-4">
+                <div class="card shadow-lg card-hover couleur-main p-4 w-100 mb-5">
+                    <div class="card-body text-center">
+                        <div class="icon mb-3">
+                            <i class="bi bi-palette-fill text-warning" style="font-size: 4rem;"></i>
+                        </div>
+                        <h2 class="fw-normal text-warning">Créativités</h2>
+                        <p>Découvrez une gamme de modèles uniques, des œuvres d'art aux gadgets innovants. DynamoCraft
+                            vous offre une plateforme pour laisser libre cours à votre imagination et développer des
+                            projets
+                            qui inspirent les autres.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card shadow-lg card-hover couleur-main p-4 w-100 mb-5">
+                    <div class="card-body text-center">
+                        <div class="icon mb-3">
+                            <i class="bi bi-upload text-warning" style="font-size: 4rem;"></i>
+                        </div>
+                        <h2 class="fw-normal text-warning">Partages</h2>
+                        <p>Publiez vos créations et inspirez d'autres utilisateurs avec votre talent unique. DynamoCraft
+                            est l'endroit idéal pour partager vos passions, obtenir des retours constructifs, et faire
+                            découvrir vos
+                            projets au plus grand nombre.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card shadow-lg card-hover couleur-main p-4 w-100 mb-5">
+                    <div class="card-body text-center">
+                        <div class="icon mb-3">
+                            <i class="bi bi-people-fill text-warning" style="font-size: 4rem;"></i>
+                        </div>
+                        <h2 class="fw-normal text-warning">Échanges</h2>
+                        <p>Engagez-vous avec la communauté et partagez vos astuces pour améliorer les créations.
+                            DynamoCraft facilite les échanges entre créateurs, vous permettant de collaborer, de
+                            recevoir des
+                            retours, et de grandir ensemble dans un environnement stimulant.</p>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-sm-12 col-md-4 mb-5">
-            <div class="card-large shadow-lg card-hover couleur-main p-3">
-                <div class="card-body text-center">
-                    <h5 class="card-title font-dc text-white">Échanges</h5>
-                    <p class="card-text text-black">Engagez-vous avec la communauté et partagez vos astuces pour
-                        améliorer les créations.</p>
-                    <a href="#" class="btn btn-light font-dc">Participer</a>
+    <!-- Functionalities Section -->
+    <div class="container marketing text-center section-spacing">
+        <div class="row">
+            <div class="col-lg-12 mt-5 mb-5">
+                <div class="card shadow-lg card-hover couleur-main p-4 w-100 mb-5 d-flex flex-md-row align-items-center hauteur-30"
+                    style="background: linear-gradient(135deg, rgba(35, 35, 35, 0.9), rgba(25, 25, 25, 0.9));">
+                    <div class="card-body text-start text-white col-md-8">
+                        <h3 class="font-dc text-warning mt-3">Gestion Simplifiée</h3>
+                        <p>Un tableau de bord intuitif pour gérer vos créations, suivre vos téléchargements, vos
+                            uploads, et consulter vos statistiques en un clin d'œil.</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <i class="bi bi-table text-warning" style="font-size: 6rem;"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 mt-5 mb-5">
+                <div class="card shadow-lg card-hover couleur-main p-4 w-100 mb-5 d-flex flex-md-row align-items-center hauteur-30"
+                    style="background: linear-gradient(135deg, rgba(25, 25, 25, 0.9), rgba(35, 35, 35, 0.9));">
+                    <div class="col-md-4 text-center">
+                        <i class="bi bi-trophy text-warning" style="font-size: 6rem;"></i>
+                    </div>
+                    <div class="card-body text-start text-white col-md-8">
+                        <h3 class="font-dc text-warning mt-3">Système de Classement</h3>
+                        <p>Un système de top pour vous encourager à vous hisser au sommet du classement de la
+                            plateforme. Montrez votre talent et inspirez les autres.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12 mt-5 mb-5">
+                <div class="card shadow-lg card-hover couleur-main p-4 w-100 mb-5 d-flex flex-md-row align-items-center hauteur-30"
+                    style="background: linear-gradient(135deg, rgba(35, 35, 35, 0.9), rgba(25, 25, 25, 0.9));">
+                    <div class="card-body text-start text-white col-md-8">
+                        <h3 class="font-dc text-warning mt-3">Gratuité Totale</h3>
+                        <p>Notre devise est simple : tout est gratuit, de façon illimitée, pour tous. Nous croyons en un
+                            partage libre et accessible à tous les créateurs.</p>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <i class="bi bi-gift text-warning" style="font-size: 6rem;"></i>
+                    </div>
                 </div>
             </div>
         </div>

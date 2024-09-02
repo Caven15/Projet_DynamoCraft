@@ -35,6 +35,7 @@ export class RealisationsComponent {
     loadUserRealisations(): void {
         this.projetService.getProjectsByUserId(this.userId).subscribe({
             next: (realisations) => {
+                console.log(realisations);
                 this.realisations = realisations;
                 this.totalPages = Math.ceil(this.realisations.length / this.limit);
                 this.updatePaginatedRealisations();

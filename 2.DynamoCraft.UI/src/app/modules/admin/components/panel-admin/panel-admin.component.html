@@ -1,20 +1,17 @@
-<div class="bg-dc-2">
+<div class="bg-dc-2 position-relative">
     <div class="row justify-content-center align-items-center py-3 bg-warning text-center mb-0">
         <div class="col-4 icon-container" (click)="setActiveTab('users')" [class.active-tab]="activeTab === 'users'">
             <i class="bi bi-people-fill icon-lg"></i>
         </div>
-        <div class="col-4 icon-container" (click)="setActiveTab('projects')"
-            [class.active-tab]="activeTab === 'projects'">
+        <div class="col-4 icon-container" (click)="setActiveTab('projects')" [class.active-tab]="activeTab === 'projects'">
             <i class="bi bi-card-checklist icon-lg"></i>
         </div>
-        <div class="col-4 icon-container" (click)="setActiveTab('statistics')"
-            [class.active-tab]="activeTab === 'statistics'">
+        <div class="col-4 icon-container" (click)="setActiveTab('statistics')" [class.active-tab]="activeTab === 'statistics'">
             <i class="bi bi-bar-chart-line icon-lg"></i>
         </div>
     </div>
 
     <div class="row bg-dc-2">
-        <!-- Affichage du nom du composant actif -->
         <div class="bg-warning text-center text-dark">
             <ng-container *ngIf="activeTab === 'users'">
                 <h5 class="text-black mb-4 text-center">Liste des utilisateurs</h5>
@@ -27,16 +24,22 @@
             </ng-container>
         </div>
 
-        <div>
-            <ng-container *ngIf="activeTab === 'users'">
-                <app-users></app-users>
-            </ng-container>
-            <ng-container *ngIf="activeTab === 'projects'">
-                <app-projets></app-projets>
-            </ng-container>
-            <ng-container *ngIf="activeTab === 'statistics'">
-                <app-stats></app-stats>
-            </ng-container>
+        <div class="position-relative w-100">
+            <!-- Loader -->
+            <app-loader [isLoading]="isTabLoading"></app-loader>
+
+            <!-- Content with dimming effect during loading -->
+            <div [class.loading]="isTabLoading" class="content">
+                <ng-container *ngIf="activeTab === 'users'">
+                    <app-users></app-users>
+                </ng-container>
+                <ng-container *ngIf="activeTab === 'projects'">
+                    <app-projets></app-projets>
+                </ng-container>
+                <ng-container *ngIf="activeTab === 'statistics'">
+                    <app-stats></app-stats>
+                </ng-container>
+            </div>
         </div>
     </div>
 </div>

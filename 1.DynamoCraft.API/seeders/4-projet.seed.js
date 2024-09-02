@@ -29,6 +29,9 @@ module.exports = {
             "Outils",
         ];
 
+        const utilisateurs = new Set(); // Pour stocker les utilisateurs déjà utilisés
+        const MAX_UTILISATEURS = 300; // Assurez-vous que ce nombre correspond au nombre total d'utilisateurs dans votre base de données
+
         logMessage("Sous-étape 1/3 : Génération des projets", COLOR_YELLOW);
 
         for (let i = 1; i <= 300; i++) {
@@ -52,7 +55,6 @@ module.exports = {
             // Sous-étape 2/3 : Insertion d'une statistique et récupération de l'ID
             logMessage(`Sous-étape 2/3 : Insertion de la statistique pour le projet ${i}`, COLOR_YELLOW);
             
-            // Utiliser `queryInterface` pour exécuter une requête brute et récupérer l'ID de la statistique insérée
             await queryInterface.bulkInsert(
                 "statistique",
                 [
@@ -72,6 +74,14 @@ module.exports = {
 
             const statistiqueId = statistique.id;
 
+            // Assigner un utilisateur unique
+            let utilisateurId;
+            do {
+                utilisateurId = faker.number.int({ min: 1, max: MAX_UTILISATEURS });
+            } while (utilisateurs.has(utilisateurId)); // Assurez-vous que l'utilisateur n'a pas déjà été utilisé
+
+            utilisateurs.add(utilisateurId);
+
             projets.push({
                 nom,
                 description,
@@ -80,7 +90,7 @@ module.exports = {
                 statutId: [1, 1, 2, 3][Math.floor(Math.random() * 4)],
                 statistiqueId: statistiqueId,
                 categorieId: categorieId,
-                utilisateurId: faker.number.int({ min: 1, max: 300 }),
+                utilisateurId: utilisateurId,
             });
 
             if (i % 50 === 0) {

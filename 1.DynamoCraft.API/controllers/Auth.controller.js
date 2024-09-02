@@ -190,7 +190,15 @@ exports.login = async (req, res, next) => {
                 .json({ message: "Cette adresse email n'existe pas" });
         }
 
-        // Vérifiez si l'utilisateur est verrouillé
+        // Vérifier si le compte est désactivé
+        if (!utilisateur.statutCompte) {
+            logMessage("Compte désactivé", COLOR_RED);
+            return res
+                .status(403)
+                .json({ message: "Compte désactivé. Contactez le support." });
+        }
+
+        // Vérifier si l'utilisateur est verrouillé
         if (utilisateur.lockUntil && utilisateur.lockUntil > Date.now()) {
             logMessage(
                 "Compte verrouillé en raison de tentatives infructueuses",
@@ -273,6 +281,7 @@ exports.login = async (req, res, next) => {
         });
     }
 };
+
 
 exports.forgotPassword = async (req, res) => {
     const { email } = req.body;

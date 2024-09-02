@@ -177,7 +177,30 @@ ul.nav .nav-link {
             left: 0;
         }
     }
+
+    &.no-underline::after {
+        content: none;
+    }
 }
+
+ul.nav .nav-link.dropdown-toggle::after {
+    content: none;
+}
+
+
+.form-select option {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+}
+
+.category-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
 
 
 
@@ -882,3 +905,158 @@ textarea.form-control {
     padding-right: calc(var(--bs-gutter-x) * .5);
     padding-left: calc(var(--bs-gutter-x) * .5);
 }
+
+/* Spacing for sections */
+.section-spacing {
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+}
+
+
+/* Ensure better spacing between elements */
+h1,
+h2,
+h3 {
+    margin-bottom: 1.5rem;
+}
+
+p {
+    margin-bottom: 2rem;
+}
+
+/* Additional spacing for icons within cards */
+.card-body .icon {
+    margin-bottom: 2rem;
+}
+
+/* Adjust the size and padding of buttons */
+.btn-warning {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.25rem;
+}
+
+/* Ensuring space between elements inside the static image section */
+.static-image-container {
+    padding: 2rem;
+}
+
+/* Increase space between cards in the grid */
+.container .row>.col-lg-4 {
+    margin-bottom: 2rem;
+}
+
+/* Padding adjustments for introduction section */
+.py-5 {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+.custom-select-with-images option {
+    display: flex;
+    align-items: center;
+}
+
+.category-option {
+    display: flex;
+    align-items: center;
+}
+
+.category-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+}
+
+.dropdown-menu-style {
+    background-color: $couleur-fond-2;
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    color: white;
+    font-family: 'ethnocentric', sans-serif;
+    font-size: 1rem;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    color: white;
+
+    &:hover {
+        background-color: $couleur-fond;
+        color: $couleur-main;
+    }
+}
+
+.menu-separator {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0), rgb(227, 178, 0), rgba(0, 0, 0, 0));
+    margin: 15px 0;
+}
+
+.nav-item {
+    margin-bottom: 15px;
+}
+
+.nav-link {
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: rgb(227, 178, 0);
+}
+
+.nav-link.active {
+    font-weight: bold;
+    color: rgb(227, 178, 0);
+}
+
+.offcanvas-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+    /* Ajuster le padding selon vos besoins */
+}
+
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    /* Écran sombre */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.router-container {
+    position: relative;
+    min-height: 100vh;
+    /* To ensure loader covers the full height of the content area */
+}
+

@@ -9,7 +9,7 @@
             </div>
             <div class="col-lg-8">
                 <div class="d-flex flex-column align-items-start justify-content-center">
-                    <h2 class="text-warning font-dc display-4">{{ utilisateur?.pseudo }}</h2>
+                    <h2 class="text-warning font-dc display-4">{{ utilisateur?.pseudo |slice:0:20 }}...</h2>
                     <p class="text-warning lead">Membre depuis {{ utilisateur?.dateInscription | date: 'MMMM yyyy' }}
                     </p>
                     <div class="d-flex mt-3">
@@ -86,8 +86,7 @@
                                 <ng-template #noImageTemplate>
                                     <p class="text-muted">Pas d'image disponible</p>
                                 </ng-template>
-                                <div
-                                    class="hover-content d-flex justify-content-center align-items-center">
+                                <div class="hover-content d-flex justify-content-center align-items-center">
                                     <i class="bi bi-eye text-white" style="font-size: 2rem;"></i>
                                     <p class="file-name text-white text-center mt-2">{{ projet.nom | slice:0:20 }}...
                                     </p>

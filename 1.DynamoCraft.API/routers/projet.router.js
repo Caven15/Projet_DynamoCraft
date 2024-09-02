@@ -13,6 +13,7 @@ router.get("/projet/:id/utilisateur", projetController.getByUserId);
 router.put("/projet/:id", estAutorise(1), projetController.updateById);
 router.delete("/projet/:id", estAutorise(1), projetController.delete);
 router.get("/projet/:id/categorie", estAutorise(1), projetController.getByCategoryId);
+router.get('/projets/:nom/categorie', projetController.getByCategoryName);
 router.get("/projets/search/:keyword/:page/:limit", projetController.search);
 router.put("/projet/:id/incrementLike", estAutorise(1), projetController.incrementLike);
 router.put("/projet/:id/incrementDownloads", estAutorise(1), projetController.incrementDownload);

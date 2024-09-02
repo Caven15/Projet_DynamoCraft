@@ -37,7 +37,7 @@ export class AccesNonAutoriserComponent implements AfterViewInit {
                 // Déclenche le décompte
                 const countdownInterval = setInterval(() => {
                     countdown--;
-                    countdownElement.textContent = `Temps restant avant de pouvoir fermer : ${countdown}s`;
+                    countdownElement.textContent = ` ( Temps restant : ${countdown}s ) `;
 
                     if (countdown <= 0) {
                         clearInterval(countdownInterval);

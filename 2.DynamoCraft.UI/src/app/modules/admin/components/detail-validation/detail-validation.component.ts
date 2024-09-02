@@ -1,4 +1,5 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Projet } from '../../../../models/projet.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProjetService } from '../../../../tools/services/api/projet.service';
@@ -6,6 +7,8 @@ import { environment } from '../../../../../environments/environment.dev';
 import { Modele3D } from '../../../../models/modele-3d.model';
 import { Display3dService } from '../../../../tools/services/other/display-3d.service';
 import { Modele3dService } from '../../../../tools/services/api/modele-3d.service';
+
+type DefaultMessageKey = 'valide' | 'invalide' | 'attente' | 'custom';
 
 @Component({
     selector: 'app-detail-validation',
@@ -31,13 +34,30 @@ export class DetailValidationComponent implements OnInit {
     commentaireValidation: string = '';
     validatedCount: number = 0;
 
+    // Messages par défaut
+    defaultMessages: Record<DefaultMessageKey, string> = {
+        valide: 'Ce projet est valide.',
+        invalide: 'Ce projet est invalide.',
+        attente: 'Ce projet est en attente de validation.',
+        custom: ''
+    };
+
+    // Formulaire pour le commentaire
+    validationForm: FormGroup;
+
     constructor(
+        private fb: FormBuilder,
         private projetService: ProjetService,
         private display3dService: Display3dService,
         private modele3dService: Modele3dService,
         private route: ActivatedRoute,
         private router: Router
-    ) { }
+    ) {
+        // Initialisation du formulaire avec validation
+        this.validationForm = this.fb.group({
+            commentaire: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(500)]]
+        });
+    }
 
     ngOnInit(): void {
         const projetId = this.route.snapshot.params['id'];
@@ -132,12 +152,12 @@ export class DetailValidationComponent implements OnInit {
     getStatutText(): string {
         switch (this.finalDecision) {
             case 1:
-                return 'Valide';
+                return this.defaultMessages.valide;
             case 2:
-                return 'Invalide';
+                return this.defaultMessages.invalide;
             case 3:
             default:
-                return 'En attente';
+                return this.defaultMessages.attente;
         }
     }
 
@@ -152,11 +172,17 @@ export class DetailValidationComponent implements OnInit {
     }
 
     canFinalize(): boolean {
-        return this.commentaireValidation.trim().length > 0;
+        return this.validationForm.valid;
+    }
+
+    applyDefaultMessage(messageKey: DefaultMessageKey): void {
+        this.validationForm.controls['commentaire'].setValue(this.defaultMessages[messageKey]);
     }
 
     submitFinalDecision(): void {
         if (this.canFinalize()) {
+            this.commentaireValidation = this.validationForm.controls['commentaire'].value;
+
             switch (this.finalDecision) {
                 case 1: // Valide
                     this.projetService.setValidProjet(this.projet.id, this.commentaireValidation).subscribe(() => {

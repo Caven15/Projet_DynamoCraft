@@ -1,69 +1,170 @@
 <header class="p-3 bg-dc-2 text-white font-dc">
     <div class="container">
-        <div class="d-flex flex-wrap align-items-center justify-content-between">
-            <a class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+        <div class="d-flex align-items-center justify-content-between flex-wrap flex-lg-nowrap">
+            <!-- Logo and Title -->
+            <a class="d-flex align-items-center text-white text-decoration-none mb-2 mb-lg-0" routerLink="/home">
                 <img src="assets/png/logo.png" alt="logo" width="60" height="60">
-                <span class="navbar-brand font-dc text-white fs-4 ms-2 me-5">DynamoCraft</span>
+                <span class="navbar-brand font-dc text-white fs-4 ms-2">DynamoCraft</span>
             </a>
 
-            <ul class="nav col-12 col-xl-auto me-lg-auto mb-2 d-flex justify-content-center mb-md-0">
-                <li>
-                    <a class="nav-link col-12 d-flex justify-content-center" [ngClass]="{'active': isActive('/home')}"
-                        (click)="setActiveLink('/home')" routerLink="/home">Accueil</a>
-                </li>
-                <li>
-                    <a class="nav-link col-12 d-flex justify-content-center"
+            <!-- Navigation Menu - Visible on larger screens -->
+            <ul class="nav d-none d-lg-flex justify-content-center mb-2 mt-3 mb-lg-0 flex-grow-1">
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center justify-content-center fs-5"
                         [ngClass]="{'active': isActive('/recherche')}" (click)="setActiveLink('/recherche')"
-                        routerLink="/recherche">Recherche</a>
+                        routerLink="/recherche">
+                        <i class="bi bi-search me-2"></i>
+                        Recherche
+                    </a>
                 </li>
-                <li>
-                    <a class="nav-link col-12 d-flex justify-content-center"
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center justify-content-center fs-5"
                         [ngClass]="{'active': isActive('/modele/top10')}" (click)="setActiveLink('/modele/top10')"
-                        routerLink="/modele/top10">Top 10</a>
+                        routerLink="/modele/top10">
+                        <i class="bi bi-star-fill me-2"></i>
+                        Top 10
+                    </a>
                 </li>
-                <li>
-                    <a class="nav-link col-12 d-flex justify-content-center"
+                <li class="nav-item">
+                    <a class="nav-link d-flex align-items-center justify-content-center fs-5"
                         [ngClass]="{'active': isActive('/modele/nouveautes')}"
-                        (click)="setActiveLink('/modele/nouveautes')" routerLink="/modele/nouveautes">Nouveautés</a>
+                        (click)="setActiveLink('/modele/nouveautes')" routerLink="/modele/nouveautes">
+                        <i class="bi bi-lightning-fill me-2"></i>
+                        Nouveautés
+                    </a>
                 </li>
-                <li>
-                    <a class="nav-link col-12 d-flex justify-content-center"
-                        [ngClass]="{'active': isActive('/modele/categories')}"
-                        (click)="setActiveLink('/modele/categories')" routerLink="/modele/categories">Catégories</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center justify-content-center fs-5 no-underline"
+                        href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-grid me-2"></i>
+                        Catégories
+                        <i class="bi bi-caret-down-fill ms-2"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-style" aria-labelledby="categoriesDropdown">
+                        <li *ngFor="let categorie of categories">
+                            <a class="dropdown-item d-flex align-items-center"
+                                (click)="navigateToSearch(categorie.nom)">
+                                <img [src]="'assets/png/Categories/' + categorie.nom + '.png'" alt="{{ categorie.nom }}"
+                                    class="category-icon me-2">
+                                {{ categorie.nom }}
+                                <i class="bi bi-arrow-right ms-auto"></i>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
 
-            <div class="dropdown text-end">
-                <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle text-white"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                    <!-- Affiche l'image de profil ou une icône utilisateur si personne n'est connecté -->
-                    <img *ngIf="getProfileImage(); else defaultIcon" [src]="getProfileImage()" alt="profile image"
-                        width="40" height="40" class="rounded-circle">
-                    <ng-template #defaultIcon>
-                        <i class="bi bi-person-circle fs-2"></i>
-                    </ng-template>
-                </a>
-                <ul class="dropdown-menu text-small dropdown-menu-end p-2" style="min-width: 200px;">
-                    <!-- Vérifiez si l'utilisateur est connecté -->
-                    <ng-container *ngIf="isConnected(); else guestLinks">
-                        <ng-container *ngFor="let link of userLinks">
-                            <li>
-                                <a class="dropdown-item" [routerLink]="link.url">{{ link.label }}</a>
-                            </li>
-                        </ng-container>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item" (click)="logout()">Déconnexion</a></li>
-                    </ng-container>
-
-                    <!-- Liens pour les invités (non connectés) -->
-                    <ng-template #guestLinks>
-                        <li><a class="dropdown-item" routerLink="/auth/login">Login</a></li>
-                        <li><a class="dropdown-item" routerLink="/auth/register">Register</a></li>
-                    </ng-template>
-                </ul>
-            </div>
+            <!-- Burger Menu - Visible on all screen sizes -->
+            <button class="btn ms-3 d-flex justify-content-center" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasMenu" aria-controls="offcanvasMenu">
+                <i class="bi bi-list fs-4"></i>
+            </button>
         </div>
     </div>
 </header>
+
+<div class="offcanvas offcanvas-end bg-dc-2" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title fs-4 text-center w-100" id="offcanvasMenuLabel">Menu</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="nav flex-column text-center">
+            <!-- Section Navigation -->
+            <li class="nav-item">
+                <h6 class="section-title text-uppercase text-warning">Navigation</h6>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center justify-content-center fs-5"
+                    [ngClass]="{'active': isActive('/recherche')}" (click)="setActiveLink('/recherche')"
+                    routerLink="/recherche">
+                    <i class="bi bi-search me-2"></i>
+                    Recherche
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center justify-content-center fs-5"
+                    [ngClass]="{'active': isActive('/modele/top10')}" (click)="setActiveLink('/modele/top10')"
+                    routerLink="/modele/top10">
+                    <i class="bi bi-star-fill me-2"></i>
+                    Top 10
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link d-flex align-items-center justify-content-center fs-5"
+                    [ngClass]="{'active': isActive('/modele/nouveautes')}" (click)="setActiveLink('/modele/nouveautes')"
+                    routerLink="/modele/nouveautes">
+                    <i class="bi bi-lightning-fill me-2"></i>
+                    Nouveautés
+                </a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle d-flex align-items-center justify-content-center fs-5" href="#"
+                    id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-grid me-2"></i>
+                    Catégories
+                    <i class="bi bi-caret-down-fill ms-2"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-style" aria-labelledby="categoriesDropdown">
+                    <li *ngFor="let categorie of categories">
+                        <a class="dropdown-item d-flex align-items-center" (click)="navigateToSearch(categorie.nom)">
+                            <img [src]="'assets/png/Categories/' + categorie.nom + '.png'" alt="{{ categorie.nom }}"
+                                class="category-icon me-2">
+                            {{ categorie.nom }}
+                            <i class="bi bi-arrow-right ms-auto"></i>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+
+            <!-- User Links Section -->
+            <li *ngIf="userLinks.length > 0" class="nav-item">
+                <hr class="menu-separator">
+                <h6 class="section-title text-uppercase text-warning">Utilisateur</h6>
+            </li>
+            <li class="nav-item" *ngFor="let link of userLinks">
+                <a class="nav-link d-flex align-items-center justify-content-center fs-5" [routerLink]="link.url">
+                    <i [ngClass]="getIconForLink(link.url) + ' me-2'"></i>
+                    {{ link.label }}
+                </a>
+            </li>
+
+            <!-- Admin Links Section -->
+            <li *ngIf="isModerator() || isAdmin()" class="nav-item">
+                <hr class="menu-separator">
+                <h6 class="section-title text-uppercase text-warning">Administration</h6>
+            </li>
+            <li class="nav-item" *ngFor="let adminLink of adminLinks">
+                <a class="nav-link d-flex align-items-center justify-content-center fs-5" [routerLink]="adminLink.url">
+                    <i [ngClass]="getIconForLink(adminLink.url) + ' me-2'"></i>
+                    {{ adminLink.label }}
+                </a>
+            </li>
+
+            <!-- Login/Register Section -->
+            <li *ngIf="userLinks.length === 0" class="nav-item">
+                <hr class="menu-separator">
+                <h6 class="section-title text-uppercase text-warning">Compte</h6>
+            </li>
+            <li class="nav-item" *ngIf="userLinks.length === 0">
+                <a class="nav-link fs-5" routerLink="/auth/login">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Login
+                </a>
+            </li>
+            <li class="nav-item" *ngIf="userLinks.length === 0">
+                <a class="nav-link fs-5" routerLink="/auth/register">
+                    <i class="bi bi-pencil-square me-2"></i> Register
+                </a>
+            </li>
+            <li class="nav-item" *ngIf="isConnected()">
+                <hr class="menu-separator">
+                <a class="nav-link d-flex align-items-center justify-content-center text-danger fs-5"
+                    (click)="logout()">
+                    <i class="bi bi-box-arrow-right me-2"></i>
+                    Déconnexion
+                </a>
+            </li>
+
+        </ul>
+    </div>
+</div>

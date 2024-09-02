@@ -3,6 +3,8 @@ import { AuthService } from '../../tools/services/api/auth.service';
 import { Utilisateur } from '../../models/utilisateur.model';
 import { environment } from '../../../environments/environment.dev';
 import { Router, NavigationEnd } from '@angular/router';
+import { CategorieService } from '../../tools/services/api/categorie.service';
+import { Categorie } from '../../models/categorie.model';
 
 @Component({
     selector: 'app-nav-bar',
@@ -10,83 +12,115 @@ import { Router, NavigationEnd } from '@angular/router';
     styleUrls: ['./nav-bar.component.scss']
 })
 export class NavBarComponent implements OnInit {
+    categories: Categorie[] = [];
     currentUser: Utilisateur | null = null;
     userLinks: { label: string, url: string }[] = [];
+    adminLinks: { label: string, url: string }[] = []; // Nouvelle propriété pour les liens d'administration
     url: string = `${environment.apiUrl}/uploads/`;
     activeLink: string = '';
 
-    constructor(private authService: AuthService, private router: Router) { }
+    constructor(private authService: AuthService, private router: Router, private categorieService: CategorieService) { }
 
     ngOnInit(): void {
-        // S'abonner pour détecter les changements d'état de l'utilisateur
         this.authService.currentUser$.subscribe(user => {
             this.currentUser = user;
-            this.updateUserLinks(); // Met à jour les liens du menu en fonction du rôle
+            this.updateUserLinks();
         });
 
-        // Initialiser l'état actif en fonction de l'URL actuelle
-        this.activeLink = this.router.url || '/home';
-
-        // S'abonner aux événements de navigation pour mettre à jour l'état actif
         this.router.events.subscribe(event => {
             if (event instanceof NavigationEnd) {
                 this.activeLink = event.urlAfterRedirects;
             }
         });
+
+        this.categorieService.getAllCategorie().subscribe({
+            next: (data) => {
+                this.categories = data;
+            },
+            error: (error) => {
+                console.error("Erreur lors de la récupération des catégories :", error);
+            }
+        });
     }
 
-    // Vérifiez si l'utilisateur est connecté
+    updateUserLinks(): void {
+        this.userLinks = [
+            { label: 'Mon Profil', url: '/utilisateur/profil' },
+            { label: 'Ajouter un projet', url: '/projet/ajout' },
+            { label: 'Tout mes projets', url: '/utilisateur/realisations/' + this.currentUser!.id },
+            { label: 'Informations personnelles', url: '/utilisateur/profil-user' },
+            { label: 'Details', url: '/utilisateur/informations' },
+            { label: 'Statistiques', url: '/utilisateur/statistiques' },
+            { label: 'Bibliothèques', url: '/utilisateur/bibliotheques' },
+        ];
+
+        if (this.isModerator() || this.isAdmin()) {
+            this.adminLinks = [
+                { label: 'Panel gestion', url: '/admin/panel' },
+                { label: 'Utilisateur', url: '/admin/utilisateurs' },
+                { label: 'Projets', url: '/admin/projets' },
+                { label: 'Statistiques', url: '/admin/statistiques' }
+            ];
+        }
+    }
+
+    getIconForLink(url: string): string {
+        switch (url) {
+            case '/utilisateur/profil':
+                return 'bi bi-person-circle';
+            case '/projet/ajout':
+                return 'bi bi-plus-circle';
+            case '/utilisateur/realisations':
+                return 'bi bi-folder';
+            case '/utilisateur/profil-user':
+                return 'bi bi-info-circle';
+            case '/utilisateur/informations':
+                return 'bi bi-file-earmark-text';
+            case '/utilisateur/statistiques':
+                return 'bi bi-bar-chart';
+            case '/utilisateur/bibliotheques':
+                return 'bi bi-collection';
+            case '/admin/panel':
+                return 'bi bi-sliders';
+            case '/admin/utilisateurs':
+                return 'bi bi-people';
+            case '/admin/projets':
+                return 'bi bi-folder2-open';
+            case '/admin/statistiques':
+                return 'bi bi-graph-up';
+            default:
+                return 'bi bi-link';
+        }
+    }
+
     isConnected(): boolean {
         return !!this.currentUser;
     }
 
-    // Vérifiez si l'utilisateur est un admin
     isAdmin(): boolean {
         return this.currentUser?.roleId === 3;
     }
 
-    // Vérifiez si l'utilisateur est un modérateur
     isModerator(): boolean {
         return this.currentUser?.roleId === 2;
     }
 
-    // Déconnecter l'utilisateur
-    logout(): void {
-        this.authService.logout();
-    }
-
-    // Récupère l'image de profil si l'utilisateur est connecté, sinon retourne null
-    getProfileImage(): string | null {
-        if (this.currentUser && this.currentUser.imageUtilisateur && this.currentUser.imageUtilisateur.nom) {
-            return `${this.url}${this.currentUser.imageUtilisateur.nom}`; // Chemin vers le dossier des uploads
-        }
-        return null; // Retourne null si personne n'est connecté
-    }
-
-    // Met à jour les liens du menu en fonction du rôle de l'utilisateur
-    updateUserLinks(): void {
-        this.userLinks = [
-            { label: 'Mon Profil', url: '/utilisateur/profil' },
-            { label: 'Ajouter projet', url: '/projet/ajout' }
-        ];
-
-        if (this.isModerator()) {
-            this.userLinks.push({ label: 'Modérateur', url: '/moderator/dashboard' });
-            this.userLinks.push({ label: 'Validation Projets', url: '/admin/detail-validation' });
-        }
-
-        if (this.isAdmin()) {
-            this.userLinks.push({ label: 'Admin Panel', url: '/admin/panel' });
-        }
-    }
-
-    // Définit le lien actif
     setActiveLink(link: string): void {
         this.activeLink = link;
     }
 
-    // Vérifie si le lien est actif
     isActive(link: string): boolean {
         return this.activeLink === link;
     }
+
+    navigateToSearch(categorieNom: string): void {
+        this.router.navigate(['/recherche'], { queryParams: { categorie: categorieNom } });
+    }
+
+    logout(): void {
+        this.authService.logout();
+        this.router.navigate(['/auth/login']);
+    }
 }
+
+

@@ -117,12 +117,41 @@
                     </p>
                     <p class="text-warning mt-2">Étapes :{{ validatedCount }}/3</p>
                     <h5 class="text-warning">Commentaire</h5>
-                    <textarea class="form-control bg-dc-2 text-warning mb-4" [(ngModel)]="commentaireValidation"
-                        placeholder="Entrez un commentaire expliquant votre décision" rows="3"></textarea>
-                    <button class="btn btn-warning btn-lg shadow-lg" [disabled]="!canFinalize()"
-                        (click)="submitFinalDecision()">
-                        Soumettre la décision
-                    </button>
+
+                    <!-- Formulaire pour le commentaire -->
+                    <form [formGroup]="validationForm">
+                        <textarea class="form-control bg-dc-2 text-warning mb-4" formControlName="commentaire"
+                            placeholder="Entrez un commentaire expliquant votre décision ou utilisez un message par défaut"
+                            rows="3"></textarea>
+
+                        <div *ngIf="validationForm.controls['commentaire'].invalid && validationForm.controls['commentaire'].touched">
+                            <small class="text-danger" *ngIf="validationForm.controls['commentaire'].errors?.['required']">
+                                Le commentaire est requis.
+                            </small>
+                            <small class="text-danger" *ngIf="validationForm.controls['commentaire'].errors?.['minlength']">
+                                Le commentaire doit contenir au moins 5 caractères.
+                            </small>
+                            <small class="text-danger" *ngIf="validationForm.controls['commentaire'].errors?.['maxlength']">
+                                Le commentaire ne doit pas dépasser 500 caractères.
+                            </small>
+                        </div>
+
+                        <div class="dropdown mb-4">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                Choisir un message par défaut
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <li><a class="dropdown-item" (click)="applyDefaultMessage('valide')">Valide</a></li>
+                                <li><a class="dropdown-item" (click)="applyDefaultMessage('invalide')">Invalide</a></li>
+                                <li><a class="dropdown-item" (click)="applyDefaultMessage('attente')">En attente</a></li>
+                            </ul>
+                        </div>
+
+                        <button class="btn btn-warning btn-lg shadow-lg" [disabled]="!canFinalize()"
+                            (click)="submitFinalDecision()">
+                            Soumettre la décision
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>

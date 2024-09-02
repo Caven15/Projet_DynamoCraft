@@ -1,0 +1,174 @@
+// Variables pour les réglages
+$rotation-duration: 5s; // Durée de la rotation complète du cube (actuellement réglée pour une rotation lente)
+$particle-orbit-duration: 0s; // Durée de l'orbite complète des particules (peut être ajustée pour accélérer ou ralentir)
+$text-pulse-duration: 3s; // Durée de l'animation du texte pulsé
+
+$spinner-size: 200px; // Taille du cube
+$particle-size: 10px; // Taille des particules
+$cube-color: #ffc107; // Couleur principale du cube
+$cube-border-color: #ffeb3b; // Couleur de la bordure du cube
+$particle-color: #ffeb3b; // Couleur des particules
+$text-color: #ffeb3b; // Couleur du texte
+$background-opacity: 0.7; // Opacité du fond de l'écran lors du chargement
+
+/* Loader */
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, $background-opacity);
+    z-index: 1000;
+    color: $text-color;
+}
+
+.spinner {
+    width: $spinner-size;
+    height: $spinner-size;
+    perspective: 1200px;
+    margin-bottom: 40px; // Espacement entre le texte et le cube
+    position: relative;
+}
+
+.spinner .cube {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform-style: preserve-3d;
+    transform: rotateX(0deg) rotateY(0deg);
+    animation: spin-cube $rotation-duration infinite linear; // Durée de la rotation complète
+}
+
+.spinner .face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, $cube-color, $cube-border-color);
+    opacity: 0.9;
+    border: 2px solid $cube-border-color;
+    box-shadow: 0 0 20px rgba($cube-border-color, 0.5);
+}
+
+.spinner .face:nth-child(1) {
+    transform: rotateY(0deg) translateZ(100px);
+}
+
+.spinner .face:nth-child(2) {
+    transform: rotateY(90deg) translateZ(100px);
+}
+
+spinner .face:nth-child(3) {
+    transform: rotateY(180deg) translateZ(100px);
+}
+
+.spinner .face:nth-child(4) {
+    transform: rotateY(-90deg) translateZ(100px);
+}
+
+.spinner .face:nth-child(5) {
+    transform: rotateX(90deg) translateZ(100px);
+}
+
+.spinner .face:nth-child(6) {
+    transform: rotateX(-90deg) translateZ(100px);
+}
+
+/* Particules */
+.spinner .particle {
+    width: $particle-size;
+    height: $particle-size;
+    background-color: $particle-color;
+    border-radius: 50%;
+    position: absolute;
+    animation: orbit $particle-orbit-duration linear infinite; // Durée de l'orbite complète des particules
+    opacity: 0.7;
+}
+
+.spinner .particle:nth-child(7) {
+    top: -30px;
+    left: 50%;
+    transform-origin: 100px 100px;
+}
+
+.spinner .particle:nth-child(8) {
+    top: 130px;
+    left: 50%;
+    transform-origin: -100px -100px;
+    animation-duration: 80s; // Durée individuelle pour cette particule (peut être ajustée)
+}
+
+.spinner .particle:nth-child(9) {
+    top: 50%;
+    left: -30px;
+    transform-origin: 100px 100px;
+    animation-duration: 70s;
+}
+
+.spinner .particle:nth-child(10) {
+    top: 50%;
+    left: 230px;
+    transform-origin: -100px -100px;
+    animation-duration: 90s;
+}
+
+@keyframes spin-cube {
+    0% {
+        transform: rotateX(0deg) rotateY(0deg);
+    }
+
+    100% {
+        transform: rotateX(360deg) rotateY(360deg); // Rotation complète en 3D
+    }
+}
+
+@keyframes orbit {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg); // Rotation complète des particules autour du cube
+    }
+}
+
+/* DynamoCraft Text */
+.loader-text {
+    font-family: 'ethnocentric', sans-serif;
+    font-size: 36px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 5px;
+    color: $text-color;
+    animation: pulse $text-pulse-duration infinite;
+    margin-top: 50px; // Espacement supplémentaire au-dessus du texte
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Dim the content when loading */
+.content.loading {
+    opacity: 0.3;
+    pointer-events: none; // Désactive les interactions avec le contenu pendant le chargement
+}

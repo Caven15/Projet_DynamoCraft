@@ -218,9 +218,13 @@ exports.getById = async (req, res, next) => {
                     as: "imageProjet", // Assurez-vous d'utiliser l'alias correct
                     attributes: ["nom"], // Inclure uniquement le champ nécessaire
                 },
+                {
+                    model: dbConnector.Categorie,
+                    as: "categorie", // Inclure la catégorie associée au projet
+                },
             ],
             attributes: {
-                exclude: ["statutId", "statistiqueId", "utilisateurId"],
+                exclude: ["statutId", "statistiqueId", "utilisateurId", "categorieId"],
             },
         });
 
@@ -231,10 +235,10 @@ exports.getById = async (req, res, next) => {
 
         const projetWithDetails = {
             ...projet.toJSON(),
-            categorieId: projet.categorieId,
+            categorieId: projet.categorieId,  // Assurez-vous de conserver la catégorie ID si nécessaire
         };
 
-        // Log les détails du projet, y compris l'utilisateur et les images
+        // Log les détails du projet, y compris l'utilisateur, les images et la catégorie
         logMessage(
             `Détails du projet: ${JSON.stringify(projetWithDetails)}`,
             COLOR_GREEN
@@ -249,6 +253,7 @@ exports.getById = async (req, res, next) => {
             .json({ message: "Erreur lors de la récupération du projet" });
     }
 };
+
 
 // Récupérer les projets par utilisateurId
 exports.getByUserId = async (req, res, next) => {
@@ -469,6 +474,86 @@ exports.getByCategoryId = async (req, res, next) => {
         });
     }
 };
+
+// Récupérer les projets par nom de catégorie
+exports.getByCategoryName = async (req, res, next) => {
+    logMessage(
+        `Début de la récupération des projets pour la catégorie avec le nom: ${req.params.nom}`,
+        COLOR_YELLOW
+    );
+    try {
+        const categoryName = req.params.nom;
+
+        // Vérifier si la catégorie existe
+        const categorie = await dbConnector.Categorie.findOne({
+            where: { nom: categoryName },
+            attributes: ['id', 'nom'], // Inclure uniquement les champs nécessaires
+        });
+
+        if (!categorie) {
+            logMessage("Catégorie non trouvée", COLOR_RED);
+            return res.status(200).json([]);
+        }
+
+        // Récupérer les projets liés à cette catégorie
+        const projects = await dbConnector.Projet.findAll({
+            where: { categorieId: categorie.id },
+            include: [
+                {
+                    model: dbConnector.Categorie,
+                    as: "categorie",
+                    attributes: ["nom"],
+                },
+                {
+                    model: dbConnector.Statut,
+                    as: "statut",
+                    attributes: { exclude: ["id"] },
+                },
+                {
+                    model: dbConnector.Statistique,
+                    attributes: { exclude: ["id"] },
+                },
+                {
+                    model: dbConnector.Utilisateur,
+                    as: "utilisateur",
+                    attributes: { exclude: ["id", "password"] },
+                },
+                {
+                    model: dbConnector.ImageProjet,
+                    as: "imageProjet",
+                    attributes: ["nom", "dateCreation"],
+                },
+            ],
+            attributes: {
+                exclude: [
+                    "statutId",
+                    "statistiqueId",
+                    "categorieId",
+                    "utilisateurId",
+                ],
+            },
+        });
+
+        logMessage(
+            `Projets pour la catégorie avec nom: ${categoryName} récupérés avec succès`,
+            COLOR_GREEN
+        );
+        return res.status(200).json(projects);
+    } catch (error) {
+        logMessage(
+            "Erreur lors de la récupération des projets par nom de catégorie",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors de la récupération des projets par nom de catégorie :",
+            error
+        );
+        return res.status(500).json({
+            message: "Erreur lors de la récupération des projets par nom de catégorie",
+        });
+    }
+};
+
 
 // Récupérer tous les projets valides
 exports.getValidProjet = async (req, res, next) => {
@@ -1144,8 +1229,6 @@ exports.search = async (req, res, next) => {
         return res.status(500).json({ message: "Erreur lors de la recherche des projets" });
     }
 };
-
-
 
 // Récupérer les projets téléchargés par un utilisateur
 exports.getDownloadedByUser = async (req, res, next) => {

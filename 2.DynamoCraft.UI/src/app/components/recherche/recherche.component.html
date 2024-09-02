@@ -1,21 +1,40 @@
 <div class="container min-vh-75 bg-dc-2 py-3 rounded-3">
     <h1 class="font-dc text-center text-warning mb-4">Recherche de Projets</h1>
 
-    <!-- Barre de recherche -->
+    <!-- Barre de recherche avec bouton -->
     <div class="row mb-4 d-flex justify-content-center">
         <div class="col-10 col-md-6">
             <div class="input-group shadow-sm">
                 <input type="text" class="form-control" placeholder="Rechercher un projet..." [(ngModel)]="searchQuery"
                     (ngModelChange)="onSearchQueryChange($event)">
-                <button class="btn btn-warning" type="button" (click)="onSearch()">Rechercher</button>
+                <button type="button" class="btn btn-outline-warning dropdown-toggle dropdown-toggle-split"
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="visually-hidden">Options</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" (click)="onOptionChange('all')">
+                            <i class="bi bi-collection me-2"></i> Tous les projets
+                        </a></li>
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
+                    <li *ngFor="let categorie of categories">
+                        <a class="dropdown-item d-flex align-items-center" (click)="onOptionChange(categorie.nom)">
+                            <img [src]="'assets/png/Categories/' + categorie.nom + '.png'" alt="{{ categorie.nom }}"
+                                class="category-icon me-2">
+                            {{ categorie.nom }}
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
 
+
     <!-- Affichage des projets ou message si aucun projet trouvé -->
     <div *ngIf="projects.length > 0; else noProjects"
         class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
-        <div *ngFor="let projet of projects" class="col d-flex align-items-stretch">
+        <div *ngFor="let projet of projects; trackBy: trackByProjet" class="col d-flex align-items-stretch">
             <a routerLink="/projet/detail/{{ projet.id }}" class="text-decoration-none w-100">
                 <div class="card-hover image-container rounded h-100 text-center shadow-sm border-0 position-relative">
                     <img *ngIf="projet.imageProjet && projet.imageProjet.length > 0"
@@ -45,13 +64,13 @@
     <div class="row mt-5">
         <nav aria-label="Pagination" class="d-flex justify-content-center">
             <ul class="pagination pagination-lg">
-                <li class="page-item" [class.disabled]="page === 1">
+                <li class="page-item" [class.disabled]="!canGoToPrevPage()">
                     <button class="page-link shadow-sm" (click)="prevPage()">Précédent</button>
                 </li>
                 <li class="page-item disabled">
                     <span class="page-link shadow-sm bg-dark text-white">Page {{ page }} sur {{ totalPages }}</span>
                 </li>
-                <li class="page-item" [class.disabled]="page === totalPages">
+                <li class="page-item" [class.disabled]="!canGoToNextPage()">
                     <button class="page-link shadow-sm" (click)="nextPage()">Suivant</button>
                 </li>
             </ul>

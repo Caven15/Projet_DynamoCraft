@@ -26,6 +26,7 @@ import { AccesNonAutoriserComponent } from './components/acces-non-autoriser/acc
 import { NotFoundComponent } from './components/not-found/not-found.component';
 import { JwtInterceptor } from './tools/interceptors/jwt';
 import { ProjetRoutingModule } from './modules/projet/projet-routing.module';
+import { SharedModule } from './modules/shared/shared.module';
 
 @NgModule({
     declarations: [
@@ -56,7 +57,8 @@ import { ProjetRoutingModule } from './modules/projet/projet-routing.module';
         ProjetRoutingModule ,
         NgChartsModule,
         RecaptchaModule,
-        RecaptchaFormsModule
+        RecaptchaFormsModule,
+        SharedModule
     ],
     providers: [
         provideClientHydration(),

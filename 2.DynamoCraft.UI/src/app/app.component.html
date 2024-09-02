@@ -1,13 +1,14 @@
 <div>
     <app-nav-bar></app-nav-bar>
-    <div>
-        <div class="header-gradient">
-            <div class="container mt-fixed">
-                <router-outlet></router-outlet>
+    <div class="router-container position-relative">
+        <app-loader [isLoading]="isLoading"></app-loader>
+        <div [class.loading]="isLoading" class="content">
+            <div class="header-gradient">
+                <div class="container mt-fixed">
+                    <router-outlet></router-outlet>
+                </div>
             </div>
         </div>
-        <div>
-            <app-footer></app-footer>
-        </div>
     </div>
+    <app-footer></app-footer>
 </div>

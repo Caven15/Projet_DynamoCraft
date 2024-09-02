@@ -1,64 +1,121 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Projet } from '../../models/projet.model';
 import { environment } from '../../../environments/environment.dev';
 import { ProjetService } from '../../tools/services/api/projet.service';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { CategorieService } from '../../tools/services/api/categorie.service';
+import { Categorie } from '../../models/categorie.model';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'app-recherche',
     templateUrl: './recherche.component.html',
     styleUrls: ['./recherche.component.scss']
 })
-export class RechercheComponent {
+export class RechercheComponent implements OnInit {
     projects: Projet[] = [];
-    searchQuery: string = '';  // Définir la valeur par défaut comme vide pour initialiser avec tous les projets
+    searchQuery: string = '';
+    selectedOption: string | null = 'all';
+    selectedText: string = 'Tous les projets';
     page: number = 1;
     totalPages: number = 1;
-    limit: number = 16;  // Nombre de résultats par page
-    totalItems: number = 0;  // Nombre total de projets
+    limit: number = 16;
+    totalItems: number = 0;
+    categories: Categorie[] = [];
     url: string = `${environment.apiUrl}/uploads/`;
     private searchSubject = new Subject<string>();
 
-    constructor(private projetService: ProjetService) { }
+    private searchResults: Projet[] = [];
+
+    constructor(private projetService: ProjetService, private categorieService: CategorieService, private cdr: ChangeDetectorRef, private route: ActivatedRoute) { }
 
     ngOnInit(): void {
+        this.route.queryParams.subscribe(params => {
+            const categorie = params['categorie'];
+            if (categorie) {
+                this.onOptionChange(categorie);
+            }
+        });
+
+        this.categorieService.getAllCategorie().subscribe({
+            next: (data) => {
+                this.categories = data;
+                console.log("Catégories récupérées avec succès :", this.categories);
+            },
+            error: (error) => {
+                console.error("Erreur lors de la récupération des catégories :", error);
+            },
+            complete: () => {
+                console.log("Récupération des catégories terminée.");
+            }
+        });
+
         this.searchSubject.pipe(
-            debounceTime(300),  // Attendre 300ms après le dernier changement de mot-clé
-            distinctUntilChanged()  // Ne pas émettre si le mot-clé est identique au précédent
+            debounceTime(300),
+            distinctUntilChanged()
         ).subscribe(query => {
-            this.page = 1;  // Réinitialiser à la première page lors d'une nouvelle recherche
+            this.searchQuery = query;
+            this.page = 1;
             this.onSearch();
         });
 
-        this.onSearch();  // Initialiser la recherche avec tous les projets
+        this.onSearch();
     }
 
     onSearch(): void {
-        this.projetService.searchProjects(this.searchQuery, this.page, this.limit).subscribe({
-            next: (response) => {
-                console.log(response);
-                this.projects = response.projects;  // Récupérer les projets
-                this.totalPages = response.totalPages;  // Nombre total de pages
-                this.totalItems = response.totalItems;  // Nombre total d'éléments
-
-                // Ajustez la page courante si elle est supérieure au nombre total de pages disponibles
-                if (this.page > this.totalPages) {
-                    this.page = this.totalPages;
+        if (this.selectedOption === 'all') {
+            this.projetService.searchProjects(this.searchQuery, this.page, this.limit).subscribe({
+                next: (searchResponse) => {
+                    this.searchResults = this.page === 1 ? searchResponse.projects : this.searchResults.concat(searchResponse.projects);
+                    this.totalItems = searchResponse.totalItems;
+                    this.totalPages = Math.ceil(this.totalItems / this.limit);
+                    this.updatePagination();
+                },
+                error: (error) => {
+                    console.error('Erreur lors de la recherche des projets', error);
                 }
-            },
-            error: (error) => {
-                console.log('Erreur lors de la recherche des projets', error);
-            }
-        });
+            });
+        } else if (this.selectedOption) {
+            this.projetService.getProjectsByCategoryName(this.selectedOption).subscribe({
+                next: (projects) => {
+                    this.searchResults = this.page === 1 ? projects : this.searchResults.concat(projects);
+                    this.totalItems = projects.length;
+                    this.totalPages = Math.ceil(this.totalItems / this.limit);
+                    this.updatePagination();
+                },
+                error: (error) => {
+                    console.error('Erreur lors de la récupération des projets par catégorie', error);
+                }
+            });
+        }
     }
 
+    updatePagination(): void {
+        const startIndex = (this.page - 1) * this.limit;
+        const endIndex = this.page * this.limit;
+        this.projects = this.searchResults.slice(startIndex, endIndex);
+        this.cdr.detectChanges();
+    }
 
-    // Méthode appelée lorsque l'utilisateur tape dans la barre de recherche
+    trackByProjet(index: number, projet: Projet): number {
+        return projet.id;
+    }
+
     onSearchQueryChange(query: string): void {
         this.searchSubject.next(query);
     }
 
-    // Pagination - Page précédente
+    onOptionChange(categorie: string): void {
+        this.selectedOption = categorie;
+        this.selectedText = this.getDisplayText(categorie);
+        this.page = 1;
+        this.onSearch();
+    }
+
+    getDisplayText(categorie: string): string {
+        return categorie === 'all' ? 'Tous les projets' : categorie;
+    }
+
     prevPage(): void {
         if (this.page > 1) {
             this.page--;
@@ -66,7 +123,6 @@ export class RechercheComponent {
         }
     }
 
-    // Pagination - Page suivante
     nextPage(): void {
         if (this.page < this.totalPages) {
             this.page++;
@@ -74,7 +130,6 @@ export class RechercheComponent {
         }
     }
 
-    // Désactivation des boutons de pagination
     canGoToNextPage(): boolean {
         return this.page < this.totalPages;
     }

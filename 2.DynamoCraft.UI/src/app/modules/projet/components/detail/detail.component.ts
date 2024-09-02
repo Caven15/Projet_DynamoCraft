@@ -98,6 +98,7 @@ export class DetailComponent implements OnInit, AfterViewChecked {
     loadProjet(id: number): void {
         this.projetService.getProjetById(id).subscribe(projet => {
             this.projet = projet;
+            console.log(projet);
             this.projet.imageProjet = this.projet.imageProjet || [];
             this.updateCombinedThumbnails();
             this.updateVisibleThumbnails();
@@ -130,21 +131,23 @@ export class DetailComponent implements OnInit, AfterViewChecked {
     }
 
     setActive3DModel(index: number): void {
-        const item = this.combinedThumbnails[index];
+        const item = this.combinedThumbnails[this.thumbnailStartIndex + index];
         if (item && item.nom.endsWith('.stl')) {
+            // Find the correct index in selected3DFiles
             const filteredIndex = this.selected3DFiles.findIndex(file => file.nom === item.nom);
-            if (filteredIndex < 0 || filteredIndex >= this.selected3DFiles.length) {
+            if (filteredIndex >= 0) {
+                this.is3DModelActive = true;
+                this.active3DModelIndex = filteredIndex;
+                this.isThreeJSInitialized = false;
+                this.cdr.detectChanges();
+            } else {
                 console.error('Index de modèle 3D invalide :', filteredIndex);
-                return;
             }
-            this.is3DModelActive = true;
-            this.active3DModelIndex = filteredIndex;
-            this.isThreeJSInitialized = false;
-            this.cdr.detectChanges();
         } else {
             console.error('L\'élément cliqué n\'est pas un modèle 3D.');
         }
     }
+
 
     load3DModel(fileName: string): void {
         const url = `${this.url}${fileName}`;

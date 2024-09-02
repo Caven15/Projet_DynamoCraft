@@ -33,6 +33,12 @@ module.exports = {
                 type: Sequelize.DATE,
                 allowNull: false,
                 defaultValue: Sequelize.NOW,
+                validate: {
+                    isBefore: {
+                        args: [new Date().toISOString()],
+                        msg: 'La dateLike doit être avant la date actuelle.',
+                    },
+                },
             },
         });
 

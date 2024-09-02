@@ -12,6 +12,7 @@ import { ProjetParStatutComponent } from './components/panel-admin/stats/projet-
 import { ProjetParCategorieComponent } from './components/panel-admin/stats/projet-par-categorie/projet-par-categorie.component';
 import { ProjetTop5Component } from './components/panel-admin/stats/projet-top5/projet-top5.component';
 import { ProjetEvolutionComponent } from './components/panel-admin/stats/projet-evolution/projet-evolution.component';
+import { SharedModule } from '../shared/shared.module';
 
 
 @NgModule({
@@ -30,7 +31,8 @@ import { ProjetEvolutionComponent } from './components/panel-admin/stats/projet-
     CommonModule,
     AdminRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    SharedModule
   ]
 })
 export class AdminModule { }
