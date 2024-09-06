@@ -1,6 +1,28 @@
 <div class="container min-vh-75">
-    <h1 class="font-dc text-center text-warning mb-4">Mes réalisations</h1>
+    <!-- Affichage conditionnel du titre en fonction de l'utilisateur -->
+    <h1 class="font-dc text-center text-warning mb-4">
+        @if (isOwner) {
+        Vos réalisations
+        } @else {
+        Réalisations de {{ userPseudo }}
+        }
+    </h1>
 
+    <!-- Message d'avertissement si aucun projet n'est encore valide -->
+    @if (realisations.length === 0) {
+    <div class="d-flex flex-column justify-content-center bg-dc-2 align-items-center text-center p-5 border border-warning"
+        style="height: 50vh;">
+        <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 4rem;"></i>
+        <h3 class="text-warning mt-3">Aucune réalisation disponible</h3>
+        <p class="text-warning mt-2">
+            @if (isOwner) {
+            Vous n'avez pas encore ajouté de projets.
+            } @else {
+            {{ userPseudo }} n'a pas  de projets valides.
+            }
+        </p>
+    </div>
+    } @else {
     <!-- Affichage des réalisations paginées -->
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
         @for (realisation of paginatedRealisations; track realisation.id) {
@@ -8,7 +30,8 @@
             <a routerLink="/projet/detail/{{realisation.id}}" class="text-decoration-none w-100">
                 <div class="card h-100 text-center shadow-sm border-0 card-hover rounded">
                     @if (realisation.imageProjet && realisation.imageProjet.length > 0) {
-                    <img [src]="url + realisation.imageProjet[0].nom" class="card-img-top rounded" alt="Image de la réalisation">
+                    <img [src]="url + realisation.imageProjet[0].nom" class="card-img-top rounded"
+                        alt="Image de la réalisation">
                     } @else {
                     <p class="text-muted">Pas d'image disponible</p>
                     }
@@ -38,4 +61,5 @@
             </ul>
         </nav>
     </div>
+    }
 </div>

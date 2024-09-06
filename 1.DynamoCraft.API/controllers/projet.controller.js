@@ -1,5 +1,5 @@
 const dbConnector = require("../tools/ConnexionDb.tools").get();
-const { Sequelize, DataTypes } = require("sequelize"); 
+const { Sequelize, DataTypes } = require("sequelize");
 const path = require("path");
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
@@ -12,7 +12,7 @@ const {
     COLOR_YELLOW,
 } = require("../tools/logs.tools");
 
-// Créer un projet
+// Supprimer un projet par ID avec req et res
 exports.create = async (req, res, next) => {
     logMessage("Début de la création du projet", COLOR_YELLOW);
 
@@ -88,6 +88,13 @@ exports.create = async (req, res, next) => {
             categorieId,
             utilisateurId,
         });
+
+        // Vérifier si le dossier 'uploads' existe, sinon le créer
+        const uploadPath = path.join(__dirname, "../uploads/");
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+            logMessage("Dossier 'uploads' créé avec succès", COLOR_GREEN);
+        }
 
         // Vérifier le nombre total d'images pour ce projet uniquement
         const existingImagesCount = await dbConnector.ImageProjet.count({
@@ -224,7 +231,12 @@ exports.getById = async (req, res, next) => {
                 },
             ],
             attributes: {
-                exclude: ["statutId", "statistiqueId", "utilisateurId", "categorieId"],
+                exclude: [
+                    "statutId",
+                    "statistiqueId",
+                    "utilisateurId",
+                    "categorieId",
+                ],
             },
         });
 
@@ -235,7 +247,7 @@ exports.getById = async (req, res, next) => {
 
         const projetWithDetails = {
             ...projet.toJSON(),
-            categorieId: projet.categorieId,  // Assurez-vous de conserver la catégorie ID si nécessaire
+            categorieId: projet.categorieId, // Assurez-vous de conserver la catégorie ID si nécessaire
         };
 
         // Log les détails du projet, y compris l'utilisateur, les images et la catégorie
@@ -253,7 +265,6 @@ exports.getById = async (req, res, next) => {
             .json({ message: "Erreur lors de la récupération du projet" });
     }
 };
-
 
 // Récupérer les projets par utilisateurId
 exports.getByUserId = async (req, res, next) => {
@@ -356,10 +367,7 @@ exports.updateById = async (req, res, next) => {
 
 // Supprimer un projet par ID avec req et res
 exports.delete = async (req, res, next) => {
-    logMessage(
-        `Début de la suppression du projet avec ID: ${req.params.id}`,
-        COLOR_YELLOW
-    );
+    logMessage(`Début de la suppression du projet avec ID: ${req.params.id}`, COLOR_YELLOW);
 
     try {
         const projectId = req.params.id;
@@ -376,11 +384,45 @@ exports.delete = async (req, res, next) => {
             where: { projetId: projectId },
         });
         for (const image of images) {
-            const imagePath = path.join(__dirname, "../uploads/", image.nom);
-            fs.unlinkSync(imagePath); // Suppression synchrone pour garantir la suppression avant de passer à la suivante
-            logMessage(`Image ${image.nom} supprimée`, COLOR_GREEN);
+            if (image.nom) {
+                const imagePath = path.join(__dirname, "../uploads/", image.nom);
+                if (fs.existsSync(imagePath)) {
+                    fs.unlinkSync(imagePath);
+                    logMessage(`Image ${image.nom} supprimée`, COLOR_GREEN);
+                }
+
+                const resizedImagePath = path.join(__dirname, "../uploads/resized/", image.nom);
+                if (fs.existsSync(resizedImagePath)) {
+                    fs.unlinkSync(resizedImagePath);
+                    logMessage(`Image redimensionnée ${image.nom} supprimée`, COLOR_GREEN);
+                }
+            }
         }
         await dbConnector.ImageProjet.destroy({
+            where: { projetId: projectId },
+        });
+
+        // Supprimer tous les fichiers 3D associés au projet
+        const modeles3D = await dbConnector.Modele3D.findAll({
+            where: { projetId: projectId },
+        });
+
+        console.log(modeles3D[0]);
+
+        console.log(modeles3D);
+        for (const modele of modeles3D) {
+            if (modele.nom) {
+                // Vérifier si le fichier 3D existe avant de le supprimer
+                const modele3DPath = path.join(__dirname, "../uploads/", modele.nom);
+                if (fs.existsSync(modele3DPath)) {
+                    fs.unlinkSync(modele3DPath); // Suppression synchrone des fichiers 3D
+                    logMessage(`Fichier 3D ${modele.nom} supprimé`, COLOR_GREEN);
+                } else {
+                    logMessage(`Fichier 3D ${modele.nom} introuvable dans le répertoire`, COLOR_RED);
+                }
+            }
+        }
+        await dbConnector.Modele3D.destroy({
             where: { projetId: projectId },
         });
 
@@ -389,10 +431,7 @@ exports.delete = async (req, res, next) => {
             where: { projetId: projectId },
         });
 
-        // Supprimer tous les modèles 3D associés au projet
-        await dbConnector.Modele3D.destroy({ where: { projetId: projectId } });
-
-        // Supprimer tous ligne d'utilisateurProjet
+        // Supprimer tous les liens dans la table utilisateurProjet
         await dbConnector.UtilisateurProjet.destroy({
             where: { projetId: projectId },
         });
@@ -405,19 +444,12 @@ exports.delete = async (req, res, next) => {
             where: { id: projet.statistiqueId },
         });
 
-        logMessage(
-            `Projet avec ID: ${projectId} supprimé avec succès`,
-            COLOR_GREEN
-        );
-        return res
-            .status(200)
-            .json({ message: `Projet ${projectId} supprimé avec succès !` });
+        logMessage(`Projet avec ID: ${projectId} supprimé avec succès`, COLOR_GREEN);
+        return res.status(200).json({ message: `Projet ${projectId} supprimé avec succès !` });
     } catch (error) {
         logMessage("Erreur lors de la suppression du projet", COLOR_RED);
         console.error("Erreur lors de la suppression du projet :", error);
-        return res
-            .status(500)
-            .json({ message: "Erreur lors de la suppression du projet" });
+        return res.status(500).json({ message: "Erreur lors de la suppression du projet" });
     }
 };
 
@@ -487,7 +519,7 @@ exports.getByCategoryName = async (req, res, next) => {
         // Vérifier si la catégorie existe
         const categorie = await dbConnector.Categorie.findOne({
             where: { nom: categoryName },
-            attributes: ['id', 'nom'], // Inclure uniquement les champs nécessaires
+            attributes: ["id", "nom"], // Inclure uniquement les champs nécessaires
         });
 
         if (!categorie) {
@@ -549,11 +581,11 @@ exports.getByCategoryName = async (req, res, next) => {
             error
         );
         return res.status(500).json({
-            message: "Erreur lors de la récupération des projets par nom de catégorie",
+            message:
+                "Erreur lors de la récupération des projets par nom de catégorie",
         });
     }
 };
-
 
 // Récupérer tous les projets valides
 exports.getValidProjet = async (req, res, next) => {
@@ -1126,27 +1158,35 @@ exports.getLast = async (req, res, next) => {
 // Recherche de projet(s) par mot clé incluant la pagination
 exports.search = async (req, res, next) => {
     logMessage(
-        `Début de la recherche de projets avec le mot-clé : ${req.params.keyword || 'Tous les projets'}`,
+        `Début de la recherche de projets avec le mot-clé : ${
+            req.params.keyword || "Tous les projets"
+        }`,
         COLOR_YELLOW
     );
 
     try {
-        const { keyword = '', page = 1, limit = 10 } = req.params;
+        const { keyword = "", page = 1, limit = 10 } = req.params;
         const offset = (page - 1) * limit;
 
         // Filtre de recherche combiné pour les projets et les catégories
-        const projectFilter = keyword && keyword !== 'all' ? {
-            [Op.or]: [
-                { nom: { [Op.like]: `%${keyword}%` } },
-                { description: { [Op.like]: `%${keyword}%` } },
-                { '$categorie.nom$': { [Op.like]: `%${keyword}%` } }  // Filtre sur le nom de la catégorie
-            ],
-            estValide: true,
-            statutId: 1
-        } : { estValide: true, statutId: 1 };
+        const projectFilter =
+            keyword && keyword !== "all"
+                ? {
+                      [Op.or]: [
+                          { nom: { [Op.like]: `%${keyword}%` } },
+                          { description: { [Op.like]: `%${keyword}%` } },
+                          { "$categorie.nom$": { [Op.like]: `%${keyword}%` } }, // Filtre sur le nom de la catégorie
+                      ],
+                      estValide: true,
+                      statutId: 1,
+                  }
+                : { estValide: true, statutId: 1 };
 
         // Log du filtre appliqué
-        logMessage(`Filtre de recherche appliqué : ${JSON.stringify(projectFilter)}`, COLOR_YELLOW);
+        logMessage(
+            `Filtre de recherche appliqué : ${JSON.stringify(projectFilter)}`,
+            COLOR_YELLOW
+        );
 
         // Requête pour obtenir le nombre total d'éléments
         const count = await dbConnector.Projet.count({
@@ -1157,7 +1197,7 @@ exports.search = async (req, res, next) => {
                     as: "categorie",
                     attributes: [],
                     required: true, // La catégorie est requise pour appliquer le filtre sur son nom
-                }
+                },
             ],
         });
 
@@ -1167,7 +1207,7 @@ exports.search = async (req, res, next) => {
                 totalItems: count,
                 totalPages: Math.ceil(count / limit),
                 currentPage: parseInt(page),
-                projects: []
+                projects: [],
             });
         }
 
@@ -1214,19 +1254,27 @@ exports.search = async (req, res, next) => {
         });
 
         // Log des résultats de la requête
-        logMessage(`Nombre total d'éléments trouvés (count): ${count}`, COLOR_YELLOW);
-        logMessage(`Nombre d'éléments récupérés pour la page (rows.length): ${rows.length}`, COLOR_YELLOW);
+        logMessage(
+            `Nombre total d'éléments trouvés (count): ${count}`,
+            COLOR_YELLOW
+        );
+        logMessage(
+            `Nombre d'éléments récupérés pour la page (rows.length): ${rows.length}`,
+            COLOR_YELLOW
+        );
 
         return res.status(200).json({
             totalItems: count,
             totalPages: Math.ceil(count / limit),
             currentPage: parseInt(page),
-            projects: rows
+            projects: rows,
         });
     } catch (error) {
         logMessage("Erreur lors de la recherche des projets", COLOR_RED);
         console.error("Erreur lors de la recherche des projets :", error);
-        return res.status(500).json({ message: "Erreur lors de la recherche des projets" });
+        return res
+            .status(500)
+            .json({ message: "Erreur lors de la recherche des projets" });
     }
 };
 

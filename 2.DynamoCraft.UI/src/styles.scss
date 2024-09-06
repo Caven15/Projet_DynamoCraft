@@ -775,7 +775,7 @@ i {
 }
 
 .hauteur-70 {
-    min-height: 70vh;
+    height: 70vh;
 }
 
 .hover-content {
@@ -1060,3 +1060,84 @@ p {
     /* To ensure loader covers the full height of the content area */
 }
 
+.activation-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 70vh;
+    background-color: rgba(35, 35, 35, 0.9);
+}
+
+.activation-content {
+    background: linear-gradient(135deg, rgba(25, 25, 25, 0.9), rgba(35, 35, 35, 0.8));
+    padding: 40px;
+    border-radius: 15px;
+    text-align: center;
+    max-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 1s ease-out;
+}
+
+.icon-container {
+    font-size: 80px;
+    color: #ffc107;
+    margin-bottom: 20px;
+    animation: pulse 1.5s infinite;
+}
+
+.activation-title {
+    font-family: 'ethnocentric', sans-serif;
+    color: #ffc107;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+.activation-text {
+    font-size: 1.2rem;
+    color: #fff;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: transform 0.3s, background-color 0.3s;
+
+    &:hover {
+        background-color: darken(#ffc107, 10%);
+        transform: scale(1.05);
+    }
+}
+
+/* Animation pour l'icône */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Animation pour l'apparition du contenu */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

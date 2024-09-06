@@ -16,16 +16,35 @@ function estAutorise(roleRequis) {
 
         if (!token) {
             logMessage("Aucun token trouvé dans les en-têtes", COLOR_RED);
-            return res.status(401).json({ message: "Aucun token trouvé, accès non autorisé." });
+            return res
+                .status(401)
+                .json({ message: "Aucun token trouvé, accès non autorisé." });
         }
 
         logMessage(`Token reçu : ${token}`, COLOR_GREEN);
-        logMessage(`Clé secrète utilisée pour vérifier le token : ${process.env.TOKEN_SECRET}`, COLOR_YELLOW);
+        logMessage(
+            `Clé secrète utilisée pour vérifier le token : ${process.env.TOKEN_SECRET}`,
+            COLOR_YELLOW
+        );
 
         jwt.verify(token, process.env.TOKEN_SECRET, (err, user) => {
             if (err) {
-                logMessage(`Erreur lors de la vérification du token : ${err.message}`, COLOR_RED);
-                return res.status(403).json({ message: "Échec de la vérification du token." });
+                if (err.name === "TokenExpiredError") {
+                    logMessage(`Le token a expiré : ${err.message}`, COLOR_RED);
+                    return res
+                        .status(401)
+                        .json({
+                            message:
+                                "Le token a expiré, veuillez vous reconnecter.",
+                        });
+                }
+                logMessage(
+                    `Erreur lors de la vérification du token : ${err.message}`,
+                    COLOR_RED
+                );
+                return res
+                    .status(403)
+                    .json({ message: "Échec de la vérification du token." });
             }
 
             logMessage(
@@ -44,7 +63,12 @@ function estAutorise(roleRequis) {
                 next(); // Continuer vers la route
             } else {
                 logMessage("Accès refusé, rôle insuffisant", COLOR_RED);
-                return res.status(403).json({ message: "Rôle insuffisant pour accéder à cette ressource." });
+                return res
+                    .status(403)
+                    .json({
+                        message:
+                            "Rôle insuffisant pour accéder à cette ressource.",
+                    });
             }
         });
     };

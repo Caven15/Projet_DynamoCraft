@@ -6,15 +6,16 @@ import { ProfilPriveComponent } from './components/profil-prive/profil-prive.com
 import { StatistiquesComponent } from './components/profil-prive/statistiques/statistiques.component';
 import { DetailsComponent } from './components/profil-prive/details/details.component';
 import { BibliothequesComponent } from './components/profil-prive/bibliotheques/bibliotheques.component';
+import { roleGuard } from '../../tools/guards/auth/role.guard';
 
 const routes: Routes = [
     { path: 'profil', component: ProfilComponent },
     { path: 'profil/:id', component: ProfilComponent },
-    { path: 'profil-user', component: ProfilPriveComponent },
+    { path: 'profil-user', component: ProfilPriveComponent, canActivate: [roleGuard], data: { role: '1' } },
     { path: 'realisations/:id', component: RealisationsComponent },
-    { path: 'informations', component: DetailsComponent },
-    { path: 'statistiques', component: StatistiquesComponent },
-    { path: 'bibliotheques', component: BibliothequesComponent },
+    { path: 'informations', component: DetailsComponent, canActivate: [roleGuard], data: { role: '1' } },
+    { path: 'statistiques', component: StatistiquesComponent, canActivate: [roleGuard], data: { role: '1' } },
+    { path: 'bibliotheques', component: BibliothequesComponent, canActivate: [roleGuard], data: { role: '1' } },
 ];
 
 @NgModule({

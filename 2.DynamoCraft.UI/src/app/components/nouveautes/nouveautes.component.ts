@@ -17,6 +17,7 @@ export class NouveautesComponent implements OnInit {
     ngOnInit(): void {
         this.projetService.getLastProjects().subscribe({
             next: (data) => {
+                console.log(data);
                 this.nouveautes = data;
                 // console.log(data);
                 // data.forEach((projet, index) => {

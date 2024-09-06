@@ -10,6 +10,7 @@ import { RecaptchaFormsModule, RecaptchaModule } from 'ng-recaptcha';
 import { MotDePasseOublieComponent } from './components/mot-de-passe-oublie/mot-de-passe-oublie.component';
 import { ResetMotDePasseOublieComponent } from './components/reset-mot-de-passe-oublie/reset-mot-de-passe-oublie.component';
 import { NgxCaptchaModule } from 'ngx-captcha';
+import { ValidationCompteComponent } from './components/validation-compte/validation-compte.component';
 
 
 @NgModule({
@@ -20,6 +21,7 @@ import { NgxCaptchaModule } from 'ngx-captcha';
         GoogleCaptchaComponent,
         MotDePasseOublieComponent,
         ResetMotDePasseOublieComponent,
+        ValidationCompteComponent,
     ],
     imports: [
         CommonModule,

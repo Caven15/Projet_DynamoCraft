@@ -5,6 +5,7 @@
     "main": "app.js",
     "scripts": {
         "reset-db": "sequelize db:migrate:undo:all && sequelize db:migrate && sequelize db:seed:all",
+        "reset-basic-db": "sequelize db:migrate:undo:all && sequelize db:migrate && sequelize db:seed:all --seeders-path seeders/basic",
         "test": "api test"
     },
     "author": "",

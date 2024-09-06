@@ -177,20 +177,20 @@ export class ProjetService extends BaseApiService {
         );
     }
 
-    /**
- * Récupérer les projets par nom de catégorie
- * @param categoryName Nom de la catégorie
- * @returns Observable contenant la liste des projets de la catégorie
- */
-getProjectsByCategoryName(categoryName: string): Observable<Projet[]> {
-    return this.getAll<Projet>(`projets/${categoryName}/categorie`).pipe(
-        tap({
-            next: () => console.log(`Récupération des projets de la catégorie avec nom=${categoryName}`),
-            error: (error) => console.error(`Erreur lors de la récupération des projets de la catégorie avec nom=${categoryName} :`, error)
-        }),
-        catchError(this.handleError<Projet[]>('getProjectsByCategoryName'))
-    );
-}
+        /**
+     * Récupérer les projets par nom de catégorie
+     * @param categoryName Nom de la catégorie
+     * @returns Observable contenant la liste des projets de la catégorie
+     */
+    getProjectsByCategoryName(categoryName: string): Observable<Projet[]> {
+        return this.getAll<Projet>(`projets/${categoryName}/categorie`).pipe(
+            tap({
+                next: () => console.log(`Récupération des projets de la catégorie avec nom=${categoryName}`),
+                error: (error) => console.error(`Erreur lors de la récupération des projets de la catégorie avec nom=${categoryName} :`, error)
+            }),
+            catchError(this.handleError<Projet[]>('getProjectsByCategoryName'))
+        );
+    }
 
 
     /**

@@ -33,21 +33,23 @@
                         Nouveautés
                     </a>
                 </li>
+
+                <!-- Dropdown menu with updated styles -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle d-flex align-items-center justify-content-center fs-5 no-underline"
+                    <a class="nav-link dropdown-toggle d-flex align-items-center justify-content-center fs-5 bg-dc-2 text-warning"
                         href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-grid me-2"></i>
                         Catégories
                         <i class="bi bi-caret-down-fill ms-2"></i>
                     </a>
-                    <ul class="dropdown-menu dropdown-menu-style" aria-labelledby="categoriesDropdown">
+                    <ul class="dropdown-menu dropdown-menu-end bg-dc-2 shadow-lg">
                         <li *ngFor="let categorie of categories">
-                            <a class="dropdown-item d-flex align-items-center"
+                            <a class="dropdown-item d-flex align-items-center text-warning"
                                 (click)="navigateToSearch(categorie.nom)">
                                 <img [src]="'assets/png/Categories/' + categorie.nom + '.png'" alt="{{ categorie.nom }}"
-                                    class="category-icon me-2">
+                                    class="category-icon me-2" style="width: 20px; height: 20px;">
                                 {{ categorie.nom }}
-                                <i class="bi bi-arrow-right ms-auto"></i>
+                                <i class="bi bi-arrow-right ms-auto text-warning"></i>
                             </a>
                         </li>
                     </ul>
@@ -62,6 +64,7 @@
         </div>
     </div>
 </header>
+
 
 <div class="offcanvas offcanvas-end bg-dc-2" tabindex="-1" id="offcanvasMenu" aria-labelledby="offcanvasMenuLabel">
     <div class="offcanvas-header">
@@ -99,19 +102,20 @@
                 </a>
             </li>
             <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle d-flex align-items-center justify-content-center fs-5" href="#"
-                    id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a class="nav-link dropdown-toggle d-flex align-items-center justify-content-center fs-5 bg-dc-2 text-warning"
+                    href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-grid me-2"></i>
                     Catégories
                     <i class="bi bi-caret-down-fill ms-2"></i>
                 </a>
-                <ul class="dropdown-menu dropdown-menu-style" aria-labelledby="categoriesDropdown">
+                <ul class="dropdown-menu dropdown-menu-end bg-dc-2 shadow-lg">
                     <li *ngFor="let categorie of categories">
-                        <a class="dropdown-item d-flex align-items-center" (click)="navigateToSearch(categorie.nom)">
+                        <a class="dropdown-item d-flex align-items-center text-warning"
+                            (click)="navigateToSearch(categorie.nom)">
                             <img [src]="'assets/png/Categories/' + categorie.nom + '.png'" alt="{{ categorie.nom }}"
-                                class="category-icon me-2">
+                                class="category-icon me-2" style="width: 20px; height: 20px;">
                             {{ categorie.nom }}
-                            <i class="bi bi-arrow-right ms-auto"></i>
+                            <i class="bi bi-arrow-right ms-auto text-warning"></i>
                         </a>
                     </li>
                 </ul>

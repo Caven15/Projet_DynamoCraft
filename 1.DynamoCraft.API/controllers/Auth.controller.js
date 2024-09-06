@@ -1,10 +1,10 @@
 const dbConnector = require("../tools/ConnexionDb.tools").get();
-const nodemailer = require("nodemailer");
-const axios = require("axios");
-const crypto = require("crypto");
+const emailTools = require("../tools/email.tools");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { Op } = require("sequelize");
+const crypto = require("crypto");
+const axios = require("axios");
 const fs = require("fs");
 const {
     logMessage,
@@ -13,14 +13,85 @@ const {
     COLOR_YELLOW,
 } = require("../tools/logs.tools");
 
-// Configurer Nodemailer avec Gmail
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
-});
+exports.login = async (req, res, next) => {
+    logMessage("Début de la connexion de l'utilisateur", COLOR_YELLOW);
+
+    try {
+        const { email, password } = req.body;
+
+        if (!email || !password) {
+            logMessage("Tous les champs sont obligatoires", COLOR_RED);
+            return res.status(400).json({
+                message: "Email et mot de passe sont obligatoires",
+            });
+        }
+
+        logMessage(
+            `Vérification de l'existence de l'utilisateur avec email: ${email}`,
+            COLOR_YELLOW
+        );
+        const utilisateur = await dbConnector.Utilisateur.findOne({
+            where: { email },
+        });
+
+        if (!utilisateur) {
+            logMessage("Cette adresse email n'existe pas", COLOR_RED);
+            return res
+                .status(403)
+                .json({ message: "Cette adresse email n'existe pas" });
+        }
+
+        if (!utilisateur.statutCompte) {
+            logMessage("Compte désactivé", COLOR_RED);
+            return res
+                .status(403)
+                .json({ message: "Compte désactivé. Contactez le support." });
+        }
+
+        logMessage("Comparaison du mot de passe", COLOR_YELLOW);
+        const passwordMatch = bcrypt.compareSync(
+            password.trim(),
+            utilisateur.password
+        );
+
+        if (!passwordMatch) {
+            logMessage("Mot de passe incorrect", COLOR_RED);
+            utilisateur.loginAttempts += 1;
+
+            if (utilisateur.loginAttempts >= 5) {
+                utilisateur.lockUntil = Date.now() + 2 * 60 * 60 * 1000; // Verrouille pendant 2 heures
+                logMessage("Compte verrouillé pour 2 heures", COLOR_RED);
+                await emailTools.sendAccountLockEmail(utilisateur);
+            }
+
+            await utilisateur.save();
+            return res.status(401).json({ message: "Mot de passe incorrect" });
+        }
+
+        utilisateur.loginAttempts = 0;
+        utilisateur.lockUntil = null;
+        await utilisateur.save();
+
+        logMessage("Génération du token JWT", COLOR_YELLOW);
+        const dataToken = { id: utilisateur.id, roleId: utilisateur.roleId };
+        const token = jwt.sign(dataToken, process.env.TOKEN_SECRET, {
+            expiresIn: parseInt(process.env.TOKEN_LIFE),
+        });
+
+        logMessage("Connexion réussie", COLOR_GREEN);
+        res.status(202).json({
+            accessToken: token,
+            id: utilisateur.id,
+            roleId: utilisateur.roleId,
+        });
+    } catch (error) {
+        logMessage("Erreur lors de la connexion de l'utilisateur", COLOR_RED);
+        console.error(error);
+        res.status(500).json({
+            message: "Erreur lors de la connexion de l'utilisateur",
+        });
+    }
+};
 
 exports.register = async (req, res, next) => {
     logMessage("Début de l'enregistrement de l'utilisateur", COLOR_YELLOW);
@@ -47,13 +118,9 @@ exports.register = async (req, res, next) => {
             logMessage("Tous les champs sont obligatoires", COLOR_RED);
             return res
                 .status(400)
-                .json({ message: "Tous les champs sont obligatoires" });
+                .json({ message: "Tous les champs sont obligatoires." });
         }
 
-        logMessage(
-            `Vérification de l'existence de l'utilisateur avec email: ${email}`,
-            COLOR_YELLOW
-        );
         const utilisateurExist = await dbConnector.Utilisateur.findOne({
             where: { email },
         });
@@ -73,17 +140,10 @@ exports.register = async (req, res, next) => {
             });
         }
 
-        logMessage("Hachage du mot de passe", COLOR_YELLOW);
         const hashedPassword = bcrypt.hashSync(password.trim(), 10);
-
-        logMessage(
-            "Vérification du nombre d'utilisateurs existants",
-            COLOR_YELLOW
-        );
         const userCount = await dbConnector.Utilisateur.count();
         const roleId = userCount === 0 ? 3 : 1; // 3 pour le premier utilisateur, 1 pour les suivants
 
-        logMessage("Création de l'utilisateur", COLOR_YELLOW);
         const newUtilisateur = await dbConnector.Utilisateur.create({
             pseudo,
             email,
@@ -91,18 +151,16 @@ exports.register = async (req, res, next) => {
             biographie,
             password: hashedPassword,
             centreInterets,
-            roleId: roleId, // Utiliser roleId calculé
-            statutCompte: true,
+            roleId: roleId,
+            statutCompte: false,
         });
 
         if (file) {
-            logMessage("Ajout de l'image de l'utilisateur", COLOR_YELLOW);
             const newImageUtilisateur =
                 await dbConnector.ImageUtilisateur.create({
                     nom: file.filename,
                     utilisateurId: newUtilisateur.id,
                 });
-
             await dbConnector.Utilisateur.update(
                 { imageId: newImageUtilisateur.id },
                 { where: { id: newUtilisateur.id } }
@@ -111,26 +169,21 @@ exports.register = async (req, res, next) => {
 
         logMessage("Utilisateur enregistré avec succès", COLOR_GREEN);
 
-        // Envoyer un email de remerciement à l'utilisateur
-        logMessage(`Envoi d'un email de remerciement à l'utilisateur : ${email}`, COLOR_YELLOW);
-        await transporter.sendMail({
-            from: `"DynamoCraft" <${process.env.EMAIL_USER}>`, // Adresse d'expéditeur
-            to: email, // Adresse de l'utilisateur nouvellement inscrit
-            subject: "Bienvenue sur DynamoCraft",
-            html: `
-                <p>Bonjour ${pseudo},</p>
-                <p>Merci de vous être inscrit sur DynamoCraft ! Nous sommes ravis de vous compter parmi notre communauté.</p>
-                <p>Vous pouvez dès à présent explorer nos projets et partager les vôtres.</p>
-                <p>Si vous avez des questions, n'hésitez pas à nous contacter.</p>
-                <p>Meilleures salutations,</p>
-                <p>L'équipe DynamoCraft</p>
-            `,
-        });
+        // Générer le token d'activation
+        const token = jwt.sign(
+            { id: newUtilisateur.id },
+            process.env.TOKEN_SECRET,
+            { expiresIn: "1h" }
+        );
+        const activationUrl = `http://localhost:4200/auth/activate/${token}`;
 
-        logMessage("Email de remerciement envoyé avec succès", COLOR_GREEN);
+        // Envoyer l'email d'activation
+        await emailTools.sendActivationEmail(newUtilisateur, activationUrl);
+        logMessage("E-mail d'activation envoyé avec succès", COLOR_GREEN);
 
         res.status(201).json({
-            message: "Utilisateur enregistré avec succès",
+            message:
+                "Utilisateur enregistré avec succès, vérifiez votre e-mail pour activer votre compte.",
             utilisateurId: newUtilisateur.id,
         });
     } catch (error) {
@@ -140,148 +193,101 @@ exports.register = async (req, res, next) => {
         );
         console.error(error);
         res.status(500).json({
-            message: "Erreur lors de l'enregistrement de l'utilisateur",
+            message: "Erreur lors de l'enregistrement de l'utilisateur.",
         });
     }
 };
 
-exports.login = async (req, res, next) => {
-    logMessage("Début de la connexion de l'utilisateur", COLOR_YELLOW);
+exports.activateAccount = async (req, res) => {
+    const { token } = req.params;
 
     try {
-        const { email, password, recaptchaToken } = req.body;
-
-        if (!email || !password || !recaptchaToken) {
-            logMessage(
-                "Tous les champs sont obligatoires, y compris le captcha",
-                COLOR_RED
-            );
-            return res
-                .status(400)
-                .json({
-                    message:
-                        "Email, mot de passe, et captcha sont obligatoires",
-                });
-        }
-
-        // Valider le reCAPTCHA
-        const secretKey = process.env.SECRET_CAPTCHA;
-        const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`;
-        const captchaResponse = await axios.post(verificationUrl);
-        if (!captchaResponse.data.success) {
-            logMessage("Échec de la validation du reCAPTCHA", COLOR_RED);
-            return res
-                .status(400)
-                .json({ message: "Échec de la validation du Captcha" });
-        }
-
         logMessage(
-            `Vérification de l'existence de l'utilisateur avec email: ${email}`,
+            "Vérification du token JWT pour l'activation du compte",
             COLOR_YELLOW
         );
+
+        const decoded = jwt.verify(token, process.env.TOKEN_SECRET);
+        const utilisateur = await dbConnector.Utilisateur.findByPk(decoded.id);
+
+        if (!utilisateur) {
+            logMessage("Utilisateur non trouvé", COLOR_RED);
+            return res.status(400).json({ message: "Utilisateur non trouvé." });
+        }
+
+        if (utilisateur.statutCompte) {
+            logMessage("Le compte est déjà activé", COLOR_RED);
+            return res
+                .status(400)
+                .json({ message: "Le compte est déjà activé." });
+        }
+
+        utilisateur.statutCompte = true;
+        await utilisateur.save();
+
+        logMessage("Compte activé avec succès", COLOR_GREEN);
+        res.status(200).json({ message: "Compte activé avec succès." });
+    } catch (error) {
+        logMessage(
+            "Erreur lors de la vérification du token ou de l'activation",
+            COLOR_RED
+        );
+        console.error("Erreur d'activation de compte:", error);
+        res.status(400).json({
+            message: "Lien d'activation invalide ou expiré.",
+        });
+    }
+};
+
+exports.resendActivationLink = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        // Vérifier si l'utilisateur existe
         const utilisateur = await dbConnector.Utilisateur.findOne({
             where: { email },
         });
 
         if (!utilisateur) {
-            logMessage("Cette adresse email n'existe pas", COLOR_RED);
-            return res
-                .status(403)
-                .json({ message: "Cette adresse email n'existe pas" });
+            logMessage("Utilisateur non trouvé", COLOR_RED);
+            return res.status(404).json({ message: "Utilisateur non trouvé." });
         }
 
-        // Vérifier si le compte est désactivé
-        if (!utilisateur.statutCompte) {
-            logMessage("Compte désactivé", COLOR_RED);
+        // Vérifier si le compte est déjà activé
+        if (utilisateur.statutCompte) {
+            logMessage("Le compte est déjà activé", COLOR_RED);
             return res
-                .status(403)
-                .json({ message: "Compte désactivé. Contactez le support." });
+                .status(400)
+                .json({ message: "Le compte est déjà activé." });
         }
 
-        // Vérifier si l'utilisateur est verrouillé
-        if (utilisateur.lockUntil && utilisateur.lockUntil > Date.now()) {
-            logMessage(
-                "Compte verrouillé en raison de tentatives infructueuses",
-                COLOR_RED
-            );
-            return res
-                .status(403)
-                .json({ message: "Compte verrouillé. Réessayez plus tard." });
-        }
+        // Générer un nouveau token JWT pour l'activation
+        const token = jwt.sign(
+            { id: utilisateur.id },
+            process.env.TOKEN_SECRET,
+            { expiresIn: "1h" }
+        );
+        const activationUrl = `http://localhost:4200/auth/activate/${token}`;
 
-        logMessage("Comparaison du mot de passe", COLOR_YELLOW);
-        const passwordMatch = bcrypt.compareSync(
-            password.trim(),
-            utilisateur.password
+        // Envoyer l'email de renvoi d'activation avec le nouveau corps
+        await emailTools.sendResendActivationEmail(utilisateur, activationUrl);
+        logMessage(
+            "E-mail de renvoi d'activation envoyé avec succès",
+            COLOR_GREEN
         );
 
-        if (!passwordMatch) {
-            logMessage("Mot de passe incorrect", COLOR_RED);
-
-            // Incrémenter loginAttempts
-            utilisateur.loginAttempts += 1;
-
-            // Vérifier si les tentatives dépassent le seuil
-            if (utilisateur.loginAttempts >= 5) {
-                utilisateur.lockUntil = Date.now() + 2 * 60 * 60 * 1000; // Verrouille pendant 2 heures
-                logMessage(
-                    "Trop de tentatives infructueuses, compte verrouillé pour 2 heures",
-                    COLOR_RED
-                );
-
-                // Envoyer un email à l'utilisateur pour l'informer du verrouillage
-                const mailOptions = {
-                    to: utilisateur.email,
-                    from: process.env.EMAIL_USER,
-                    subject: "Votre compte est temporairement verrouillé",
-                    html: `
-                        <p>Bonjour ${utilisateur.pseudo},</p>
-                        <p>Votre compte a été verrouillé pendant 2 heures en raison de plusieurs tentatives de connexion échouées.</p>
-                        <p>Si vous n'êtes pas à l'origine de ces tentatives, veuillez contacter notre support via le <a href="http://yourfrontenddomain.com/contact">formulaire de contact</a>.</p>
-                        <p>Merci de votre compréhension.</p>
-                        <p>Cordialement,</p>
-                        <p>L'équipe Support</p>
-                    `,
-                };
-
-                await transporter.sendMail(mailOptions);
-                logMessage(
-                    "Email de notification de verrouillage envoyé à l'utilisateur",
-                    COLOR_GREEN
-                );
-            }
-
-            await utilisateur.save();
-
-            return res.status(401).json({ message: "Mot de passe incorrect" });
-        }
-
-        // Si le mot de passe est correct, réinitialiser les tentatives et déverrouiller le compte
-        utilisateur.loginAttempts = 0;
-        utilisateur.lockUntil = null;
-        await utilisateur.save();
-
-        logMessage("Génération du token JWT", COLOR_YELLOW);
-        const dataToken = { id: utilisateur.id, roleId: utilisateur.roleId };
-        const token = jwt.sign(dataToken, process.env.TOKEN_SECRET, {
-            expiresIn: parseInt(process.env.TOKEN_LIFE),
-        });
-
-        logMessage("Connexion réussie", COLOR_GREEN);
-        res.status(202).json({
-            accessToken: token,
-            id: utilisateur.id,
-            roleId: utilisateur.roleId,
+        res.status(200).json({
+            message:
+                "Lien d'activation renvoyé avec succès. Vérifiez votre boîte mail.",
         });
     } catch (error) {
-        logMessage("Erreur lors de la connexion de l'utilisateur", COLOR_RED);
+        logMessage("Erreur lors de l'envoi du lien d'activation", COLOR_RED);
         console.error(error);
         res.status(500).json({
-            message: "Erreur lors de la connexion de l'utilisateur",
+            message: "Erreur lors de l'envoi du lien d'activation.",
         });
     }
 };
-
 
 exports.forgotPassword = async (req, res) => {
     const { email } = req.body;
@@ -291,7 +297,6 @@ exports.forgotPassword = async (req, res) => {
     }
 
     try {
-        // Rechercher l'utilisateur dans la base de données
         const utilisateur = await dbConnector.Utilisateur.findOne({
             where: { email },
         });
@@ -300,43 +305,25 @@ exports.forgotPassword = async (req, res) => {
             return res.status(404).json({ message: "Utilisateur non trouvé" });
         }
 
-        // Générer un token unique
         const token = crypto.randomBytes(20).toString("hex");
-
-        // Définir l'expiration du token à 1 heure
         const expires = Date.now() + 3600000; // 1 heure
-
-        // Mettre à jour l'utilisateur avec le token et la date d'expiration
         utilisateur.resetPasswordToken = token;
         utilisateur.resetPasswordExpires = expires;
 
         await utilisateur.save();
-
-        // Envoyer l'email avec le lien de réinitialisation
         const resetUrl = `http://localhost:4200/auth/reset-mot-de-passe-oublie/${token}`;
 
-        const mailOptions = {
-            to: utilisateur.email,
-            from: process.env.EMAIL_USER,
-            subject: "Réinitialisation du mot de passe",
-            html: `
-                <p>Vous recevez cet email parce que vous (ou quelqu'un d'autre) avez demandé la réinitialisation du mot de passe de votre compte.</p>
-                <p>Veuillez cliquer sur le lien suivant ou le copier dans votre navigateur pour compléter le processus :</p>
-                <a href="${resetUrl}">${resetUrl}</a>
-                <p>Si vous n'avez pas demandé cette réinitialisation, ignorez cet email et votre mot de passe restera inchangé.</p>
-            `,
-        };
-
-        await transporter.sendMail(mailOptions);
-
+        // Envoyer l'email de réinitialisation de mot de passe
+        await emailTools.sendResetPasswordEmail(utilisateur, resetUrl);
         res.status(200).json({
             message: "Email de réinitialisation du mot de passe envoyé.",
         });
     } catch (error) {
-        console.error(
-            "Erreur lors de la demande de réinitialisation de mot de passe:",
-            error
+        logMessage(
+            "Erreur lors de la demande de réinitialisation de mot de passe",
+            COLOR_RED
         );
+        console.error(error);
         res.status(500).json({
             message:
                 "Erreur lors de la demande de réinitialisation de mot de passe.",
@@ -349,47 +336,37 @@ exports.resetPassword = async (req, res, next) => {
 
     try {
         const { oldPassword, newPassword } = req.body;
-
-        // Extraire l'utilisateur du token JWT
-        const token = req.headers.authorization.split(' ')[1];
+        const token = req.headers.authorization.split(" ")[1];
         const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
         const userId = decodedToken.id;
 
         if (!oldPassword || !newPassword) {
-            logMessage(
-                "L'ancien et le nouveau mot de passe sont obligatoires",
-                COLOR_RED
-            );
             return res.status(400).json({
-                message: "L'ancien et le nouveau mot de passe sont obligatoires",
+                message:
+                    "L'ancien et le nouveau mot de passe sont obligatoires",
             });
         }
 
-        logMessage(`Vérification de l'existence de l'utilisateur avec ID: ${userId}`, COLOR_YELLOW);
         const utilisateur = await dbConnector.Utilisateur.findOne({
             where: { id: userId },
         });
 
         if (!utilisateur) {
-            logMessage("Utilisateur non trouvé", COLOR_RED);
             return res.status(404).json({ message: "Utilisateur non trouvé" });
         }
 
-        logMessage("Comparaison du mot de passe actuel", COLOR_YELLOW);
         const passwordMatch = bcrypt.compareSync(
             oldPassword.trim(),
             utilisateur.password
         );
 
         if (!passwordMatch) {
-            logMessage("L'ancien mot de passe est incorrect", COLOR_RED);
-            return res.status(401).json({ message: "L'ancien mot de passe est incorrect" });
+            return res
+                .status(401)
+                .json({ message: "L'ancien mot de passe est incorrect" });
         }
 
-        logMessage("Hachage du nouveau mot de passe", COLOR_YELLOW);
         const hashedPassword = bcrypt.hashSync(newPassword.trim(), 10);
-
-        logMessage("Mise à jour du mot de passe", COLOR_YELLOW);
         await dbConnector.Utilisateur.update(
             { password: hashedPassword },
             { where: { id: userId } }
@@ -400,7 +377,10 @@ exports.resetPassword = async (req, res, next) => {
             message: "Mot de passe réinitialisé avec succès",
         });
     } catch (error) {
-        logMessage("Erreur lors de la réinitialisation du mot de passe", COLOR_RED);
+        logMessage(
+            "Erreur lors de la réinitialisation du mot de passe",
+            COLOR_RED
+        );
         console.error(error);
         res.status(500).json({
             message: "Erreur lors de la réinitialisation du mot de passe",
@@ -409,81 +389,51 @@ exports.resetPassword = async (req, res, next) => {
 };
 
 exports.resetForgotPassword = async (req, res, next) => {
-    logMessage("Début de la réinitialisation du mot de passe", COLOR_YELLOW);
+    logMessage(
+        "Début de la réinitialisation du mot de passe via token",
+        COLOR_YELLOW
+    );
 
     try {
         const { token, newPassword } = req.body;
 
         if (!token || !newPassword) {
-            logMessage(
-                "Le token et le nouveau mot de passe sont obligatoires",
-                COLOR_RED
-            );
             return res.status(400).json({
                 message:
                     "Le token et le nouveau mot de passe sont obligatoires",
             });
         }
 
-        logMessage(`Vérification du token: ${token}`, COLOR_YELLOW);
-
-        // Rechercher l'utilisateur en fonction du token et vérifier l'expiration
         const utilisateur = await dbConnector.Utilisateur.findOne({
             where: {
                 resetPasswordToken: token,
-                resetPasswordExpires: { [Op.gt]: Date.now() }, // Le token doit être non expiré
+                resetPasswordExpires: { [Op.gt]: Date.now() },
             },
         });
 
         if (!utilisateur) {
-            logMessage("Token invalide ou expiré", COLOR_RED);
             return res
                 .status(400)
                 .json({ message: "Token invalide ou expiré" });
         }
 
-        // Vérification de la complexité du mot de passe
         const passwordComplexityRegex =
             /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if (!passwordComplexityRegex.test(newPassword)) {
-            logMessage(
-                "Le nouveau mot de passe ne respecte pas les exigences de complexité",
-                COLOR_RED
-            );
             return res.status(400).json({
                 message:
                     "Le mot de passe doit comporter au moins 8 caractères, avec une lettre majuscule, une lettre minuscule, un chiffre et un symbole spécial.",
             });
         }
 
-        logMessage("Hachage du nouveau mot de passe", COLOR_YELLOW);
         const hashedPassword = bcrypt.hashSync(newPassword.trim(), 10);
-
-        // Mise à jour du mot de passe et suppression du token de réinitialisation
         utilisateur.password = hashedPassword;
         utilisateur.resetPasswordToken = null;
         utilisateur.resetPasswordExpires = null;
 
         await utilisateur.save();
 
-        // Envoi d'un email de confirmation de la réinitialisation du mot de passe
-        const mailOptions = {
-            to: utilisateur.email,
-            from: process.env.EMAIL_USER,
-            subject: "Votre mot de passe a été réinitialisé",
-            html: `
-                <p>Bonjour ${utilisateur.pseudo},</p>
-                <p>Votre mot de passe a été réinitialisé avec succès.</p>
-                <p>Si vous n'êtes pas à l'origine de cette action, veuillez nous contacter immédiatement.</p>
-            `,
-        };
-
-        await transporter.sendMail(mailOptions);
-
-        logMessage(
-            "Mot de passe réinitialisé avec succès et email de confirmation envoyé",
-            COLOR_GREEN
-        );
+        logMessage("Mot de passe réinitialisé avec succès", COLOR_GREEN);
         res.status(200).json({
             message: "Mot de passe réinitialisé avec succès",
         });

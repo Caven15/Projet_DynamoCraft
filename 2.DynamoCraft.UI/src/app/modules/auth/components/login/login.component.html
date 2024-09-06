@@ -18,10 +18,6 @@
                         class="invalid-feedback">
                         Un email valide est requis.
                     </div>
-                    <div *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.hasError('invalidDomainLength')"
-                        class="invalid-feedback">
-                        Le domaine de l'email doit comporter au moins 2 caractères après le dernier point.
-                    </div>
                 </div>
 
                 <!-- Mot de passe -->
@@ -37,20 +33,6 @@
                         class="invalid-feedback">
                         Le mot de passe est requis.
                     </div>
-                    <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('minlength')"
-                        class="invalid-feedback">
-                        Le mot de passe doit comporter au moins 6 caractères.
-                    </div>
-                    <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.hasError('passwordComplexity')"
-                        class="invalid-feedback">
-                        Le mot de passe doit comporter au moins une majuscule, une minuscule, un chiffre et un caractère
-                        spécial.
-                    </div>
-                </div>
-
-                <!-- reCAPTCHA -->
-                <div class="captcha-container d-flex justify-content-center my-4">
-                    <app-google-captcha #recaptchaRef (captchaResolved)="onCaptchaResolved($event)"></app-google-captcha>
                 </div>
 
                 <!-- Message d'erreur global -->
@@ -60,10 +42,15 @@
 
                 <!-- Bouton de soumission -->
                 <button type="submit" class="btn btn-warning w-100 py-2 mt-3 font-dc"
-                    [disabled]="loginForm.invalid || !captchaValid">Valider</button>
+                    [disabled]="loginForm.invalid">Valider</button>
 
-                <div class="text-center mt-3">
+                <!-- Lien pour mot de passe oublié et renvoyer le lien d'activation sur la même ligne -->
+                <div class="text-center mt-3 d-flex justify-content-center">
                     <a routerLink="/auth/mot-de-passe-oublie" class="link-warning">Mot de passe oublié ?</a>
+                    <span class="mx-2 text-warning">|</span>
+                    <a href="javascript:void(0)" class="link-warning" (click)="onResendActivationLink()">
+                        Renvoyer le lien d'activation ?
+                    </a>
                 </div>
             </form>
         </div>

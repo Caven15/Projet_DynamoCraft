@@ -33,14 +33,13 @@ export class AuthService extends BaseApiService {
     }
 
     /**
-     * Connexion de l'utilisateur
+     * Connexion de l'utilisateur sans reCAPTCHA
      * @param email Email de l'utilisateur
      * @param password Mot de passe de l'utilisateur
-     * @param recaptchaToken Token de validation reCAPTCHA
      * @returns Observable contenant l'access token
      */
-    login(email: string, password: string, recaptchaToken: string): Observable<{ accessToken: string, id: string, roleId: string }> {
-        const loginData = { email, password, recaptchaToken };
+    login(email: string, password: string): Observable<{ accessToken: string, id: string, roleId: string }> {
+        const loginData = { email, password };
         return this.post<{ accessToken: string, id: string, roleId: string }>('auth/login', loginData).pipe(
             tap(response => {
                 if (this.isBrowser()) {
@@ -58,6 +57,7 @@ export class AuthService extends BaseApiService {
         );
     }
 
+
     /**
      * Inscription de l'utilisateur
      * @param formData FormData contenant les données de l'utilisateur et l'image
@@ -67,6 +67,34 @@ export class AuthService extends BaseApiService {
         return this.post<{ utilisateurId: number }>('auth/register', formData).pipe(
             tap(() => console.log('Utilisateur enregistré avec succès')),
             catchError(this.handleError<{ utilisateurId: number }>('register'))
+        );
+    }
+
+    /**
+     * Activation du compte utilisateur via le lien envoyé par email
+     * @param token Token d'activation envoyé par email
+     * @returns Observable indiquant le succès ou l'échec de l'activation
+     */
+    activateAccount(token: string): Observable<any> {
+        return this.get<any>(`auth/activate/${token}`).pipe(
+            tap(() => {
+                console.log('Compte activé avec succès');
+            }),
+            catchError(this.handleError<any>('activateAccount'))
+        );
+    }
+
+    /**
+     * Renvoyer le lien d'activation
+     * @param email Email de l'utilisateur
+     * @returns Observable indiquant le succès ou l'échec de l'opération
+     */
+    resendActivationLink(email: string): Observable<any> {
+        return this.post<any>('auth/resend-activation', { email }).pipe(
+            tap(() => {
+                console.log('Lien d\'activation renvoyé avec succès.');
+            }),
+            catchError(this.handleError<any>('resendActivationLink'))
         );
     }
 

@@ -1,0 +1,11 @@
+<div class="activation-container">
+    <div class="activation-content">
+        <div class="icon-container">
+            <i class="icon-check-circle"></i>
+        </div>
+        <h2 class="activation-title">{{ messageTitle }}</h2>
+        <p class="activation-text">{{ message }}</p>
+        <button class="btn btn-warning" *ngIf="activationSuccess" (click)="navigateToLogin()">Accéder à la
+            connexion</button>
+    </div>
+</div>

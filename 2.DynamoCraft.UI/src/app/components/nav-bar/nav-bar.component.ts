@@ -44,25 +44,31 @@ export class NavBarComponent implements OnInit {
     }
 
     updateUserLinks(): void {
-        this.userLinks = [
-            { label: 'Mon Profil', url: '/utilisateur/profil' },
-            { label: 'Ajouter un projet', url: '/projet/ajout' },
-            { label: 'Tout mes projets', url: '/utilisateur/realisations/' + this.currentUser!.id },
-            { label: 'Informations personnelles', url: '/utilisateur/profil-user' },
-            { label: 'Details', url: '/utilisateur/informations' },
-            { label: 'Statistiques', url: '/utilisateur/statistiques' },
-            { label: 'Bibliothèques', url: '/utilisateur/bibliotheques' },
-        ];
-
-        if (this.isModerator() || this.isAdmin()) {
-            this.adminLinks = [
-                { label: 'Panel gestion', url: '/admin/panel' },
-                { label: 'Utilisateur', url: '/admin/utilisateurs' },
-                { label: 'Projets', url: '/admin/projets' },
-                { label: 'Statistiques', url: '/admin/statistiques' }
+        if (this.currentUser) {
+            this.userLinks = [
+                { label: 'Mon Profil', url: '/utilisateur/profil' },
+                { label: 'Ajouter un projet', url: '/projet/ajout' },
+                { label: 'Tout mes projets', url: '/utilisateur/realisations/' + this.currentUser.id },
+                { label: 'Informations personnelles', url: '/utilisateur/profil-user' },
+                { label: 'Details', url: '/utilisateur/informations' },
+                { label: 'Statistiques', url: '/utilisateur/statistiques' },
+                { label: 'Bibliothèques', url: '/utilisateur/bibliotheques' },
             ];
+
+            if (this.isModerator() || this.isAdmin()) {
+                this.adminLinks = [
+                    { label: 'Panel gestion', url: '/admin/panel' },
+                    { label: 'Utilisateur', url: '/admin/utilisateurs' },
+                    { label: 'Projets', url: '/admin/projets' },
+                    { label: 'Statistiques', url: '/admin/statistiques' }
+                ];
+            }
+        } else {
+            this.userLinks = [];
+            this.adminLinks = [];
         }
     }
+
 
     getIconForLink(url: string): string {
         switch (url) {

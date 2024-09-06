@@ -57,7 +57,7 @@ module.exports = {
             statutCompte: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
-                defaultValue: true,
+                defaultValue: false,
             },
             resetPasswordToken: {
                 type: Sequelize.STRING,

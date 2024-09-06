@@ -1,23 +1,42 @@
-<div class="container min-vh-75 bg-dc-2 py-3 rounded-3">
-    <h1 class="font-dc text-center text-warning mb-4">Nouveautés</h1>
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
-        @for (nouveaute of nouveautes; track nouveaute.id) {
-        <div class="col d-flex align-items-stretch">
-            <a routerLink="/projet/detail/{{nouveaute.id}}" class="text-decoration-none w-100">
-                <div class="card-hover image-container rounded h-100 text-center shadow-sm border-0">
-                    @if (nouveaute.imageProjet && nouveaute.imageProjet.length > 0) {
-                    <img [src]="url + nouveaute.imageProjet[0].nom" class="card-img-top rounded" alt="Image du projet">
-                    } @else {
-                    <p class="text-muted">Pas d'image disponible</p>
-                    }
+<div class="hauteur-70 bg-dc-2 rounded-3">
+
+    <!-- Vérification si la liste est vide -->
+    <ng-container *ngIf="nouveautes && nouveautes.length > 0; else noNouveautesTemplate">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
+            @for (nouveaute of nouveautes; track nouveaute.id) {
+            <div class="col d-flex align-items-stretch">
+                <a routerLink="/projet/detail/{{nouveaute.id}}" class="text-decoration-none w-100">
                     <div
-                        class="hover-content d-flex justify-content-center align-items-center position-absolute top-0 start-0 w-100 h-100">
-                        <i class="bi bi-eye text-white" style="font-size: 2rem;"></i>
-                        <p class="file-name text-white text-center mt-2">{{ nouveaute.nom | slice: 0: 20 }}...</p>
+                        class="card-hover image-container rounded h-100 text-center shadow-sm border-0 position-relative">
+                        @if (nouveaute.imageProjet && nouveaute.imageProjet.length > 0) {
+                        <img [src]="url + nouveaute.imageProjet[0].nom" class="card-img-top rounded h-100"
+                            alt="Image du projet" style="object-fit: cover;">
+                        } @else {
+                        <div class="d-flex flex-column justify-content-center align-items-center text-center text-muted w-100 h-100"
+                            style="border: 2px solid #ffc107;">
+                            <i class="bi bi-image" style="font-size: 4rem;"></i>
+                            <p class="mt-2">Pas d'image disponible</p>
+                        </div>
+                        }
+                        <div
+                            class="hover-content d-flex justify-content-center align-items-center position-absolute top-0 start-0 w-100 h-100">
+                            <i class="bi bi-eye text-white" style="font-size: 2rem;"></i>
+                            <p class="file-name text-white text-center mt-2">{{ nouveaute.nom | slice: 0: 20 }}...</p>
+                        </div>
                     </div>
-                </div>
-            </a>
+                </a>
+            </div>
+            }
         </div>
-        }
-    </div>
+    </ng-container>
+
+    <ng-template #noNouveautesTemplate>
+        <div class="d-flex flex-column justify-content-center align-items-center text-center p-5 border border-warning"
+            style="height: 70vh;">
+            <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 4rem;"></i>
+            <h3 class="text-warning mt-3">Aucun projet disponible</h3>
+            <p class="text-warning mt-2">Aucun nouveau projet n'a été ajouté récemment.</p>
+        </div>
+    </ng-template>
+
 </div>

@@ -7,8 +7,6 @@
 3. [Architecture et Technologies](#architecture-et-technologies)
 4. [Installation et Configuration](#installation-et-configuration)
 5. [Utilisation](#utilisation)
-6. [Contribution](#contribution)
-7. [Licence](#licence)
 
 ## Présentation du Projet
 
@@ -28,7 +26,7 @@
 
 ### Interaction Communautaire
 - **Commentaires :** Chaque modèle dispose d'une section commentaires où les utilisateurs peuvent poser des questions, donner des retours, et discuter des modèles avec les créateurs ou d'autres membres de la communauté.
-- **Gestion Administrative :** Une interface dédiée permet de modérer les commentaires, gérer les utilisateurs, et intervenir en cas de besoin pour maintenir un environnement sécurisé et agréable.
+- **Gestion Administrative :** Une interface dédiée permet de modérer le contenus, gérer les utilisateurs, et intervenir en cas de besoin pour maintenir un environnement sécurisé et agréable.
 
 ## Architecture et Technologies
 

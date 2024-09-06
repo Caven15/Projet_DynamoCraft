@@ -31,8 +31,7 @@ module.exports = (sequelize, DataTypes) => {
                 defaultValue: DataTypes.NOW,
                 allowNull: false,
                 validate: {
-                    isDate: true,
-                    isBefore: new Date().toISOString(),
+                    isDate: true
                 },
             },
         },

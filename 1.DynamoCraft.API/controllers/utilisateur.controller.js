@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes } = require("sequelize"); 
+const { Sequelize, DataTypes } = require("sequelize");
 const dbConnector = require("../tools/ConnexionDb.tools").get();
 const fs = require("fs");
 const path = require("path");
@@ -30,7 +30,7 @@ exports.getAll = async (req, res, next) => {
                             FROM utilisateurprojet AS up
                             WHERE up.utilisateurId = Utilisateur.id
                         )`),
-                        'totalDownloads'
+                        "totalDownloads",
                     ],
                     // Calcul du total d'uploads (projets créés) pour chaque utilisateur
                     [
@@ -39,7 +39,7 @@ exports.getAll = async (req, res, next) => {
                             FROM projet AS p
                             WHERE p.utilisateurId = Utilisateur.id
                         )`),
-                        'totalUploads'
+                        "totalUploads",
                     ],
                     // Calcul du total de commentaires pour chaque utilisateur
                     [
@@ -48,9 +48,9 @@ exports.getAll = async (req, res, next) => {
                             FROM commentaire AS c
                             WHERE c.utilisateurId = Utilisateur.id
                         )`),
-                        'totalComments'
-                    ]
-                ]
+                        "totalComments",
+                    ],
+                ],
             },
             include: [
                 {
@@ -64,8 +64,6 @@ exports.getAll = async (req, res, next) => {
             ],
         });
 
-        // Log des utilisateurs récupérés
-        console.log("Utilisateurs récupérés : ", JSON.stringify(allUsers, null, 2));
         logMessage("Utilisateurs récupérés avec succès", COLOR_GREEN);
 
         res.status(200).json(allUsers);
@@ -80,7 +78,6 @@ exports.getAll = async (req, res, next) => {
         });
     }
 };
-
 
 // Récupérer un utilisateur par ID
 exports.getById = async (req, res, next) => {
@@ -120,7 +117,7 @@ exports.getById = async (req, res, next) => {
                         },
                         {
                             model: dbConnector.ImageProjet,
-                            as: 'imageProjet',
+                            as: "imageProjet",
                             attributes: ["nom"],
                             limit: 1,
                             separate: false,
@@ -152,11 +149,12 @@ exports.getById = async (req, res, next) => {
             }, 0);
 
             // Calculer le total des appréciations données par l'utilisateur
-            const totalLikesGiven = await dbConnector.UtilisateurProjetLike.count({
-                where: {
-                    utilisateurId: req.params.id,
-                },
-            });
+            const totalLikesGiven =
+                await dbConnector.UtilisateurProjetLike.count({
+                    where: {
+                        utilisateurId: req.params.id,
+                    },
+                });
 
             // Calculer le total des commentaires laissés sur les projets de l'utilisateur
             const totalComments = await dbConnector.Commentaire.count({
@@ -288,6 +286,7 @@ exports.update = async (req, res, next) => {
 };
 
 // Supprimer un utilisateur par ID
+// Supprimer un utilisateur par ID avec toutes les opérations internes
 exports.delete = async (req, res, next) => {
     logMessage(
         `Début de la suppression de l'utilisateur avec ID: ${req.params.id}`,
@@ -296,51 +295,90 @@ exports.delete = async (req, res, next) => {
 
     try {
         const user = await dbConnector.Utilisateur.findByPk(req.params.id);
-        if (user) {
-            const userProjects = await dbConnector.Projet.findAll({
-                where: { utilisateurId: user.id },
-            });
-            for (const project of userProjects) {
-                await projectController.deleteProjectById(project.id);
-            }
-
-            const imageUtilisateur = await dbConnector.ImageUtilisateur.findOne(
-                { where: { utilisateurId: user.id } }
-            );
-            if (imageUtilisateur) {
-                await imageUtilisateur.destroy();
-                const imagePath = `./uploads/${imageUtilisateur.nom}`;
-                fs.unlink(imagePath, (err) => {
-                    if (err) {
-                        logMessage(
-                            "Erreur lors de la suppression de l'image",
-                            COLOR_RED
-                        );
-                        console.error(
-                            "Erreur lors de la suppression de l'image:",
-                            err
-                        );
-                    } else {
-                        logMessage("Image supprimée avec succès", COLOR_GREEN);
-                    }
-                });
-            }
-
-            await user.destroy();
-            logMessage("Utilisateur supprimé avec succès", COLOR_GREEN);
-            res.status(200).json({
-                message: `Utilisateur ${req.params.id} supprimé avec succès !`,
-            });
-        } else {
+        if (!user) {
             logMessage("Utilisateur non trouvé", COLOR_RED);
-            res.status(404).json({ message: "Utilisateur non trouvé" });
+            return res.status(404).json({ message: "Utilisateur non trouvé" });
         }
+
+        const userProjects = await dbConnector.Projet.findAll({
+            where: { utilisateurId: user.id },
+        });
+
+        // Suppression des projets associés à l'utilisateur
+        for (const project of userProjects) {
+            logMessage(`Traitement du projet avec ID: ${project.id}`, COLOR_YELLOW);
+
+            // Suppression des images du projet
+            const projectImages = await dbConnector.ImageProjet.findAll({
+                where: { projetId: project.id },
+            });
+
+            for (const image of projectImages) {
+                const imagePath = path.join(__dirname, "../uploads/", image.nom);
+                if (fs.existsSync(imagePath)) {
+                    fs.unlinkSync(imagePath);
+                    logMessage(`Image ${image.nom} supprimée`, COLOR_GREEN);
+                }
+
+                const resizedImagePath = path.join(__dirname, "../uploads/resized/", image.nom);
+                if (fs.existsSync(resizedImagePath)) {
+                    fs.unlinkSync(resizedImagePath);
+                    logMessage(`Image redimensionnée ${image.nom} supprimée`, COLOR_GREEN);
+                }
+            }
+            await dbConnector.ImageProjet.destroy({ where: { projetId: project.id } });
+
+            // Suppression des modèles 3D du projet
+            const models3D = await dbConnector.Modele3D.findAll({
+                where: { projetId: project.id },
+            });
+
+            for (const model of models3D) {
+                const modelPath = path.join(__dirname, "../uploads/", model.nom);
+                if (fs.existsSync(modelPath)) {
+                    fs.unlinkSync(modelPath);
+                    logMessage(`Fichier 3D ${model.nom} supprimé`, COLOR_GREEN);
+                }
+            }
+            await dbConnector.Modele3D.destroy({ where: { projetId: project.id } });
+
+            // Suppression des commentaires associés au projet
+            await dbConnector.Commentaire.destroy({ where: { projetId: project.id } });
+
+            // Suppression des entrées dans UtilisateurProjet
+            await dbConnector.UtilisateurProjet.destroy({ where: { projetId: project.id } });
+
+            // Suppression du projet lui-même
+            await project.destroy();
+
+            // Suppression des statistiques associées au projet
+            await dbConnector.Statistique.destroy({ where: { id: project.statistiqueId } });
+
+            logMessage(`Projet avec ID: ${project.id} supprimé avec succès`, COLOR_GREEN);
+        }
+
+        // Suppression de l'image utilisateur s'il y en a une
+        const imageUtilisateur = await dbConnector.ImageUtilisateur.findOne({
+            where: { utilisateurId: user.id },
+        });
+        if (imageUtilisateur) {
+            const imagePath = path.join(__dirname, "../uploads/", imageUtilisateur.nom);
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+                logMessage(`Image utilisateur ${imageUtilisateur.nom} supprimée`, COLOR_GREEN);
+            }
+            await imageUtilisateur.destroy();
+        }
+
+        // Suppression de l'utilisateur
+        await user.destroy();
+
+        logMessage("Utilisateur supprimé avec succès", COLOR_GREEN);
+        return res.status(200).json({ message: `Utilisateur ${req.params.id} supprimé avec succès !` });
     } catch (error) {
         logMessage("Erreur lors de la suppression de l'utilisateur", COLOR_RED);
-        console.error("Erreur lors de la suppression de l'utilisateur:", error);
-        res.status(500).json({
-            message: "Erreur lors de la suppression de l'utilisateur",
-        });
+        console.error("Erreur lors de la suppression de l'utilisateur :", error);
+        return res.status(500).json({ message: "Erreur lors de la suppression de l'utilisateur" });
     }
 };
 
@@ -369,17 +407,31 @@ exports.toggleActivation = async (req, res, next) => {
                 { estValide: false },
                 { where: { utilisateurId: user.id } }
             );
-            logMessage(`Tous les projets de l'utilisateur ${req.params.id} ont été désactivés`, COLOR_GREEN);
+            logMessage(
+                `Tous les projets de l'utilisateur ${req.params.id} ont été désactivés`,
+                COLOR_GREEN
+            );
         }
 
-        logMessage(`Utilisateur ${newStatut ? 'activé' : 'désactivé'} avec succès`, COLOR_GREEN);
+        logMessage(
+            `Utilisateur ${newStatut ? "activé" : "désactivé"} avec succès`,
+            COLOR_GREEN
+        );
         res.status(200).json({
-            message: `Utilisateur ${req.params.id} ${newStatut ? 'activé' : 'désactivé'} avec succès !`,
-            statutCompte: newStatut
+            message: `Utilisateur ${req.params.id} ${
+                newStatut ? "activé" : "désactivé"
+            } avec succès !`,
+            statutCompte: newStatut,
         });
     } catch (error) {
-        logMessage("Erreur lors du changement de statut de l'utilisateur", COLOR_RED);
-        console.error("Erreur lors du changement de statut de l'utilisateur:", error);
+        logMessage(
+            "Erreur lors du changement de statut de l'utilisateur",
+            COLOR_RED
+        );
+        console.error(
+            "Erreur lors du changement de statut de l'utilisateur:",
+            error
+        );
         res.status(500).json({
             message: "Erreur lors du changement de statut de l'utilisateur",
         });

@@ -1,4 +1,4 @@
-const { logMessage, COLOR_GREEN, COLOR_RED, COLOR_YELLOW } = require("../tools/logs.tools");
+const { logMessage, COLOR_GREEN, COLOR_RED, COLOR_YELLOW } = require("../../tools/logs.tools");
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {

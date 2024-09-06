@@ -6,7 +6,7 @@ import { DetailComponent } from './components/detail/detail.component';
 import { roleGuard } from '../../tools/guards/auth/role.guard';
 
 const routes: Routes = [
-    { path: 'ajout', component: AjoutComponent },
+    { path: 'ajout', component: AjoutComponent, canActivate: [roleGuard], data: { role: '1' } },
     { path: 'update/:id', component: UpdateComponent, canActivate: [roleGuard], data: { role: '1' } },
     { path: 'detail/:id', component: DetailComponent },
 ];

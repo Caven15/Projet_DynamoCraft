@@ -1,36 +1,39 @@
-<div class="container min-vh-75 bg-dc-2 py-3 rounded-3">
-    <h1 class="font-dc text-center text-warning mb-4">Recherche de Projets</h1>
-
-    <!-- Barre de recherche avec bouton -->
-    <div class="row mb-4 d-flex justify-content-center">
-        <div class="col-10 col-md-6">
-            <div class="input-group shadow-sm">
-                <input type="text" class="form-control" placeholder="Rechercher un projet..." [(ngModel)]="searchQuery"
-                    (ngModelChange)="onSearchQueryChange($event)">
-                <button type="button" class="btn btn-outline-warning dropdown-toggle dropdown-toggle-split"
-                    data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="visually-hidden">Options</span>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" (click)="onOptionChange('all')">
-                            <i class="bi bi-collection me-2"></i> Tous les projets
-                        </a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li *ngFor="let categorie of categories">
-                        <a class="dropdown-item d-flex align-items-center" (click)="onOptionChange(categorie.nom)">
-                            <img [src]="'assets/png/Categories/' + categorie.nom + '.png'" alt="{{ categorie.nom }}"
-                                class="category-icon me-2">
-                            {{ categorie.nom }}
-                        </a>
-                    </li>
-                </ul>
-            </div>
+<!-- Barre de recherche -->
+<div class="row mb-4 justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="input-group shadow-lg rounded">
+            <input type="text" class="form-control form-control-lg bg-dc-2 text-warning border-0 shadow-sm"
+                placeholder="Rechercher un projet..." [(ngModel)]="searchQuery"
+                (ngModelChange)="onSearchQueryChange($event)">
+            <button class="btn btn-outline-warning dropdown-toggle dropdown-toggle-split bg-dc-2 text-warning shadow-sm"
+                type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="visually-hidden">Options</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end bg-dc-2 shadow-lg">
+                <li><a class="dropdown-item text-warning" (click)="onOptionChange('all')">
+                        <i class="bi bi-collection me-2"></i> Tous les projets
+                    </a></li>
+                <li>
+                    <hr class="dropdown-divider border-warning">
+                </li>
+                <li *ngFor="let categorie of categories">
+                    <a class="dropdown-item d-flex align-items-center text-warning"
+                        (click)="onOptionChange(categorie.nom)">
+                        <img [src]="'assets/png/Categories/' + categorie.nom + '.png'" alt="{{ categorie.nom }}"
+                            class="category-icon me-2" style="width: 20px; height: 20px;">
+                        {{ categorie.nom }}
+                    </a>
+                </li>
+            </ul>
+            <button class="btn btn-warning shadow-sm" type="button" (click)="onSearch()">
+                <i class="bi bi-search"></i>
+            </button>
         </div>
     </div>
+</div>
 
-
+<!-- Section de résultats -->
+<div class="hauteur-70 bg-dc-2 rounded-3">
     <!-- Affichage des projets ou message si aucun projet trouvé -->
     <div *ngIf="projects.length > 0; else noProjects"
         class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 justify-content-center">
@@ -51,12 +54,13 @@
         </div>
     </div>
 
-    <!-- Template pour aucun projet trouvé -->
+    <!-- Message si aucun projet n'est trouvé -->
     <ng-template #noProjects>
-        <div class="d-flex flex-column align-items-center text-center text-warning mt-5 hauteur-70">
-            <i class="bi bi-exclamation-triangle-fill" style="font-size: 4rem;"></i>
-            <h3 class="mt-3">Aucun projet trouvé</h3>
-            <p class="mt-2">Aucun projet ne correspond à votre recherche "{{ searchQuery }}"</p>
+        <div class="d-flex flex-column justify-content-center align-items-center text-center p-5 border border-warning"
+            style="height: 70vh;">
+            <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 4rem;"></i>
+            <h3 class="text-warning mt-3">Aucun projet trouvé</h3>
+            <p class="text-warning mt-2">Aucun projet ne correspond à votre recherche "{{ searchQuery }}"</p>
         </div>
     </ng-template>
 
