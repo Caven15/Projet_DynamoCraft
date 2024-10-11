@@ -31,9 +31,9 @@
                         <div *ngIf="projetForm.get('description')?.errors?.['required']">La description du projet est
                             obligatoire.</div>
                         <div *ngIf="projetForm.get('description')?.errors?.['minlength']">La description du projet doit
-                            contenir au moins 5 caractères.</div>
+                            contenir au moins 50 caractères.</div>
                         <div *ngIf="projetForm.get('description')?.errors?.['maxlength']">La description du projet ne
-                            doit pas dépasser 50 caractères.</div>
+                            doit pas dépasser 500 caractères.</div>
                     </div>
                 </div>
 
@@ -59,7 +59,7 @@
                         <label
                             class="btn btn-warning text-dark bg-warning ms-3 d-flex align-items-center justify-content-center"
                             style="width: 40px; height: 40px; border-radius: 50%;">
-                            <i class="bi bi-plus-lg"></i>
+                            <i class="bi bi-plus-lg text-white"></i>
                             <input type="file" (change)="onImageSelected($event)" multiple accept="image/*" hidden>
                         </label>
                     </div>
@@ -102,7 +102,7 @@
                         <label
                             class="btn btn-warning text-dark bg-warning ms-3 d-flex align-items-center justify-content-center"
                             style="width: 40px; height: 40px; border-radius: 50%;">
-                            <i class="bi bi-plus-lg"></i>
+                            <i class="bi bi-plus-lg text-white"></i>
                             <input type="file" (change)="on3DFileSelected($event)" accept=".stl" multiple hidden>
                         </label>
                     </div>

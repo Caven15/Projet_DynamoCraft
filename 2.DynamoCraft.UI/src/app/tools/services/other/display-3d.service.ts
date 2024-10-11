@@ -26,7 +26,9 @@ export class Display3dService {
     private previousMousePosition = { x: 0, y: 0 };
 
     constructor(private ngZone: NgZone) {
-        window.addEventListener('resize', () => this.onWindowResize());
+        if (window !== undefined) {
+            window.addEventListener('resize', () => this.onWindowResize());
+        }
     }
 
     initThree(conteneurs: ElementRef[]): void {
@@ -50,6 +52,13 @@ export class Display3dService {
             const lumiereAmbiante = new THREE.AmbientLight(this.INTENSITE_LUMIERE_AMBIANTE);
             scene.add(lumiereAmbiante);
 
+            const pointLight = new THREE.PointLight(0xffffff, 0.8);
+            pointLight.position.set(10, 10, 10);
+            scene.add(pointLight);
+
+            const hemiLight = new THREE.HemisphereLight(0x404040, 0x404040, 0.6);
+            scene.add(hemiLight);
+
             this.rendus[index] = rendu;
             this.scenes[index] = scene;
             this.cameras[index] = camera;
@@ -60,6 +69,16 @@ export class Display3dService {
             this.ngZone.runOutsideAngular(() => this.animer(index));
         });
     }
+
+    setBackground(imageUrl: string, index: number): void {
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.load(imageUrl, (texture) => {
+            this.scenes[index].background = texture; // Définir la texture comme fond de la scène
+        }, undefined, (error) => {
+            console.error("Erreur lors du chargement de l'image de fond", error);
+        });
+    }
+
 
     chargerModele(url: string, index: number): Promise<void> {
         console.log(`Chargement du modèle: ${url} pour l'index: ${index}`);
@@ -91,6 +110,14 @@ export class Display3dService {
             });
         });
     }
+
+    setZoomLevel(zoomFactor: number, index: number): void {
+        if (this.cameras[index]) {
+            this.cameras[index].position.z = this.POSITION_CAMERA.z * zoomFactor;
+        }
+    }
+
+
 
     nettoyerScene(index: number): void {
         if (this.modeles[index]) {
@@ -168,8 +195,11 @@ export class Display3dService {
                 const deltaX = event.clientX - this.previousMousePosition.x;
                 const deltaY = event.clientY - this.previousMousePosition.y;
 
-                this.modeles[index]!.position.x += deltaX * this.DEPLACEMENT_SOURIS;
-                this.modeles[index]!.position.y -= deltaY * this.DEPLACEMENT_SOURIS;
+                // Rotation de l'objet sur l'axe Y (rotation horizontale inversée pour un mouvement naturel)
+                this.modeles[index]!.rotation.z += deltaX * 0.01;
+
+                // Rotation de l'objet sur l'axe X (rotation verticale)
+                this.modeles[index]!.rotation.x += deltaY * 0.01;
 
                 this.previousMousePosition = { x: event.clientX, y: event.clientY };
             }
@@ -182,6 +212,14 @@ export class Display3dService {
         element.addEventListener('mouseleave', () => {
             this.isDragging = false;
         });
+
+        element.addEventListener('wheel', (event) => {
+            if (this.modeles[index]) {
+                const zoomFactor = event.deltaY > 0 ? 1.1 : 0.9;
+                this.cameras[index].position.z *= zoomFactor;
+            }
+        });
+
     }
 
     onWindowResize(): void {
@@ -197,4 +235,5 @@ export class Display3dService {
             }
         });
     }
+
 }

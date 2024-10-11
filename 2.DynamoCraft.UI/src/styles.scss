@@ -553,6 +553,14 @@ i {
     overflow-x: hidden;
 }
 
+.upper-file {
+    z-index: 100; /* S'assure que la barre de zoom est toujours au-dessus du rendu 3D */
+}
+
+.three-container {
+    position: relative;
+}
+
 .thumbnail-3d {
     width: 80px;
     height: 80px;
@@ -1057,7 +1065,6 @@ p {
 .router-container {
     position: relative;
     min-height: 100vh;
-    /* To ensure loader covers the full height of the content area */
 }
 
 .activation-container {

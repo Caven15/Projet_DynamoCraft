@@ -11,8 +11,8 @@ import { Modele3D } from '../../../../models/modele-3d.model';
 import { Categorie } from '../../../../models/categorie.model';
 import { ImageProjet } from '../../../../models/imageProjet.model';
 import { imgType } from '../../../../tools/validators/imgType.validator';
-import { fileType } from '../../../../tools/validators/fileType.validator';
 import { environment } from '../../../../../environments/environment.dev';
+import { forkJoin } from 'rxjs';
 
 @Component({
     selector: 'app-update',
@@ -53,22 +53,54 @@ export class UpdateComponent implements OnInit {
     ) {
         this.projetForm = this.fb.group({
             nom: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(50)]],
-            description: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(50)]],
+            description: ['', [Validators.required, Validators.minLength(50), Validators.maxLength(500)]],
             categorieId: ['', Validators.required],
         });
         this.projetId = this.route.snapshot.params['id'];
     }
 
     ngOnInit(): void {
-        this.loadCategories();
+        forkJoin({
+            categories: this.categorieService.getAllCategorie(),
+            projet: this.projetService.getProjetById(this.projetId)
+        }).subscribe(({ categories, projet }) => {
+            // Charger les catégories
+            this.categories = categories;
+
+            // Charger les données du projet et mettre à jour le formulaire
+            if (projet) {
+                console.log(projet);
+                this.projetForm.patchValue({
+                    nom: projet.nom,
+                    description: projet.description,
+                    categorieId: projet.categorie?.id,  // S'assurer que la catégorie est correctement assignée
+                });
+            }
+
+            // Charger les images et les fichiers 3D du projet
+            this.loadImagesAnd3DModels();
+        });
+    }
+
+    loadImagesAnd3DModels(): void {
+        this.imageService.getImagesByProjetId(this.projetId).subscribe(images => {
+            this.selectedImages = images;
+            this.imagePreviewUrls = images.map(image => `${this.url}${image.nom}`);
+        });
+
+        this.modele3DService.getModeles3DByProjetId(this.projetId).subscribe(modeles => {
+            this.selected3DFiles = modeles;
+        });
     }
 
     loadCategories(): void {
         this.categorieService.getAllCategorie().subscribe(categories => {
+            console.log(categories);
             this.categories = categories;
             this.loadProjetData();
         });
     }
+
 
     getFileName(file: File | ImageProjet | Modele3D): string {
         return (file instanceof File) ? file.name : file.nom;

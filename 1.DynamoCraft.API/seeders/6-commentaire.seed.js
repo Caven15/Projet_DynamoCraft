@@ -7,10 +7,16 @@ module.exports = {
 
         const commentaires = [];
 
-        logMessage("Sous-étape 1/2 : Génération des commentaires pour chaque projet", COLOR_YELLOW);
+        logMessage("Sous-étape 1/2 : Génération des commentaires pour chaque projet valide", COLOR_YELLOW);
 
         try {
-            for (let projetId = 1; projetId <= 300; projetId++) {
+            // Fetch valid projects
+            const projetsValides = await queryInterface.sequelize.query(
+                `SELECT id FROM projet WHERE estvalide = true`,
+                { type: Sequelize.QueryTypes.SELECT }
+            );
+
+            for (let projet of projetsValides) {
                 const nombreCommentaires = faker.number.int({ min: 1, max: 20 });
 
                 for (let i = 0; i < nombreCommentaires; i++) {
@@ -18,18 +24,18 @@ module.exports = {
                     const dateModif = faker.datatype.boolean() 
                         ? faker.date.between({ from: dateCreation, to: new Date() })
                         : dateCreation;
-                    
+
                     commentaires.push({
                         description: faker.lorem.sentences(faker.number.int({ min: 1, max: 3 })),
                         dateCreation: dateCreation,
                         dateModif: dateModif,
-                        projetId: projetId,
+                        projetId: projet.id,
                         utilisateurId: faker.number.int({ min: 1, max: 300 }),
                     });
                 }
 
-                if (projetId % 50 === 0) {
-                    logMessage(`Sous-étape 1/2 - Génération des commentaires pour le projet ${projetId}/300 terminée`, COLOR_GREEN);
+                if (projet.id % 50 === 0) {
+                    logMessage(`Sous-étape 1/2 - Génération des commentaires pour le projet ${projet.id} terminée`, COLOR_GREEN);
                 }
             }
 

@@ -25,11 +25,8 @@
 
                     <!-- Input de fichier caché -->
                     <input type="file" id="image" (change)="onFileSelected($event)" class="d-none" #fileInput>
-                    <div *ngIf="registerForm.get('image')?.errors?.['fileSizeExceeded']"
-                        class="invalid-feedback d-block">
-                        La taille de l'image ne doit pas dépasser 5 Mo.
-                    </div>
                 </div>
+                <p class="text-danger mt-2">{{ errorMessage }}</p>
 
                 <!-- Pseudo -->
                 <div class="form-floating mb-3">
@@ -41,6 +38,10 @@
                         class="invalid-feedback">
                         Le pseudo est obligatoire.
                     </div>
+                    <div *ngIf="registerForm.get('pseudo')?.touched && registerForm.get('pseudo')?.errors?.['whitespace']" class="invalid-feedback">
+                        Le pseudo ne doit pas être vide ou contenir uniquement des espaces.
+                    </div>
+
                 </div>
 
                 <!-- Email -->
@@ -57,6 +58,10 @@
                         class="invalid-feedback">
                         Le domaine de l'email doit comporter au moins 2 caractères après le dernier point.
                     </div>
+                    <div *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.errors?.['whitespace']" class="invalid-feedback">
+                        L'email ne doit pas être vide ou contenir uniquement des espaces.
+                    </div>
+
                 </div>
 
                 <!-- Date de naissance -->
@@ -84,6 +89,9 @@
                         class="invalid-feedback">
                         La biographie ne doit pas dépasser 500 caractères.
                     </div>
+                    <div *ngIf="registerForm.get('biographie')?.touched && registerForm.get('biographie')?.errors?.['whitespace']" class="invalid-feedback">
+                        La biographie ne doit pas être vide ou contenir uniquement des espaces.
+                    </div>
                 </div>
 
                 <!-- Centre d'intérêts (Textarea) -->
@@ -95,6 +103,9 @@
                     <div *ngIf="registerForm.get('centreInterets')?.touched && registerForm.get('centreInterets')?.errors?.['minlength']"
                         class="invalid-feedback">
                         Les centres d'intérêts doivent comporter au moins 50 caractères.
+                    </div>
+                    <div *ngIf="registerForm.get('centreInterets')?.touched && registerForm.get('centreInterets')?.errors?.['whitespace']" class="invalid-feedback">
+                        Les centres d'intérêts ne doivent pas être vides ou contenir uniquement des espaces.
                     </div>
                 </div>
 

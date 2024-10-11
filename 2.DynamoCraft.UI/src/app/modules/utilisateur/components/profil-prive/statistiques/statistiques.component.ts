@@ -49,6 +49,7 @@ export class StatistiquesComponent implements OnInit {
 
     loadUserStatistics(userId: number): void {
         this.utilisateurService.getUtilisateurById(userId).subscribe(user => {
+            console.log(user);
             this.totalModelsAdded = user.totalUploads;
             this.totalModelsDownloaded = user.totalDownloads;
             this.totalLikesReceived = user.totalLikes;

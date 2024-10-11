@@ -5,7 +5,8 @@
         <div class="col-lg-4 d-flex align-items-center justify-content-center mb-3 mb-lg-0">
             <div class="d-flex align-items-center" style="gap: 1rem;">
                 <img src="assets/png/Categories/{{ projet.categorie?.nom }}.png" class="rounded shadow-lg"
-                    alt="{{ projet.categorie?.nom }}" style="width: 75px; height: 75px; object-fit: cover; margin-left: 20px;">
+                    alt="{{ projet.categorie?.nom }}"
+                    style="width: 75px; height: 75px; object-fit: cover; margin-left: 20px;">
                 <h2 class="text-warning font-dc mb-0">{{ projet.categorie?.nom }}</h2>
             </div>
         </div>
@@ -29,8 +30,37 @@
                                 style="max-height: 500px; object-fit: cover;">
                         </ng-container>
                         <ng-container *ngIf="is3DModelActive">
-                            <div #threeContainer class="three-container" style="width: 100%; height: 500px;"></div>
+                            <!-- Barre de zoom (superposée) -->
+                            <div class="upper-file position-absolute top-0 start-50 translate-middle-x text-dark p-2 rounded shadow d-flex justify-content-center align-items-center"
+                                (mouseenter)="showZoomControls = true" (mouseleave)="showZoomControls = false">
+                                <button class="btn me-2" (click)="zoomArriere()">
+                                    <i class="bi bi-dash-circle"></i>
+                                </button>
+                                <input type="range" class="form-range mx-2" min="30" max="250" [(ngModel)]="zoomLevel"
+                                    (input)="onZoomLevelChange()" style="width: 300px;">
+                                <button class="btn ms-2" (click)="zoomAvant()">
+                                    <i class="bi bi-plus-circle"></i>
+                                </button>
+                            </div>
+                            <div
+                                class="upper-file position-absolute top-0 end-0 d-flex align-items-center p-2 rounded shadow">
+                                <button class="btn" (click)="diminuerVitesse()">
+                                    <i class="bi bi-arrow-counterclockwise"></i>
+                                </button>
+                                <span class="text-dark mx-2">{{ vitesseRotation }}x</span>
+                                <button class="btn" (click)="augmenterVitesse()">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                            </div>
+
+
+                            <!-- Conteneur 3D -->
+                            <div #threeContainer class="three-container position-relative"
+                                style="width: 100%; height: 500px;" (mouseenter)="showZoomControls = true"
+                                (mouseleave)="showZoomControls = false">
+                            </div>
                         </ng-container>
+
                     </div>
                 </div>
 
@@ -186,7 +216,8 @@
                                 </span>
                             </div>
                             <!-- Actions de modification/suppression si utilisateur est propriétaire -->
-                            <div *ngIf="commentaire.utilisateur?.id === currentUser?.id" class="text-end">
+                            <div *ngIf="commentaire.utilisateur?.id === currentUser?.id || currentUser!.role!.id >= 2"
+                                class="text-end">
                                 <button class="btn btn-sm btn-outline-light me-1"
                                     *ngIf="editingCommentId !== commentaire.id" (click)="editComment(commentaire)">
                                     <i class="bi bi-pencil"></i> Modifier

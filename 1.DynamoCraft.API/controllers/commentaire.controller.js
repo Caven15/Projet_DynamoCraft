@@ -147,7 +147,7 @@ exports.update = async (req, res, next) => {
         }
 
         // Vérifier si l'utilisateur est le titulaire du commentaire
-        if (commentaire.utilisateurId !== utilisateurId) {
+        if (commentaire.utilisateurId !== utilisateurId && decodedToken.role < 2) {
             logMessage(
                 "Utilisateur non autorisé à mettre à jour ce commentaire",
                 COLOR_RED
@@ -207,7 +207,7 @@ exports.delete = async (req, res, next) => {
         }
 
         // Vérifier si l'utilisateur est le titulaire du commentaire
-        if (commentaire.utilisateurId !== utilisateurId) {
+        if (commentaire.utilisateurId !== utilisateurId && decodedToken.role < 2) {
             logMessage(
                 "Utilisateur non autorisé à supprimer ce commentaire",
                 COLOR_RED

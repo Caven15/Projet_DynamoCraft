@@ -10,18 +10,33 @@ import { UtilisateurService } from './utilisateur.service';
 })
 export class AuthService extends BaseApiService {
     private readonly tokenKey = 'authToken';
-    private currentUserSubject: BehaviorSubject<Utilisateur | null>;
+    currentUserSubject: BehaviorSubject<Utilisateur | null>;
 
     constructor(protected override httpClient: HttpClient, private utilisateurService: UtilisateurService) {
         super(httpClient);
         this.currentUserSubject = new BehaviorSubject<Utilisateur | null>(null);
     }
 
+
+    /**
+     * Décoder le token JWT pour obtenir l'ID de l'utilisateur
+     * @param token JWT
+     * @returns L'ID de l'utilisateur extrait du token, ou null s'il n'est pas valide
+     */
+    decodeTokenToGetUserId(token: string): number | null {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload.id || null;
+        } catch (e) {
+            return null;
+        }
+    }
+
     /**
      * Vérifie si le code est exécuté dans un environnement de navigateur
      */
     private isBrowser(): boolean {
-        return typeof window !== 'undefined' && typeof sessionStorage !== 'undefined';
+        return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
     }
 
     /**
@@ -43,7 +58,7 @@ export class AuthService extends BaseApiService {
         return this.post<{ accessToken: string, id: string, roleId: string }>('auth/login', loginData).pipe(
             tap(response => {
                 if (this.isBrowser()) {
-                    sessionStorage.setItem(this.tokenKey, response.accessToken);
+                    localStorage.setItem(this.tokenKey, response.accessToken);
                 }
                 this.utilisateurService.getUtilisateurById(parseInt(response.id)).subscribe({
                     next: (datas) => {
@@ -160,11 +175,11 @@ export class AuthService extends BaseApiService {
 
     /**
      * Récupérer le token JWT
-     * @returns Le token JWT depuis le sessionStorage
+     * @returns Le token JWT depuis le localStorage
      */
     getToken(): string | null {
         if (this.isBrowser()) {
-            return sessionStorage.getItem(this.tokenKey);
+            return localStorage.getItem(this.tokenKey);
         }
         return null;
     }
@@ -182,10 +197,9 @@ export class AuthService extends BaseApiService {
      */
     logout(): void {
         if (this.isBrowser()) {
-            sessionStorage.clear();
+            localStorage.clear();
+            window.location.reload();
         }
-        this.currentUserSubject.next(null);  // Réinitialiser l'utilisateur connecté
-        console.log('Utilisateur déconnecté');
     }
 
     /**

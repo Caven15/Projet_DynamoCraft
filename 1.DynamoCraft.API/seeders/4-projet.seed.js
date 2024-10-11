@@ -78,7 +78,7 @@ module.exports = {
             let utilisateurId;
             do {
                 utilisateurId = faker.number.int({ min: 1, max: MAX_UTILISATEURS });
-            } while (utilisateurs.has(utilisateurId)); // Assurez-vous que l'utilisateur n'a pas déjà été utilisé
+            } while (utilisateurs.has(utilisateurId));
 
             utilisateurs.add(utilisateurId);
 

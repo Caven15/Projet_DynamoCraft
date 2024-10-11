@@ -54,7 +54,7 @@ import { SharedModule } from './modules/shared/shared.module';
         UtilisateurModule,
         ProjetModule,
         AdminModule,
-        ProjetRoutingModule ,
+        ProjetRoutingModule,
         NgChartsModule,
         RecaptchaModule,
         RecaptchaFormsModule,

@@ -52,6 +52,11 @@ module.exports = (sequelize, DataTypes) => {
                 allowNull: false,
                 defaultValue: true,
             },
+            isActivated: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+            },
             roleId: {
                 type: DataTypes.INTEGER,
                 allowNull: false,

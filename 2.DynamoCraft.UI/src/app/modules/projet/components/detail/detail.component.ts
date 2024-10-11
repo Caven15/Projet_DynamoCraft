@@ -30,6 +30,10 @@ export class DetailComponent implements OnInit, AfterViewChecked {
     editingCommentContent: string = '';
     url: string = `${environment.apiUrl}/uploads/`;
 
+    // Zoom control variables
+    showZoomControls = false;  // Control visibility of zoom bar
+    zoomLevel = 100;  // Default zoom level
+
     activeIndex: number = 0;
     active3DModelIndex: number = 0;
     thumbnailStartIndex: number = 0;
@@ -38,6 +42,7 @@ export class DetailComponent implements OnInit, AfterViewChecked {
     selected3DFiles: Modele3D[] = [];
     is3DModelActive: boolean = false;
     private isThreeJSInitialized = false;
+    vitesseRotation: number = 1;
 
     hasLiked: boolean = false;
     isDownloading: boolean = false;
@@ -55,7 +60,7 @@ export class DetailComponent implements OnInit, AfterViewChecked {
         private cdr: ChangeDetectorRef,
         private utilisateurProjetService: UtilisateurProjetService,
         private utilisateurProjetLikeService: UtilisateurProjetLikeService,
-    ) {}
+    ) { }
 
     ngOnInit(): void {
         const projetId = this.route.snapshot.params['id'];
@@ -79,6 +84,48 @@ export class DetailComponent implements OnInit, AfterViewChecked {
             }
         });
     }
+
+    zoomAvant(): void {
+        if (this.zoomLevel < 250) {
+            this.zoomLevel += 10;
+            this.onZoomLevelChange();
+        }
+    }
+
+    zoomArriere(): void {
+        if (this.zoomLevel > 30) {
+            this.zoomLevel -= 10;
+            this.onZoomLevelChange();
+        }
+    }
+
+    onZoomLevelChange(): void {
+        const zoomFactor = 100 / this.zoomLevel;
+        this.display3dService.setZoomLevel(zoomFactor, 0);
+    }
+
+
+
+    augmenterVitesse(): void {
+        if (this.vitesseRotation < 10) {
+            this.vitesseRotation += 1;
+            this.ajusterVitesseRotation();
+        }
+    }
+
+    diminuerVitesse(): void {
+        if (this.vitesseRotation > 0) {
+            this.vitesseRotation -= 1;
+            this.ajusterVitesseRotation();
+        }
+    }
+
+    ajusterVitesseRotation(): void {
+        const vitesseReelle = this.vitesseRotation / 500;
+        this.display3dService.ajusterVitesseRotation(vitesseReelle);
+    }
+
+
 
     ngAfterViewChecked(): void {
         if (this.is3DModelActive && this.threeContainer?.nativeElement && !this.isThreeJSInitialized) {
@@ -300,11 +347,25 @@ export class DetailComponent implements OnInit, AfterViewChecked {
 
     deleteComment(commentId: number | undefined): void {
         if (commentId !== undefined) {
-            this.commentaireService.deleteCommentaire(commentId).subscribe(() => {
-                this.commentaires = this.commentaires.filter(c => c.id !== commentId);
-            });
+            // Seuls les admins et les modérateurs peuvent supprimer tous les commentaires
+            if (this.currentUser!.role!.id >= 2) {
+                this.commentaireService.deleteCommentaire(commentId).subscribe(() => {
+                    this.commentaires = this.commentaires.filter(c => c.id !== commentId);
+                });
+            } else {
+                // Sinon, l'utilisateur ne peut supprimer que ses propres commentaires
+                const comment = this.commentaires.find(c => c.id === commentId);
+                if (comment?.utilisateurId === this.currentUser?.id) {
+                    this.commentaireService.deleteCommentaire(commentId).subscribe(() => {
+                        this.commentaires = this.commentaires.filter(c => c.id !== commentId);
+                    });
+                } else {
+                    console.error('Vous n\'êtes pas autorisé à supprimer ce commentaire');
+                }
+            }
         }
     }
+
 
     navigateToUpdatePage(projetId: number): void {
         this.router.navigate([`/projet/update/${projetId}`]);
@@ -327,4 +388,5 @@ export class DetailComponent implements OnInit, AfterViewChecked {
             }
         }, 500);
     }
+    
 }

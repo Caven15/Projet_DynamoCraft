@@ -57,6 +57,11 @@ module.exports = {
             statutCompte: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
+                defaultValue: true,
+            },
+            isActivated: {
+                type: Sequelize.BOOLEAN, // Nouveau champ pour l'activation
+                allowNull: false,
                 defaultValue: false,
             },
             resetPasswordToken: {

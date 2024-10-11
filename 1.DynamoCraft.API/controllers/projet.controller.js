@@ -1,4 +1,5 @@
 const dbConnector = require("../tools/ConnexionDb.tools").get();
+const { sendProjectValidEmail, sendProjectInvalidEmail, sendProjectPendingEmail } = require('../tools/email.tools');
 const { Sequelize, DataTypes } = require("sequelize");
 const path = require("path");
 const fs = require("fs");
@@ -343,25 +344,28 @@ exports.updateById = async (req, res, next) => {
             return res.status(404).json({ message: "Projet non trouvé" });
         }
 
+        // Mettre à jour les informations du projet et repasser en "en attente"
         await projet.update({
             nom,
             description,
             categorieId,
+            estValide: false, // Le projet est à nouveau en attente
+            statutId: 3, // Statut "en attente"
         });
 
         logMessage(
-            `Projet avec ID: ${req.params.id} mis à jour avec succès`,
+            `Projet avec ID: ${req.params.id} mis à jour et repassé en attente`,
             COLOR_GREEN
         );
-        return res
-            .status(200)
-            .json({ message: `Projet ${projectId} mis à jour avec succès !` });
+        return res.status(200).json({
+            message: `Projet ${projectId} mis à jour avec succès et est en attente de validation.`,
+        });
     } catch (error) {
         logMessage("Erreur lors de la mise à jour du projet", COLOR_RED);
         console.error("Erreur lors de la mise à jour du projet :", error);
-        return res
-            .status(500)
-            .json({ message: "Erreur lors de la mise à jour du projet" });
+        return res.status(500).json({
+            message: "Erreur lors de la mise à jour du projet",
+        });
     }
 };
 
@@ -724,17 +728,14 @@ exports.getPendingProjet = async (req, res, next) => {
 
 // Mettre à jour l'état d'un projet en "valide"
 exports.setValidProjet = async (req, res, next) => {
-    logMessage(
-        `Début de la mise à jour du projet avec ID: ${req.params.id} en "valide"`,
-        COLOR_YELLOW
-    );
+    logMessage(`Début de la mise à jour du projet avec ID: ${req.params.id} en "valide"`, COLOR_YELLOW);
     try {
         const projectId = req.params.id;
-        const { commentaire_admin } = req.body; // Utilisation de camelCase
+        const { commentaire_admin } = req.body;
 
-        console.log(commentaire_admin);
-
-        const project = await dbConnector.Projet.findByPk(projectId);
+        const project = await dbConnector.Projet.findByPk(projectId, {
+            include: [{ model: dbConnector.Utilisateur, as: "utilisateur", attributes: { exclude: ["roleId"] } }]
+        });
 
         if (!project) {
             logMessage("Projet non trouvé", COLOR_RED);
@@ -744,42 +745,33 @@ exports.setValidProjet = async (req, res, next) => {
         await project.update({
             estValide: 1,
             statutId: 1,
-            commentaire_admin: commentaire_admin || "Le projet a été validé.", // Utilisation du commentaire reçu ou par défaut
+            commentaire_admin: commentaire_admin || "Le projet a été validé."
         });
 
-        logMessage(
-            `Projet avec ID: ${req.params.id} mis à jour en "valide" avec succès`,
-            COLOR_GREEN
-        );
-        return res.status(200).json({
-            message: `Le projet ${projectId} a été mis à jour en "valide".`,
-        });
+        // Envoi de l'email de notification
+        if (project.utilisateur) {
+            await sendProjectValidEmail(project.utilisateur, project, commentaire_admin);
+        }
+
+        logMessage(`Projet avec ID: ${req.params.id} mis à jour en "valide" avec succès`, COLOR_GREEN);
+        return res.status(200).json({ message: `Le projet ${projectId} a été mis à jour en "valide".` });
     } catch (error) {
-        logMessage(
-            "Erreur lors de la mise à jour du projet en valide",
-            COLOR_RED
-        );
-        console.error(
-            "Erreur lors de la mise à jour du projet en valide :",
-            error
-        );
-        return res.status(500).json({
-            message: "Erreur lors de la mise à jour du projet en valide.",
-        });
+        logMessage("Erreur lors de la mise à jour du projet en valide", COLOR_RED);
+        console.error("Erreur lors de la mise à jour du projet en valide :", error);
+        return res.status(500).json({ message: "Erreur lors de la mise à jour du projet en valide." });
     }
 };
 
 // Mettre à jour l'état d'un projet en "invalide"
 exports.setInvalidProjet = async (req, res, next) => {
-    logMessage(
-        `Début de la mise à jour du projet avec ID: ${req.params.id} en "invalide"`,
-        COLOR_YELLOW
-    );
+    logMessage(`Début de la mise à jour du projet avec ID: ${req.params.id} en "invalide"`, COLOR_YELLOW);
     try {
         const projectId = req.params.id;
         const { commentaire_admin } = req.body;
 
-        const project = await dbConnector.Projet.findByPk(projectId);
+        const project = await dbConnector.Projet.findByPk(projectId, {
+            include: [{ model: dbConnector.Utilisateur, as: "utilisateur", attributes: { exclude: ["roleId"] } }]
+        });
 
         if (!project) {
             logMessage("Projet non trouvé", COLOR_RED);
@@ -789,28 +781,20 @@ exports.setInvalidProjet = async (req, res, next) => {
         await project.update({
             estValide: false,
             statutId: 2,
-            commentaire_admin: commentaire_admin || "Le projet a été invalidé.",
+            commentaire_admin: commentaire_admin || "Le projet a été invalidé."
         });
 
-        logMessage(
-            `Projet avec ID: ${req.params.id} mis à jour en "invalide" avec succès`,
-            COLOR_GREEN
-        );
-        return res.status(200).json({
-            message: `Le projet ${projectId} a été mis à jour en "invalide".`,
-        });
+        // Envoi de l'email de notification
+        if (project.utilisateur) {
+            await sendProjectInvalidEmail(project.utilisateur, project, commentaire_admin);
+        }
+
+        logMessage(`Projet avec ID: ${req.params.id} mis à jour en "invalide" avec succès`, COLOR_GREEN);
+        return res.status(200).json({ message: `Le projet ${projectId} a été mis à jour en "invalide".` });
     } catch (error) {
-        logMessage(
-            "Erreur lors de la mise à jour du projet en invalide",
-            COLOR_RED
-        );
-        console.error(
-            "Erreur lors de la mise à jour du projet en invalide :",
-            error
-        );
-        return res.status(500).json({
-            message: "Erreur lors de la mise à jour du projet en invalide.",
-        });
+        logMessage("Erreur lors de la mise à jour du projet en invalide", COLOR_RED);
+        console.error("Erreur lors de la mise à jour du projet en invalide :", error);
+        return res.status(500).json({ message: "Erreur lors de la mise à jour du projet en invalide." });
     }
 };
 
@@ -824,7 +808,14 @@ exports.setPendingProjet = async (req, res, next) => {
         const projectId = req.params.id;
         const { commentaire_admin } = req.body;
 
-        const project = await dbConnector.Projet.findByPk(projectId);
+        // Inclure l'utilisateur lors de la recherche du projet
+        const project = await dbConnector.Projet.findByPk(projectId, {
+            include: [{
+                model: dbConnector.Utilisateur,
+                as: "utilisateur",
+                attributes: { exclude: ["roleId"] },
+            }]
+        });
 
         if (!project) {
             logMessage("Projet non trouvé", COLOR_RED);
@@ -834,9 +825,15 @@ exports.setPendingProjet = async (req, res, next) => {
         await project.update({
             estValide: false,
             statutId: 3,
-            commentaire_admin:
-                commentaire_admin || "Le projet est en attente de validation.",
+            commentaire_admin: commentaire_admin || "Le projet est en attente de validation.",
         });
+
+        // Assure-toi que l'utilisateur est bien défini avant d'envoyer l'email
+        if (project.utilisateur) {
+            await sendProjectPendingEmail(project.utilisateur, project, commentaire_admin);
+        } else {
+            console.error("L'utilisateur associé au projet n'a pas été trouvé.");
+        }
 
         logMessage(
             `Projet avec ID: ${req.params.id} mis à jour en "en attente" avec succès`,

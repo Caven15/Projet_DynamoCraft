@@ -48,6 +48,13 @@ exports.login = async (req, res, next) => {
                 .json({ message: "Compte désactivé. Contactez le support." });
         }
 
+        if (!utilisateur.isActivated) {
+            logMessage("Compte désactivé", COLOR_RED);
+            return res
+                .status(403)
+                .json({ message: "Compte non activé. Consultez votre boite mail." });
+        }
+
         logMessage("Comparaison du mot de passe", COLOR_YELLOW);
         const passwordMatch = bcrypt.compareSync(
             password.trim(),
@@ -121,11 +128,12 @@ exports.register = async (req, res, next) => {
                 .json({ message: "Tous les champs sont obligatoires." });
         }
 
-        const utilisateurExist = await dbConnector.Utilisateur.findOne({
+        // Vérification de l'existence de l'email dans la base de données
+        const utilisateurExistEmail = await dbConnector.Utilisateur.findOne({
             where: { email },
         });
 
-        if (utilisateurExist) {
+        if (utilisateurExistEmail) {
             if (file) {
                 fs.unlink(`./uploads/${file.filename}`, (err) => {
                     if (err) console.log(err);
@@ -137,6 +145,26 @@ exports.register = async (req, res, next) => {
             );
             return res.status(403).json({
                 message: "L'adresse e-mail existe déjà dans le système",
+            });
+        }
+
+        // Vérification de l'existence du pseudo dans la base de données
+        const utilisateurExistPseudo = await dbConnector.Utilisateur.findOne({
+            where: { pseudo },
+        });
+
+        if (utilisateurExistPseudo) {
+            if (file) {
+                fs.unlink(`./uploads/${file.filename}`, (err) => {
+                    if (err) console.log(err);
+                });
+            }
+            logMessage(
+                "Le pseudo existe déjà dans le système",
+                COLOR_RED
+            );
+            return res.status(403).json({
+                message: "Le pseudo existe déjà dans le système",
             });
         }
 
@@ -152,7 +180,6 @@ exports.register = async (req, res, next) => {
             password: hashedPassword,
             centreInterets,
             roleId: roleId,
-            statutCompte: false,
         });
 
         if (file) {
@@ -198,6 +225,7 @@ exports.register = async (req, res, next) => {
     }
 };
 
+
 exports.activateAccount = async (req, res) => {
     const { token } = req.params;
 
@@ -215,14 +243,14 @@ exports.activateAccount = async (req, res) => {
             return res.status(400).json({ message: "Utilisateur non trouvé." });
         }
 
-        if (utilisateur.statutCompte) {
+        if (utilisateur.isActivated) {  // Utilisation de isActivated
             logMessage("Le compte est déjà activé", COLOR_RED);
             return res
                 .status(400)
                 .json({ message: "Le compte est déjà activé." });
         }
 
-        utilisateur.statutCompte = true;
+        utilisateur.isActivated = true;  // Activation du compte
         await utilisateur.save();
 
         logMessage("Compte activé avec succès", COLOR_GREEN);

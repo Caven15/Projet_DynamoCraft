@@ -1,11 +1,13 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../../tools/services/api/auth.service';
 import { imageSize } from '../../../../tools/validators/imageSize.validator';
 import { email } from '../../../../tools/validators/email.validator';
 import { dateOfBirth } from '../../../../tools/validators/dateOfBirth.validator';
 import { password } from '../../../../tools/validators/password.validator';
+import { noWhitespace } from '../../../../tools/validators/noWhitespace.validator';
+import { validImageType } from '../../../../tools/validators/validImageType.validator';
 
 @Component({
     selector: 'app-register',
@@ -22,6 +24,7 @@ export class RegisterComponent implements OnInit {
     passwordMismatch: boolean = false;
     captchaValid: boolean = false;
     captchaResponse: string = '';
+    errorMessage: string = ''; // Ajout d'un message d'erreur global
 
     constructor(
         private fb: FormBuilder,
@@ -31,14 +34,14 @@ export class RegisterComponent implements OnInit {
 
     ngOnInit(): void {
         this.registerForm = this.fb.group({
-            pseudo: ['', [Validators.required, Validators.minLength(3)]],
-            email: ['', [Validators.required, Validators.email, email(2)]],
+            pseudo: ['', [Validators.required, Validators.minLength(3), noWhitespace]],
+            email: ['', [Validators.required, Validators.email, email(2), noWhitespace]],
             dateNaissance: ['', [Validators.required, dateOfBirth(15, 90)]],
-            biographie: ['', [Validators.required, Validators.minLength(50), Validators.maxLength(500)]],
+            biographie: ['', [Validators.required, Validators.minLength(50), Validators.maxLength(500), noWhitespace]],
             password: ['', [Validators.required, Validators.minLength(8), password()]],
             confirmPassword: ['', Validators.required],
-            centreInterets: ['', [Validators.required, Validators.minLength(50)]],
-            image: ['', [imageSize(5)]]
+            centreInterets: ['', [Validators.required, Validators.minLength(50), noWhitespace]],
+            image: ['', imageSize(5)]
         }, { validators: this.passwordMatchValidator });
     }
 
@@ -62,18 +65,37 @@ export class RegisterComponent implements OnInit {
         fileInputElement.click();
     }
 
-    onFileSelected(event: Event): void {
-        const fileInput = event.target as HTMLInputElement;
-        if (fileInput.files && fileInput.files.length > 0) {
-            this.selectedFile = fileInput.files[0];
+    onFileSelected(event: any): void {
+        const file = event.target.files[0];
+        const control = new FormControl(file, {
+            validators: [imageSize(5)],
+            asyncValidators: [validImageType()],
+            updateOn: 'change'
+        });
 
-            const reader = new FileReader();
-            reader.onload = () => {
-                this.imagePreview = reader.result;
-            };
-            reader.readAsDataURL(this.selectedFile);
-        }
+        control.statusChanges.subscribe(status => {
+            if (status === 'VALID') {
+                this.errorMessage = '';
+                this.selectedFile = file;
+
+                // Générer un aperçu de l'image
+                const reader = new FileReader();
+                reader.onload = (e: any) => this.imagePreview = e.target.result;
+                reader.readAsDataURL(file);
+            } else if (status === 'INVALID') {
+                const errors = control.errors;
+                if (errors?.['fileSizeExceeded']) {
+                    console.log("trop grand");
+                    this.errorMessage = `L'image ${file.name} dépasse la taille autorisée de 5MB.`;
+                } else if (errors?.['invalidImageType']) {
+                    this.errorMessage = `L'image ${file.name} est d'un type non supporté.`;
+                }
+            }
+        });
+
+        control.updateValueAndValidity();
     }
+
 
     onCaptchaResolved(captchaResponse: string | null): void {
         this.captchaResponse = captchaResponse || '';
@@ -106,18 +128,18 @@ export class RegisterComponent implements OnInit {
             formData.append('image', this.selectedFile, this.selectedFile.name);
         }
 
-        formData.append('recaptchaToken', this.captchaResponse); // Ajouter le token reCAPTCHA au formulaire
+        formData.append('recaptchaToken', this.captchaResponse);
 
         this.authService.register(formData).subscribe({
             next: () => {
-                alert('Inscription réussie');
+                alert('Inscription réussie : Consultez votre boite mail pour activation');
                 this.registerForm.reset();
-                this.captchaValid = false; // Réinitialiser l'état du captcha après la soumission
+                this.captchaValid = false;
                 this.router.navigate(['auth/login']);
             },
             error: (error) => {
+                this.errorMessage = error.error.message || 'Erreur lors de l\'inscription';
                 console.error('Erreur lors de l\'inscription:', error);
-                
             }
         });
     }

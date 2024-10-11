@@ -51,7 +51,6 @@
                                         (click)="viewProjectDetails(projet.id)">
                                         <i class="bi bi-eye text-white"></i>
                                     </button>
-                                    <!-- Show validate button only if the project is in 'Invalide' or 'En attente' state -->
                                     <button
                                         *ngIf="projet.statut?.nom === 'Invalide' || projet.statut?.nom === 'En attente'"
                                         class="btn btn-outline-success btn-sm" (click)="validateProject(projet.id)">

@@ -101,7 +101,7 @@ exports.getById = async (req, res, next) => {
                 },
                 {
                     model: dbConnector.Role,
-                    attributes: ["nom"],
+                    attributes: ["nom", "id"],
                 },
                 {
                     model: dbConnector.Projet,
@@ -156,14 +156,9 @@ exports.getById = async (req, res, next) => {
                     },
                 });
 
-            // Calculer le total des commentaires laissés sur les projets de l'utilisateur
+            // Calculer le total des commentaires laissés par l'utilisateur
             const totalComments = await dbConnector.Commentaire.count({
-                include: [
-                    {
-                        model: dbConnector.Projet,
-                        where: { utilisateurId: req.params.id },
-                    },
-                ],
+                where: { utilisateurId: req.params.id }, // Filtre directement sur l'utilisateur
             });
 
             // Ajouter les totaux aux données de l'utilisateur
@@ -175,6 +170,8 @@ exports.getById = async (req, res, next) => {
                 totalComments,
                 totalUploads, // Ajouter le total des projets ajoutés
             };
+
+            console.log(userWithTotals);
 
             logMessage("Utilisateur récupéré avec succès", COLOR_GREEN);
             res.status(200).json(userWithTotals);
@@ -306,7 +303,10 @@ exports.delete = async (req, res, next) => {
 
         // Suppression des projets associés à l'utilisateur
         for (const project of userProjects) {
-            logMessage(`Traitement du projet avec ID: ${project.id}`, COLOR_YELLOW);
+            logMessage(
+                `Traitement du projet avec ID: ${project.id}`,
+                COLOR_YELLOW
+            );
 
             // Suppression des images du projet
             const projectImages = await dbConnector.ImageProjet.findAll({
@@ -314,19 +314,32 @@ exports.delete = async (req, res, next) => {
             });
 
             for (const image of projectImages) {
-                const imagePath = path.join(__dirname, "../uploads/", image.nom);
+                const imagePath = path.join(
+                    __dirname,
+                    "../uploads/",
+                    image.nom
+                );
                 if (fs.existsSync(imagePath)) {
                     fs.unlinkSync(imagePath);
                     logMessage(`Image ${image.nom} supprimée`, COLOR_GREEN);
                 }
 
-                const resizedImagePath = path.join(__dirname, "../uploads/resized/", image.nom);
+                const resizedImagePath = path.join(
+                    __dirname,
+                    "../uploads/resized/",
+                    image.nom
+                );
                 if (fs.existsSync(resizedImagePath)) {
                     fs.unlinkSync(resizedImagePath);
-                    logMessage(`Image redimensionnée ${image.nom} supprimée`, COLOR_GREEN);
+                    logMessage(
+                        `Image redimensionnée ${image.nom} supprimée`,
+                        COLOR_GREEN
+                    );
                 }
             }
-            await dbConnector.ImageProjet.destroy({ where: { projetId: project.id } });
+            await dbConnector.ImageProjet.destroy({
+                where: { projetId: project.id },
+            });
 
             // Suppression des modèles 3D du projet
             const models3D = await dbConnector.Modele3D.findAll({
@@ -334,27 +347,42 @@ exports.delete = async (req, res, next) => {
             });
 
             for (const model of models3D) {
-                const modelPath = path.join(__dirname, "../uploads/", model.nom);
+                const modelPath = path.join(
+                    __dirname,
+                    "../uploads/",
+                    model.nom
+                );
                 if (fs.existsSync(modelPath)) {
                     fs.unlinkSync(modelPath);
                     logMessage(`Fichier 3D ${model.nom} supprimé`, COLOR_GREEN);
                 }
             }
-            await dbConnector.Modele3D.destroy({ where: { projetId: project.id } });
+            await dbConnector.Modele3D.destroy({
+                where: { projetId: project.id },
+            });
 
             // Suppression des commentaires associés au projet
-            await dbConnector.Commentaire.destroy({ where: { projetId: project.id } });
+            await dbConnector.Commentaire.destroy({
+                where: { projetId: project.id },
+            });
 
             // Suppression des entrées dans UtilisateurProjet
-            await dbConnector.UtilisateurProjet.destroy({ where: { projetId: project.id } });
+            await dbConnector.UtilisateurProjet.destroy({
+                where: { projetId: project.id },
+            });
 
             // Suppression du projet lui-même
             await project.destroy();
 
             // Suppression des statistiques associées au projet
-            await dbConnector.Statistique.destroy({ where: { id: project.statistiqueId } });
+            await dbConnector.Statistique.destroy({
+                where: { id: project.statistiqueId },
+            });
 
-            logMessage(`Projet avec ID: ${project.id} supprimé avec succès`, COLOR_GREEN);
+            logMessage(
+                `Projet avec ID: ${project.id} supprimé avec succès`,
+                COLOR_GREEN
+            );
         }
 
         // Suppression de l'image utilisateur s'il y en a une
@@ -362,10 +390,17 @@ exports.delete = async (req, res, next) => {
             where: { utilisateurId: user.id },
         });
         if (imageUtilisateur) {
-            const imagePath = path.join(__dirname, "../uploads/", imageUtilisateur.nom);
+            const imagePath = path.join(
+                __dirname,
+                "../uploads/",
+                imageUtilisateur.nom
+            );
             if (fs.existsSync(imagePath)) {
                 fs.unlinkSync(imagePath);
-                logMessage(`Image utilisateur ${imageUtilisateur.nom} supprimée`, COLOR_GREEN);
+                logMessage(
+                    `Image utilisateur ${imageUtilisateur.nom} supprimée`,
+                    COLOR_GREEN
+                );
             }
             await imageUtilisateur.destroy();
         }
@@ -374,11 +409,22 @@ exports.delete = async (req, res, next) => {
         await user.destroy();
 
         logMessage("Utilisateur supprimé avec succès", COLOR_GREEN);
-        return res.status(200).json({ message: `Utilisateur ${req.params.id} supprimé avec succès !` });
+        return res
+            .status(200)
+            .json({
+                message: `Utilisateur ${req.params.id} supprimé avec succès !`,
+            });
     } catch (error) {
         logMessage("Erreur lors de la suppression de l'utilisateur", COLOR_RED);
-        console.error("Erreur lors de la suppression de l'utilisateur :", error);
-        return res.status(500).json({ message: "Erreur lors de la suppression de l'utilisateur" });
+        console.error(
+            "Erreur lors de la suppression de l'utilisateur :",
+            error
+        );
+        return res
+            .status(500)
+            .json({
+                message: "Erreur lors de la suppression de l'utilisateur",
+            });
     }
 };
 

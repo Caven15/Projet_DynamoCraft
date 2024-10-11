@@ -1,5 +1,6 @@
 import { ImageUtilisateur } from "./imageUtilisateur.model";
 import { Projet } from "./projet.model";
+import { Role } from "./role.model";
 
 export class Utilisateur {
     id?: number;
@@ -14,6 +15,7 @@ export class Utilisateur {
     dateInscription?: Date;
     dateModif?: Date;
     imageUtilisateur?: ImageUtilisateur;
+    role?: Role;
     totalLikes?: number;
     totalDownloads?: number;
     totalCommentaires?: number;

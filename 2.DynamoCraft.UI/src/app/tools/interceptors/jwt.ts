@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -7,12 +7,18 @@ import { AuthService } from '../services/api/auth.service';
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
+    private authService!: AuthService; // Injection différée
     constructor(
-        private authService: AuthService,
+        private injector: Injector, // Utilisation de l'Injector
         private router: Router
     ) { }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        // Injection différée du AuthService
+        if (!this.authService) {
+            this.authService = this.injector.get(AuthService);
+        }
+
         // Récupérer le token à partir du service AuthService
         const token = this.authService.getToken();
 
@@ -29,14 +35,12 @@ export class JwtInterceptor implements HttpInterceptor {
         return next.handle(request).pipe(
             catchError((error: HttpErrorResponse) => {
                 if (error.status === 401 || error.status === 403) {
-                    // Vérifier si l'utilisateur est en ligne
                     if (navigator.onLine) {
-                        // Ne pas rediriger mais laisser le composant gérer l'erreur
-                        // Retourner l'erreur complète pour être gérée par le composant
+                        // Laisser le composant gérer l'erreur, ne pas rediriger ici
                         return throwError(error);
                     } else {
                         // Rediriger vers la page accès non autorisé en cas de 403
-                    this.router.navigate(['/acces-non-autoriser'], { skipLocationChange: true });
+                        this.router.navigate(['/acces-non-autoriser'], { skipLocationChange: true });
                     }
                 }
                 // Pour les autres erreurs, retourner l'erreur complète

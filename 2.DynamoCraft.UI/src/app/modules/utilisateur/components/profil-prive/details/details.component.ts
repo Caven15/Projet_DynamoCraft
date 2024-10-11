@@ -67,7 +67,6 @@ export class DetailsComponent {
             formData.append('centreInterets', this.utilisateur.centreInterets || '');
             formData.append('email', this.utilisateur.email || '');
 
-            // Si une image a été sélectionnée, l'ajouter à la requête
             if (this.selectedImage) {
                 formData.append('image', this.selectedImage);
             }
@@ -75,7 +74,6 @@ export class DetailsComponent {
             this.utilisateurService.updateUtilisateur(this.utilisateur.id!, formData).subscribe(() => {
                 console.log('Profil mis à jour');
                 this.isSaving = false; // Réinitialiser l'état de sauvegarde
-                // Rediriger vers le profil public après mise à jour
                 this.router.navigate(['/utilisateur/profil/', this.utilisateur?.id]);
 
             });
@@ -84,5 +82,17 @@ export class DetailsComponent {
 
     resetPassword(): void {
         this.router.navigate(['/auth/reset-password']);
+    }
+
+    deleteAccount(): void {
+        const confirmation = window.confirm("Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.");
+        if (confirmation) {
+            this.utilisateurService.deleteUtilisateur(this.utilisateur!.id!).subscribe({
+                complete: () => {
+                    this.authService.logout();
+                    this.router.navigate(['/home']);
+                }
+            });
+        }
     }
 }

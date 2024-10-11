@@ -7,7 +7,10 @@ import { Categorie } from '../../../../models/categorie.model';
 import { Display3dService } from '../../../../tools/services/other/display-3d.service';
 import { Modele3dService } from '../../../../tools/services/api/modele-3d.service';
 import { imgType } from '../../../../tools/validators/imgType.validator';
-import { fileType } from '../../../../tools/validators/fileType.validator';
+import { valid3DFileType } from '../../../../tools/validators/valid3DFileType.validator';
+import { imageSize } from '../../../../tools/validators/imageSize.validator';
+import { validImageType } from '../../../../tools/validators/validImageType.validator';
+import { file3DSize } from '../../../../tools/validators/valid3DSize.validator';
 
 @Component({
     selector: 'app-ajout',
@@ -44,11 +47,12 @@ export class AjoutComponent {
     ) {
         this.projetForm = this.fb.group({
             nom: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(50)]],
-            description: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(50)]],
+            description: ['', [Validators.required, Validators.minLength(50), Validators.maxLength(500)]],
             categorieId: ['', Validators.required],
             images: this.fb.array([], [Validators.required]),
             modeles3D: this.fb.array([], [Validators.required])
         });
+
     }
 
     ngOnInit(): void {
@@ -67,71 +71,77 @@ export class AjoutComponent {
 
     onImageSelected(event: any): void {
         const files = Array.from(event.target.files) as File[];
-        const validFiles: File[] = [];
-
-        if (this.images.length + files.length > this.maxImages) {
-            this.errorMessage = `Vous ne pouvez pas ajouter plus de ${this.maxImages} images.`;
-            return;
-        }
-
         files.forEach(file => {
-            if (file.size <= this.maxSize && this.validateImageFile(file)) {
-                validFiles.push(file);
-            } else {
-                this.errorMessage = `Le fichier ${file.name} n'est pas un type d'image valide ou dépasse la taille autorisée de 20 MB.`;
-            }
-        });
+            const control = new FormControl(file, {
+                validators: [imageSize(10)],
+                asyncValidators: [validImageType()],
+                updateOn: 'change'
+            });
 
-        validFiles.forEach(file => {
-            this.images.push(new FormControl(file, [imgType()]));
-            this.selectedImages.push(file);
-            const reader = new FileReader();
-            reader.onload = (e: any) => this.imagePreviewUrls.push(e.target.result);
-            reader.readAsDataURL(file);
-        });
+            // Observer les changements de statut
+            control.statusChanges.subscribe(status => {
+                if (status === 'VALID') {
+                    this.errorMessage = '';
+                    this.images.push(control);
+                    this.selectedImages.push(file);
 
-        if (validFiles.length > 0) {
-            this.errorMessage = ''; // Réinitialiser le message d'erreur si les fichiers sont valides
-        }
+                    // Générer un aperçu
+                    const reader = new FileReader();
+                    reader.onload = (e: any) => this.imagePreviewUrls.push(e.target.result);
+                    reader.readAsDataURL(file);
+                } else if (status === 'INVALID') {
+                    const errors = control.errors;
+                    if (errors?.['fileSizeExceeded']) {
+                        this.errorMessage = `L'image ${file.name} dépasse la taille autorisée de 10MB.`;
+                    } else if (errors?.['invalidImageType']) {
+                        this.errorMessage = `L'image ${file.name} est d'un type non supporté.`;
+                    }
+                }
+            });
+
+            control.updateValueAndValidity();
+        });
     }
+
+
+
 
     on3DFileSelected(event: any): void {
         const files = Array.from(event.target.files) as File[];
-        const valid3DFiles: File[] = [];
-
         files.forEach(file => {
-            if (file.size <= this.max3DFileSize && this.validate3DFile(file)) {
-                valid3DFiles.push(file);
-            } else {
-                this.threeDErrorMessage = `Le fichier 3D ${file.name} dépasse 50 MB ou n'est pas au format STL.`;
-            }
+            // Créez un FormControl avec les validateurs de taille et de type de fichier 3D
+            const control = new FormControl(file, {
+                validators: [file3DSize(50), valid3DFileType()], // Taille maximale de 50MB et vérification de l'extension STL
+                updateOn: 'change'
+            });
+
+            // Observer les changements de statut
+            control.statusChanges.subscribe(status => {
+                if (status === 'VALID') {
+                    this.threeDErrorMessage = '';
+                    // Ajouter le fichier validé au tableau
+                    this.modeles3D.push(control);
+                    this.selected3DFiles.push(file);
+                } else if (status === 'INVALID') {
+                    const errors = control.errors;
+                    if (errors?.['fileSizeExceeded']) {
+                        this.threeDErrorMessage = `Le fichier ${file.name} dépasse la taille autorisée de 50 MB.`;
+                    } else if (errors?.['invalidFileType']) {
+                        this.threeDErrorMessage = `Le fichier ${file.name} n'est pas un fichier STL valide.`;
+                    }
+                }
+            });
+
+            control.updateValueAndValidity(); // Forcer la validation
         });
-
-        valid3DFiles.forEach(file => {
-            this.modeles3D.push(new FormControl(file, [fileType()]));
-            this.selected3DFiles.push(file);
-        });
-
-        if (valid3DFiles.length > 0) {
-            this.threeDErrorMessage = ''; // Réinitialiser le message d'erreur si les fichiers sont valides
-        }
     }
 
-    validateImageFile(file: File): boolean {
-        const allowedExtensions = ['png', 'jpeg', 'jpg'];
-        const fileExtension = file.name.split('.').pop()?.toLowerCase();
-        return allowedExtensions.includes(fileExtension || '');
-    }
-
-    validate3DFile(file: File): boolean {
-        return file.name.split('.').pop()?.toLowerCase() === 'stl';
-    }
 
     removeImage(index: number): void {
         this.images.removeAt(index);
         this.selectedImages.splice(index, 1);
         this.imagePreviewUrls.splice(index, 1);
-        this.closeModal(); // Fermer la modale si l'image est supprimée
+        this.closeModal();
     }
 
     remove3DFile(index: number): void {
@@ -214,8 +224,7 @@ export class AjoutComponent {
             this.projetService.createProjet(projetData, this.selectedImages).subscribe({
                 next: (data) => {
                     console.log('Projet créé avec succès');
-                    // Appeler le service pour créer les fichiers 3D après la création du projet
-                    this.create3DFilesForProject(data.projet.id); // Assurez-vous que l'ID du projet est renvoyé dans la réponse
+                    this.create3DFilesForProject(data.projet.id);
                     this.router.navigate(['/home']);
                 },
                 error: (err) => console.error('Erreur lors de la création du projet :', err)

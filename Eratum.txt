@@ -1,0 +1,16 @@
+1. ajout de message plus poussée pour la gestion des erreurs dans les formulaires pour texte vide et gestion type fichiers + taille.
+
+2. modification de la session pour ne pas devoir se reconnecter au rechargement ou à la réouverture de la page.
+
+3. corretion d'affichage d'information statistique dans profil utilisateur.
+
+4. correction des scripts de seed qui engendrait un mauvais comportements au niveau des statistiques (fonctionne sur une db vide).
+
+5. correction d'erreur mineur sur l'update d'un projet.
+
+6. implémentation plus poussée du système d'email pour avertir l'utilisateur d'un chagement de status sur ses projet créer avec passage a en attente à la mise à mis à jour.
+
+7. ajout de la possibiité pour les personnes compétentes de supprimmé n'inmporte quel commentaires ou de le modifié
+
+8. amélioration de l'affichage et la manipulation des fichier 3d en lignes 
+

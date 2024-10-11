@@ -130,9 +130,61 @@ async function sendAccountLockEmail(user) {
     await sendEmail(user.email, subject, bodyContent);
 }
 
+// Fonction générique pour envoyer des notifications de statut de projet
+async function sendProjectStatusUpdate(user, project, status, comment) {
+    const subject = `Mise à jour du projet : ${project.nom}`;
+    
+    let statusMessage;
+    switch(status) {
+        case 'Valide':
+            statusMessage = 'a été validé avec succès';
+            break;
+        case 'Invalide':
+            statusMessage = 'a été invalidé par notre équipe';
+            break;
+        case 'En attente':
+            statusMessage = 'est en attente de validation';
+            break;
+        default:
+            statusMessage = 'a été mis à jour';
+    }
+
+    const bodyContent = `
+        <p>Bonjour ${user.pseudo},</p>
+        <p>Nous souhaitons vous informer que le statut de votre projet "<strong>${project.nom}</strong>" ${statusMessage}.</p>
+        <p><strong>Commentaire de l'administrateur :</strong></p>
+        <p>${comment || 'Aucun commentaire fourni.'}</p>
+        <p>Merci pour votre engagement et contribution à DynamoCraft.</p>
+        <p>Si vous avez des questions, n'hésitez pas à <a href="mailto:support@dynamocraft.com" style="color: rgb(227, 178, 0);">contacter notre support</a>.</p>
+        <p>Cordialement,</p>
+        <p>L'équipe DynamoCraft</p>
+    `;
+
+    await sendEmail(user.email, subject, bodyContent);
+}
+
+// Fonction spécifique pour les emails de validation de projet
+async function sendProjectValidEmail(user, project, comment) {
+    await sendProjectStatusUpdate(user, project, 'Valide', comment);
+}
+
+// Fonction spécifique pour les emails d'invalidation de projet
+async function sendProjectInvalidEmail(user, project, comment) {
+    await sendProjectStatusUpdate(user, project, 'Invalide', comment);
+}
+
+// Fonction spécifique pour les emails de projet en attente
+async function sendProjectPendingEmail(user, project, comment) {
+    await sendProjectStatusUpdate(user, project, 'En attente', comment);
+}
+
+
 module.exports = {
     sendActivationEmail,
     sendResetPasswordEmail,
     sendAccountLockEmail,
-    sendResendActivationEmail
+    sendResendActivationEmail,
+    sendProjectValidEmail,
+    sendProjectInvalidEmail,
+    sendProjectPendingEmail
 };

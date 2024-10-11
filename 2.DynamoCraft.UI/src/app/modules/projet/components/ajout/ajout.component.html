@@ -1,5 +1,5 @@
 <div class="container d-flex justify-content-center align-items-center min-vh-75">
-    <div class="col-md-8">
+    <div class="col-md-8 bg-dc-2">
         <h2 class="text-center text-warning mt-5 mb-5 font-dc">Nouveau projet</h2>
         <div class="card p-4 shadow-lg bg-dc-2">
 
@@ -12,8 +12,10 @@
                     <div *ngIf="projetForm.get('nom')?.touched && projetForm.get('nom')?.invalid"
                         class="invalid-feedback">
                         <div *ngIf="projetForm.get('nom')?.errors?.['required']">Le nom du projet est obligatoire.</div>
-                        <div *ngIf="projetForm.get('nom')?.errors?.['minlength']">Le nom du projet doit contenir au moins 5 caractères.</div>
-                        <div *ngIf="projetForm.get('nom')?.errors?.['maxlength']">Le nom du projet ne doit pas dépasser 50 caractères.</div>
+                        <div *ngIf="projetForm.get('nom')?.errors?.['minlength']">Le nom du projet doit contenir au
+                            moins 5 caractères.</div>
+                        <div *ngIf="projetForm.get('nom')?.errors?.['maxlength']">Le nom du projet ne doit pas dépasser
+                            50 caractères.</div>
                     </div>
                 </div>
 
@@ -26,9 +28,12 @@
                     <label for="description">Description du projet</label>
                     <div *ngIf="projetForm.get('description')?.touched && projetForm.get('description')?.invalid"
                         class="invalid-feedback">
-                        <div *ngIf="projetForm.get('description')?.errors?.['required']">La description du projet est obligatoire.</div>
-                        <div *ngIf="projetForm.get('description')?.errors?.['minlength']">La description du projet doit contenir au moins 5 caractères.</div>
-                        <div *ngIf="projetForm.get('description')?.errors?.['maxlength']">La description du projet ne doit pas dépasser 50 caractères.</div>
+                        <div *ngIf="projetForm.get('description')?.errors?.['required']">La description du projet est
+                            obligatoire.</div>
+                        <div *ngIf="projetForm.get('description')?.errors?.['minlength']">La description du projet doit
+                            contenir au moins 50 caractères.</div>
+                        <div *ngIf="projetForm.get('description')?.errors?.['maxlength']">La description du projet ne
+                            doit pas dépasser 500 caractères.</div>
                     </div>
                 </div>
 
@@ -51,7 +56,8 @@
                 <div class="mb-4">
                     <div class="d-flex align-items-center justify-content-start">
                         <h4 class="text-warning mb-0">Image(s) :</h4>
-                        <label class="btn btn-warning text-dark bg-warning ms-3 d-flex align-items-center justify-content-center"
+                        <label
+                            class="btn btn-warning text-dark bg-warning ms-3 d-flex align-items-center justify-content-center"
                             style="width: 40px; height: 40px; border-radius: 50%;">
                             <i class="bi bi-plus-lg text-white"></i>
                             <input #imageInput type="file" (change)="onImageSelected($event)" multiple accept="image/*"
@@ -70,7 +76,8 @@
                         <div *ngIf="selectedImages.length > 0" class="row">
                             <div *ngFor="let image of selectedImages; let i = index" class="col-4 p-2">
                                 <div class="position-relative image-container rounded">
-                                    <div class="card-hover image-container rounded h-100 text-center shadow-sm border-0">
+                                    <div
+                                        class="card-hover image-container rounded h-100 text-center shadow-sm border-0">
                                         <img [src]="imagePreviewUrls[i]" alt="Image ajoutée" class="card-img-top"
                                             (click)="openImageModal(i)"
                                             style="width: 100%; height: 200px; object-fit: cover; cursor: pointer;">
@@ -95,12 +102,14 @@
                 <div class="mb-4">
                     <div class="d-flex align-items-center justify-content-start">
                         <h4 class="text-warning mb-0">Fichiers 3D :</h4>
-                        <label class="btn btn-warning text-dark bg-warning ms-3 d-flex align-items-center justify-content-center"
+                        <label
+                            class="btn btn-warning text-dark bg-warning ms-3 d-flex align-items-center justify-content-center"
                             style="width: 40px; height: 40px; border-radius: 50%;">
                             <i class="bi bi-plus-lg text-white"></i>
                             <input type="file" (change)="on3DFileSelected($event)" accept=".stl" multiple hidden>
                         </label>
                     </div>
+                    <div *ngIf="threeDErrorMessage" class="text-danger mt-2">{{ threeDErrorMessage }}</div>
                     <div class="image-grid bg-dc rounded-custom p-4 mt-3">
                         <div *ngIf="selected3DFiles.length === 0"
                             class="d-flex flex-column justify-content-center align-items-center" style="height: 200px;">
@@ -111,7 +120,8 @@
                         <!-- Fichiers 3D ajoutés -->
                         <div *ngIf="selected3DFiles.length > 0" class="row">
                             <div *ngFor="let file of selected3DFiles; let i = index" class="col-4 p-2">
-                                <div class="card-hover position-relative image-container rounded bg-dc-2 d-flex justify-content-center">
+                                <div
+                                    class="card-hover position-relative image-container rounded bg-dc-2 d-flex justify-content-center">
                                     <i class="bi bi-box text-center" style="font-size: 8rem; color: white;"
                                         (click)="open3DModal(i)"></i>
                                     <div class="hover-content d-flex justify-content-center align-items-center position-absolute top-0 start-0 w-100 h-100"
@@ -119,14 +129,14 @@
                                         <i class="bi bi-arrows-fullscreen text-white" style="font-size: 2rem;"></i>
                                         <p class="file-name text-white text-center mt-2">{{ file.name }}</p>
                                     </div>
-                                    <button type="button" class="btn btn-danger position-absolute top-0 end-0 rounded-circle"
+                                    <button type="button"
+                                        class="btn btn-danger position-absolute top-0 end-0 rounded-circle"
                                         (click)="remove3DFile(i)">
                                         <i class="bi bi-x text-white"></i>
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        <div *ngIf="threeDErrorMessage" class="text-danger mt-2">{{ threeDErrorMessage }}</div>
                     </div>
                 </div>
 
